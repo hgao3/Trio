@@ -1,4 +1,4 @@
-package hello;
+package edu.bu.domain;
 
 public class Greeting {
 
