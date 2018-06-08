@@ -1,0 +1,4 @@
+/* Miffy */
+Testing to see if GitHub Desktop is more intuitive to use than Git.
+Line 3
+Line 4
