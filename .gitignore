@@ -29,3 +29,6 @@ hs_err_pid*
 /backend/.settings/org.eclipse.jdt.core.prefs
 /backend/.settings/org.eclipse.m2e.core.prefs
 /backend/.settings/org.eclipse.wst.common.project.facet.core.xml
+
+# IntelliJ configuration
+.idea/
