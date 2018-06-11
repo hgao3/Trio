@@ -33,3 +33,7 @@ hs_err_pid*
 # IntelliJ configuration
 .idea/
 idea/*
+.idea
+
+# Mac OS directory cache files
+.DS_Store
