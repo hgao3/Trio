@@ -49,7 +49,7 @@ public class Channel implements Serializable {
     
     @OneToMany(cascade = CascadeType.ALL, 
             orphanRemoval = true)
-    private Set<User> usersInChannel = new HashSet<>();
+    private Set<User> usersInChannel = new HashSet<User>();
     
     // Hibernate requires a no-arg constructor
     public Channel() {}
