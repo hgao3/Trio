@@ -1,5 +1,6 @@
 package team3.trio.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import team3.trio.model.Role;
 import team3.trio.model.User;
 import team3.trio.repository.ProjectRepository;
 import team3.trio.repository.UserRepository;
+import team3.trio.utils.PasswordUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,9 +36,12 @@ public class UserController {
 
     @RequestMapping(path = "/user", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody long addNewUser (@RequestParam String firstName, @RequestParam String lastName,
-                                          @RequestParam String email, @RequestParam String password) {
-        User user = new User(firstName, lastName, email, password, false);
+    @ResponseBody
+    public long addNewUser (    		
+    		@RequestParam(value = "first_name", required = false) String firstName, 
+    		@RequestParam(value = "last_name", required = false) String lastName,
+            @RequestParam String email, @RequestParam String password) {
+        User user = new User(firstName, lastName, email, PasswordUtils.saltAndHasing(password), false);
         userRepository.save(user);
 
         LOG.info(user.toString() + " successfully saved into DB");
@@ -59,15 +64,52 @@ public class UserController {
     public String getUsers() {
         LOG.info("Reading all user from database.");
         List<User> users = userRepository.findAll();
-        
-        JsonArray ja = new JsonArray();
-        
-        for(User user: users) {
+        JsonArray ja = new JsonArray();       
+        for(User user: users) {     	
         	ja.add(userToJO(user));
-        }
-        
+        }      
         return ja.toString();
     }
+    
+    @RequestMapping(path = "/user/{id}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public @ResponseBody void deleteUser (@PathVariable("id") Long id) {
+        LOG.info("User with id " + id + " successfully deleted into database.");
+        userRepository.deleteById(id);
+    }
+    
+    @RequestMapping(path = "/user/{id}", method = RequestMethod.PATCH)
+    public @ResponseBody void updateUser ( @PathVariable("id") Long id,
+    		@RequestParam(value = "first_name", required = false) String firstName, 
+    		@RequestParam(value = "last_name", required = false) String lastName,
+    		@RequestParam(required = false) String email, 
+    		@RequestParam(required = false) String password) {
+        LOG.info("User with id " + id + " successfully updated into database.");
+        
+        
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        
+        if (!StringUtils.isEmpty(firstName)) {
+        	user.setFirstName(firstName);
+        }
+        
+        if (!StringUtils.isEmpty(lastName)) {
+        	user.setLastName(lastName);
+        }
+        
+        if (!StringUtils.isEmpty(email)) {
+        	user.setEmail(email);
+        }
+        
+        if (!StringUtils.isEmpty(password)) {
+        	user.setPassword(PasswordUtils.saltAndHasing(password));
+        }
+
+        userRepository.saveAndFlush(user);
+    }
+    
+    
     
     private JsonObject userToJO(User user) {
         JsonObject jo = new JsonObject();
