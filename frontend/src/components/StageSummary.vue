@@ -1,15 +1,18 @@
 <template>
   <div>
-    <h4>{{ stage.title }}</h4>
+    <h4>{{ title }}</h4>
     <task-summary
-      v-for="task_id in stage.tasks"
-      v-bind:task_id="task_id"
-      v-bind:stage="stage"
-      v-on:move-task="moveTask"
-    />
+      v-for="task in tasks"
+      :key="task.getID()"
+      :task="task"
+      :stage="stage"
+      :project="project"
+    >
+    </task-summary>
     <textarea v-if="edit_mode" v-model="new_task_title"></textarea>
     <button v-if="edit_mode" @click="saveTask">Save</button>
-    <span v-if="!edit_mode"  @click="turnOnEditMode">Add a task...</span>
+    <img v-if="edit_mode" src="../assets/x_button.png" height="20" width="20" @click="turnOffEditMode">
+    <span v-if="!edit_mode" @click="turnOnEditMode">Add a task...</span>
 
 
   </div>
@@ -19,44 +22,51 @@
 <script>
 
   import TaskSummary from './TaskSummary'
-  import {fakeAPI} from './http-common'
+  import {ApiWrapper} from './http-common'
 
-    // placeholder for real API call
-    export default {
-      name: "stage-summary",
-      data: function() {
-        return {
-          edit_mode: false,
-          new_task_title: ''
-        }
-      },
-      components: {
-          'task-summary': TaskSummary
-        },
-      props: ['stage'],
-      methods: {
-          turnOnEditMode: function () {
-            this.edit_mode = true;
-          },
-          turnOffEditMode: function () {
-            this.edit_mode = false;
-          },
-          saveTask: function() {
-            let new_task_id = fakeAPI.postTask(this.new_task_title, '', '');
-            this.stage.tasks.push(new_task_id);
-            this.new_task_title = '';
-            this.turnOffEditMode();
-          },
-        moveTask: function (task_id, stage_id) {
-            let index = this.stage.tasks.indexOf(task_id);
-            if (index > - 1) {
-              this.stages.tasks.splice(task_id);
-            }
-            this.$emit('move-task', task_id, stage_id);
-        }
+  export default {
+    name: "stage-summary",
+    props: ['stage', 'project'],
+    data: function () {
+      return {
+        edit_mode: false,
+        new_task_title: '',
+        title: this.stage.getTitle(),
+        tasks: this.stage.getTasks()
       }
+    },
+    components: {
+      'task-summary': TaskSummary
+    },
+    watch: {
+      title: function () {
+        this.stage.setTitle(this.title);
+      }
+    },
+    beforeUpdate: function () {
+      this.title = this.stage.getTitle();
+    },
+    computed: {},
+    methods: {
+      turnOnEditMode: function () {
+        this.edit_mode = true;
+      },
 
+      turnOffEditMode: function () {
+        this.new_task_title = '';
+        this.edit_mode = false;
+
+      },
+      saveTask: function () {
+        let newTask = ApiWrapper.postTask(this.new_task_title, '', '');
+        this.stage.insertTask(newTask);
+        this.tasks.push(newTask);
+        this.new_task_title = '';
+        this.turnOffEditMode();
+      }
     }
+
+  }
 </script>
 
 <style scoped>
@@ -70,6 +80,7 @@
     padding: 0.5em;
     border: 0px;
     min-width: 15%;
+    position: relative;
   }
 
   textarea {
@@ -88,6 +99,20 @@
 
   span:hover {
     cursor: pointer;
+  }
+
+  img {
+    display: inline-block;
+  }
+
+  img:hover {
+    cursor: pointer;
+  }
+
+  button {
+    margin: 0.5em;
+    width: 6em;
+    font-size: 1.10em;
   }
 
 </style>

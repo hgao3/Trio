@@ -1,11 +1,13 @@
 <template>
     <div class="dashboard">
       <trio-header></trio-header>
-      <project-summary v-bind:project="project" />
+      <project-summary v-bind:project="project"></project-summary>
       <stage-summary
         v-for="stage in project.stages"
-        v-bind:stage="stage"
-        v-on:move-task="moveTask">
+        :key="stage.getID()"
+        :stage="stage"
+        :project="project"
+      >
       </stage-summary>
 
     </div>
@@ -16,7 +18,7 @@
   import ProjectSummary from './ProjectSummary'
   import StageSummary from './StageSummary'
   import TrioHeader from './TrioHeader'
-  import {fakeAPI} from "./http-common"
+  import {ApiWrapper} from "./http-common"
 
   export default {
       name: 'dashboard',
@@ -34,8 +36,8 @@
 
           },
           project: {
-            title: 'TeamProject',
-            stages: fakeAPI.getStages(),
+            title: 'Project Title',
+            stages: ApiWrapper.getStages(),
             manager: 'mhachey@bu.edu',
             teammates: ['mhachey@bu.edu']
 
@@ -43,15 +45,7 @@
 
         };
       },
-      methods: {
-        moveTask: function (task_id, stage_id) {
-          let index = this.project.stages.indexOf(stage_id);
-          if (index > - 1) {
-            this.project.stages[stage_id].tasks.push(task_id);
-          }
-        }
-
-      },
+      methods: {},
       computed: {},
       watch: {}
     }

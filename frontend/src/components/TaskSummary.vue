@@ -2,50 +2,57 @@
   <div>
 
     <div class="summary" @click="showDetails">
-      <p>{{ task.title }}</p>
-      <br v-if="overdue"/>
-      <span v-if="overdue">!</span>
+      <p>{{ title }}</p>
+      <br v-if="task.isOverdue()"/>
+      <span v-if="task.isOverdue()" class="overdue_warning">!</span>
     </div>
 
     <div v-if="details_visible" class="modal">
       <div class="modal_content">
         <img src="../assets/x_button.png" @click="hideDetails" width="20" height="20">
-        <h2>{{ task.title }}</h2>
-        <label>Due date:</label>
-        <datepicker v-model="task.due_date"></datepicker>
-        <br><label>Description</label>
-        <textarea v-model="task.content"></textarea>
+        <textarea class="title" v-model="title"></textarea>
+        <label>Due date</label>
+        <datepicker v-model="due_date"></datepicker>
+        <label>Description</label>
+        <textarea v-model="content"></textarea>
+        <label>Stage</label>
+        <span class="stage">{{ this.stage.getTitle() }}</span>
       </div>
     </div>
-
   </div>
 
 </template>
 <script>
-    import {fakeAPI} from './http-common'
+    import {ApiWrapper} from './http-common'
     import Datepicker from 'vuejs-datepicker'
     export default {
-        name: "TaskSummary",
+        name: 'TaskSummary',
         components: {'datepicker': Datepicker},
-        props: ['task_id', 'stage'],
+        props: ['task', 'stage', 'project'],
         data: function () {
           return {
-            task: {
-              title: '',
-              content: '',
-              due_date: null
-            },
-            details_visible: false
-          }
+            details_visible: false,
+            title: this.task.getTitle(),
+            content: this.task.getContent(),
+            due_date: this.task.getDueDate()
+          };
         },
-        computed: {
-          overdue: function() {
-            return this.task.due_date <= new Date();
+        watch: {
+          title: function (new_title) {
+            this.task.setTitle(new_title);
+          },
+          content: function(new_content) {
+            this.task.setContent(new_content);
+          },
+          due_date: function(new_date) {
+            this.task.setDueDate(new_date);
           }
+
         },
-        created: function() {
-          this.task = fakeAPI.getTask(this.task_id);
-          this.task.due_date = Date.parse(this.task.due_date);
+        beforeUpdate: function() {
+          this.title = this.task.getTitle();
+          this.content = this.task.getContent();
+          this.due_date = this.task.getDueDate();
         },
         methods: {
           hideDetails: function() {
@@ -54,8 +61,9 @@
           showDetails: function() {
             this.details_visible = true;
           },
-          moveTask(new_stage_id) {
-            this.$emit('move-task', this.task_id, new_stage_id);
+          moveTask(newStage) {
+            newStage.insertTask(this.task);
+            this.stage.removeTask(this.task);
           }
         }
     }
@@ -66,6 +74,7 @@
   div {
     display: block;
     margin: 0;
+    border-radius: 3px;
   }
 
   .summary {
@@ -82,7 +91,7 @@
     background-color: lightcyan;
   }
 
-  span {
+  .overdue_warning {
     position: absolute;
     right: 0.5em;
     bottom: 0.1em;
@@ -105,13 +114,27 @@
 
   .modal_content {
     background-color: lightblue;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 1em;
+    margin: 5% auto;
+    border-radius: 1%;
     border: 1px solid #888;
-    width: 50%;
+    width: 45%;
     position: relative;
-    min-height: 100%;
+    min-height: 80%;
+    padding: 1em 1em 1em 3.5%;
+  }
+
+  .modal_content textarea.title {
+    background-color: inherit;
+    border: 0;
+    width: 80%;
+    display: block;
+    font-size: 1.75em;
+    height: 1.9em;
+    resize: none;
+  }
+
+  .modal_content textarea.title:focus {
+    background-color: white;
   }
 
   img {
@@ -123,13 +146,18 @@
   }
 
   .modal_content textarea {
-    width: 100%;
+    width: 80%;
     border: 0px;
+    display: block;
   }
 
   label {
     font-weight: bold;
     font-size: 1.2em;
+    display: block;
+    padding-top: 1em;
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 
 </style>

@@ -13,5 +13,13 @@
 </script>
 
 <style scoped>
+  div {
+    text-align: left;
+  }
+
+  h1 {
+    display: inline-block;
+    font-size: 1.25em;
+  }
 
 </style>
