@@ -59,6 +59,15 @@ let fakeAPI = (function(){
     },
     patchStage: function(id, new_stage) {
       stages[id] = new_stage;
+    },
+    changeTaskStage: function (task_id, stage_id) {
+      stages.forEach(function(stage) {
+        let index = stage.tasks.indexOf(task_id);
+        if (index > -1) {
+          stage.tasks.splice(index);
+        }
+      });
+      stages[stage_id].tasks.push(task_id);
     }
   }
 })();

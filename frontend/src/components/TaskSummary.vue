@@ -11,8 +11,9 @@
       <div class="modal_content">
         <img src="../assets/x_button.png" @click="hideDetails" width="20" height="20">
         <h2>{{ task.title }}</h2>
-        <p><strong>Due date:</strong>{{ task.due_date}} </p>
-        <label>Description</label>
+        <label>Due date:</label>
+        <datepicker v-model="task.due_date"></datepicker>
+        <br><label>Description</label>
         <textarea v-model="task.content"></textarea>
       </div>
     </div>
@@ -20,31 +21,31 @@
   </div>
 
 </template>
-
 <script>
     import {fakeAPI} from './http-common'
-    //import TaskDetails from './TaskDetails'
+    import Datepicker from 'vuejs-datepicker'
     export default {
         name: "TaskSummary",
-        //components: {'task-details': TaskDetails},
-        props: ['task_id'],
+        components: {'datepicker': Datepicker},
+        props: ['task_id', 'stage'],
         data: function () {
           return {
             task: {
               title: '',
               content: '',
-              due_date: ''
+              due_date: null
             },
             details_visible: false
           }
         },
         computed: {
           overdue: function() {
-            return Date.parse(this.task.due_date) <= new Date();
+            return this.task.due_date <= new Date();
           }
         },
         created: function() {
           this.task = fakeAPI.getTask(this.task_id);
+          this.task.due_date = Date.parse(this.task.due_date);
         },
         methods: {
           hideDetails: function() {
@@ -52,6 +53,9 @@
           },
           showDetails: function() {
             this.details_visible = true;
+          },
+          moveTask(new_stage_id) {
+            this.$emit('move-task', this.task_id, new_stage_id);
           }
         }
     }
@@ -75,6 +79,7 @@
 
   .summary:hover {
     cursor: pointer;
+    background-color: lightcyan;
   }
 
   span {
@@ -113,9 +118,18 @@
     float: right;
   }
 
+  img:hover {
+    cursor: pointer;
+  }
+
   .modal_content textarea {
     width: 100%;
     border: 0px;
+  }
+
+  label {
+    font-weight: bold;
+    font-size: 1.2em;
   }
 
 </style>

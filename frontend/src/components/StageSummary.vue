@@ -2,8 +2,10 @@
   <div>
     <h4>{{ stage.title }}</h4>
     <task-summary
-      v-for="id in stage.tasks"
-      v-bind:task_id="id"
+      v-for="task_id in stage.tasks"
+      v-bind:task_id="task_id"
+      v-bind:stage="stage"
+      v-on:move-task="moveTask"
     />
     <textarea v-if="edit_mode" v-model="new_task_title"></textarea>
     <button v-if="edit_mode" @click="saveTask">Save</button>
@@ -22,20 +24,16 @@
     // placeholder for real API call
     export default {
       name: "stage-summary",
+      data: function() {
+        return {
+          edit_mode: false,
+          new_task_title: ''
+        }
+      },
       components: {
           'task-summary': TaskSummary
         },
-      data: function() {
-          return {
-            stage: {title: '', tasks: []},
-            edit_mode: false,
-            new_task_title: ''
-          };
-        },
-      props: ['stage_id'],
-      created: function () {
-          this.stage = fakeAPI.getStage(this.stage_id);
-        },
+      props: ['stage'],
       methods: {
           turnOnEditMode: function () {
             this.edit_mode = true;
@@ -46,11 +44,16 @@
           saveTask: function() {
             let new_task_id = fakeAPI.postTask(this.new_task_title, '', '');
             this.stage.tasks.push(new_task_id);
-            fakeAPI.patchStage(this.stage);
-            this.stage = fakeAPI.getStage(this.stage_id);
             this.new_task_title = '';
             this.turnOffEditMode();
-          }
+          },
+        moveTask: function (task_id, stage_id) {
+            let index = this.stage.tasks.indexOf(task_id);
+            if (index > - 1) {
+              this.stages.tasks.splice(task_id);
+            }
+            this.$emit('move-task', task_id, stage_id);
+        }
       }
 
     }
