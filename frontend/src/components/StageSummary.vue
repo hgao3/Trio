@@ -71,7 +71,9 @@
 
   textarea {
     display: block;
-    width: 100%;
+    width: 93%;
+    margin-left: auto;
+    margin-right: auto;
     border: none;
     padding: 0.5em;
   }

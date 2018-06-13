@@ -61,6 +61,7 @@
 
   div {
     display: block;
+    margin: 0;
   }
 
   .summary {
