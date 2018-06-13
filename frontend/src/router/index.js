@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from '@/components/Hello'
-import Service from '@/components/Service'
-import Bootstrap from '@/components/Bootstrap'
-import User from '@/components/User'
+import Hello from '../components/Hello'
+import Service from '../components/Service'
+import Bootstrap from '../components/Bootstrap'
+import User from '../components/User'
+import Dashboard from '../components/Dashboard'
 
 Vue.use(Router)
 
@@ -11,8 +12,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Hello',
-      component: Hello
+      name: 'Dashboard',
+      component: Dashboard
     },
     {
       path: '/callservice',
@@ -28,6 +29,11 @@ export default new Router({
       path: '/user',
       name: 'User',
       component: User
+    },
+    {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: Dashboard
     }
   ]
 })
