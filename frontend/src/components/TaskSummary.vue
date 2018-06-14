@@ -19,6 +19,7 @@
         <span class="stage">{{ this.stage.getTitle() }}</span>
         <button v-if="!moving" class="move_button" @click="moving = true">Move</button>
         <div class="move_menu"  v-if="moving">
+          <span>Move to:</span>
           <stage-picker v-for="stage in project.stages"
                         :stage="stage"
                         @chosen-stage="moveTask(stage)">
@@ -174,6 +175,10 @@
     float: none;
   }
 
+  button.move_button {
+    display: block;
+  }
+
   .modal_content textarea {
     width: 80%;
     border: 0px;
@@ -190,7 +195,7 @@
   }
 
   .stage {
-    font-color: large;
+    font-size: large;
   }
 
 </style>
