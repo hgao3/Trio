@@ -37,9 +37,10 @@ public class UserProject {
 	
 	public UserProject() {}
 
-	public UserProject(User user, Project project) {
+	public UserProject(User user, Project project, Role role) {
 		this.user = user;
 		this.project = project;
+		this.role = role;
 		this.id = new UserProjectId(user.getId(), project.getId());
     }
 
