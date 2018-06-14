@@ -1,6 +1,8 @@
 package team3.trio.repository;
 
 import team3.trio.model.User;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,9 +13,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.*;
-/*
+
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class UserRepositoryTest {
@@ -24,32 +27,59 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository users;
 
-    private User norbertSiegmund = new User("Norbert", "Siegmund", "snorbert@gmail.com", "password", true);
-    private User jonasHecht = new User("Jonas", "Hecht", "jhecht@gmail.com", "another_password", false);
-
+    private User hgao = new User("Hugh", "Gao", "hgao3@bu.edu", "password", true);
+    private User mchen = new User("Miffy", "Chen", "mchen15@bu.edu", "password2", false);
+    private User mhachey = new User("Michael", "Hachey", "mhachey@bu.edu", "password3", true);
+    private User nehap = new User("Neha", "Pawar", "nehap86@bu.edu", "password4", false);
+    private User japrker = new User("Jefferson", "Parker", "japarker@bu.edu", "password4", false);
+    
     @Before
     public void fillSomeDataIntoOurDb() {
         // Add new Users to Database
-        entityManager.persist(norbertSiegmund);
-        entityManager.persist(jonasHecht);
+        entityManager.persist(hgao);
+        entityManager.persist(mchen);
+        entityManager.persist(mhachey);
+        entityManager.persist(nehap);
+        entityManager.persist(japrker);
     }
 
     @Test
+    public void testTotalSize() throws Exception {
+        // Search for specific User in Database according to lastname
+        List<User> userList = users.findAll();
+        Assert.assertTrue(userList.size()==5);
+    }
+    
+    @Test
+    public void testRemoveOne() throws Exception {
+        // Search for specific User in Database according to lastname
+    	users.delete(hgao);
+        List<User> userList = users.findAll();
+        Assert.assertTrue(userList.size()==4);
+    }
+    
+    @Test
+    public void testAddOne() throws Exception {
+        // Search for specific User in Database according to lastname
+    	User newuser = new User("new", "user", "new@bu.edu", "password4", false);
+    	users.save(newuser);
+        List<User> userList = users.findAll();
+        assertThat(userList.size()==6);
+    }
+    
+    @Test
     public void testFindByLastName() throws Exception {
         // Search for specific User in Database according to lastname
-        List<User> usersWithLastNameSiegmund = users.findByLastName("Siegmund");
-
-        assertThat(usersWithLastNameSiegmund, contains(norbertSiegmund));
+        List<User> usersWithLastNameGao = users.findByLastName("Gao");
+        assertThat(usersWithLastNameGao, contains(hgao));
     }
 
 
     @Test
     public void testFindByFirstName() throws Exception {
         // Search for specific User in Database according to firstname
-        List<User> usersWithFirstNameJonas = users.findByFirstName("Jonas");
-
-        assertThat(usersWithFirstNameJonas, contains(jonasHecht));
+        List<User> usersWithFirstNameMiffy = users.findByFirstName("Miffy");
+        assertThat(usersWithFirstNameMiffy, contains(mchen));
     }
 
 }
-*/
