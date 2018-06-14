@@ -51,8 +51,8 @@ public class Project implements Serializable {
     
     //Getters and setters omitted for brevity
     
-    public void addUser(User user) {
-    	UserProject userProject = new UserProject(user, this);
+/*    public void addUser(User user) {
+    	UserProject userProject = new UserProject(user, this, );
     	userProjects.add(userProject);
     	user.getUserProjects().add(userProject);
     }
@@ -70,7 +70,7 @@ public class Project implements Serializable {
                 userProject.setUser(null);
             }
         }
-    }
+    }*/
     
     // Hibernate requires a no-arg constructor
     public Project() {}

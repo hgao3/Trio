@@ -14,6 +14,7 @@ import team3.trio.exception.ResourceNotFoundException;
 import team3.trio.model.Role;
 import team3.trio.model.User;
 import team3.trio.repository.ProjectRepository;
+import team3.trio.repository.TaskRepository;
 import team3.trio.repository.UserRepository;
 import team3.trio.utils.PasswordUtils;
 
@@ -33,6 +34,7 @@ public class UserController {
 
     @Autowired
     private ProjectRepository projectRepository;
+    
 
     @RequestMapping(path = "/user", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)

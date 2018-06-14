@@ -83,4 +83,14 @@ public class Task extends AuditModel {
 	public void setAssignedUser(User assignedUser) {
 		this.assignedUser = assignedUser;
 	}
+
+	public Stage getStage() {
+		return stage;
+	}
+
+	public void setStage(Stage stage) {
+		this.stage = stage;
+	}
+	
+	
 }
