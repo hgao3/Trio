@@ -54,8 +54,10 @@
 <style scoped>
   div {
     vertical-align: text-top;
-    padding: 0.5em;
     font-size: 10pt;
+    padding: 0;
+    margin: 0;
+    background-color: lightblue;
   }
 
 </style>

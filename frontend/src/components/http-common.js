@@ -80,6 +80,11 @@ let ApiWrapper = (function () {
 
     return {
 
+      id: record.id,
+      title: record.title,
+      due_date: new Date(record.due_date),
+      content: record.content,
+
       getID() {
         return record.id;
       },
@@ -97,20 +102,22 @@ let ApiWrapper = (function () {
       },
 
       setTitle(string) {
-        record.title = string;
+        this.title = record.title = string;
       },
 
       setContent(string) {
-        record.content = string;
+        this.content = record.content = string;
       },
 
       setDueDate(date) {
         record.due_date = new Date(date).toISOString().split('T')[0];
+        this.due_date = Date.parse(record.due_date);
       },
 
       isOverdue() {
         return Date.parse(record.due_date) <= new Date();
       }
+
     };
   }
 
@@ -163,14 +170,21 @@ let ApiWrapper = (function () {
 
       insertTask(task) {
         record.tasks.push(task.getID());
+        this.tasks.push(task);
       },
 
       removeTask(task) {
         let index = record.tasks.indexOf(task.id);
-        if (index > -1) {
-          record.tasks.splice(index);
+        if (index !== -1) {
+          record.tasks.splice(index, 1);
+          this.tasks.splice(index, 1);
         }
-      }
+
+      },
+
+      id: record.id,
+      title: record.title,
+      tasks: record.tasks.map(function(task_id) { return new Task(TasksTable[task_id]); } )
 
     };
   }
@@ -181,10 +195,9 @@ let ApiWrapper = (function () {
     },
 
     getStages() {
-      let stage_objects = StagesTable.map(function (stage_record) {
+      return StagesTable.map(function (stage_record) {
         return new Stage(stage_record);
       });
-      return stage_objects;
     },
 
     getTask(id) {

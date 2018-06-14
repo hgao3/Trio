@@ -17,53 +17,76 @@
         <textarea v-model="content"></textarea>
         <label>Stage</label>
         <span class="stage">{{ this.stage.getTitle() }}</span>
+        <button v-if="!moving" class="move_button" @click="moving = true">Move</button>
+        <div class="move_menu"  v-if="moving">
+          <stage-picker v-for="stage in project.stages"
+                        :stage="stage"
+                        @chosen-stage="moveTask(stage)">
+          </stage-picker>
+          <img src="../assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
+        </div>
       </div>
     </div>
   </div>
 
 </template>
 <script>
-    import {ApiWrapper} from './http-common'
+    //import {ApiWrapper} from './http-common'
     import Datepicker from 'vuejs-datepicker'
+    import TaskStagePicker from './TaskStagePicker'
     export default {
         name: 'TaskSummary',
-        components: {'datepicker': Datepicker},
+        components: {
+          'datepicker': Datepicker,
+          'stage-picker': TaskStagePicker
+        },
         props: ['task', 'stage', 'project'],
         data: function () {
           return {
             details_visible: false,
-            title: this.task.getTitle(),
-            content: this.task.getContent(),
-            due_date: this.task.getDueDate()
+            moving: false,
+            chosen_stage: null
           };
         },
-        watch: {
-          title: function (new_title) {
-            this.task.setTitle(new_title);
+        computed: {
+          title: {
+            set(new_title) {
+              this.task.setTitle(new_title);
+            },
+            get() {
+              return this.task.title;
+            }
           },
-          content: function(new_content) {
-            this.task.setContent(new_content);
+          content: {
+            set(new_content) {
+              this.task.setContent(new_content);
+            },
+            get() {
+              return this.task.content;
+            }
           },
-          due_date: function(new_date) {
-            this.task.setDueDate(new_date);
+          due_date: {
+            set(date) {
+              this.task.setDueDate(date);
+            },
+            get() {
+              return this.task.due_date;
+            }
           }
-
-        },
-        beforeUpdate: function() {
-          this.title = this.task.getTitle();
-          this.content = this.task.getContent();
-          this.due_date = this.task.getDueDate();
         },
         methods: {
           hideDetails: function() {
             this.details_visible = false;
           },
+
           showDetails: function() {
             this.details_visible = true;
           },
+
           moveTask(newStage) {
             newStage.insertTask(this.task);
             this.stage.removeTask(this.task);
+            this.moving = false;
           }
         }
     }
@@ -145,6 +168,12 @@
     cursor: pointer;
   }
 
+  img.cancel_move {
+    position: static;
+    display: inline-block;
+    float: none;
+  }
+
   .modal_content textarea {
     width: 80%;
     border: 0px;
@@ -158,6 +187,10 @@
     padding-top: 1em;
     padding-bottom: 0;
     margin-bottom: 0;
+  }
+
+  .stage {
+    font-color: large;
   }
 
 </style>

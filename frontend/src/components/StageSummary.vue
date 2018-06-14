@@ -2,7 +2,7 @@
   <div>
     <h4>{{ title }}</h4>
     <task-summary
-      v-for="task in tasks"
+      v-for="task in stage.tasks"
       :key="task.getID()"
       :task="task"
       :stage="stage"
@@ -72,13 +72,12 @@
 <style scoped>
   div {
     display: inline-block;
-    border: 1px solid black;
     font-family: Calibri, sans-serif;
-    background-color: lightblue;
+    background-color: #c0f1ff;
     text-align: left;
     margin: 0.25em;
     padding: 0.5em;
-    border: 0px;
+    border: 0;
     min-width: 15%;
     position: relative;
   }
