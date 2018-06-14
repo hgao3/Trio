@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>{{ title }}</h4>
+    <textarea class="title" v-model="title"></textarea>
     <task-summary
       v-for="task in stage.tasks"
       :key="task.getID()"
@@ -31,22 +31,21 @@
       return {
         edit_mode: false,
         new_task_title: '',
-        title: this.stage.getTitle(),
-        tasks: this.stage.getTasks()
       }
     },
     components: {
       'task-summary': TaskSummary
     },
-    watch: {
-      title: function () {
-        this.stage.setTitle(this.title);
+    computed: {
+      title: {
+        set(string) {
+          this.stage.setTitle(string);
+        },
+        get() {
+          return this.stage.title;
+        }
       }
     },
-    beforeUpdate: function () {
-      this.title = this.stage.getTitle();
-    },
-    computed: {},
     methods: {
       turnOnEditMode: function () {
         this.edit_mode = true;
@@ -60,7 +59,6 @@
       saveTask: function () {
         let newTask = ApiWrapper.postTask(this.new_task_title, '', '');
         this.stage.insertTask(newTask);
-        this.tasks.push(newTask);
         this.new_task_title = '';
         this.turnOffEditMode();
       }
@@ -112,6 +110,22 @@
     margin: 0.5em;
     width: 6em;
     font-size: 1.10em;
+  }
+
+  textarea.title {
+    background-color: inherit;
+    width: 80%;
+    display: block;
+    font-size: 1.5em;
+    height: 2em;
+    resize: none;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+  }
+
+  textarea.title:focus {
+    background-color: white;
   }
 
 </style>

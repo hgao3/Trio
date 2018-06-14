@@ -18,21 +18,21 @@ let ApiWrapper = (function () {
     {id: 0, title: 'practice conference presentation', content: 'for AwesomeCon 2018', due_date: '2018-06-01'},
     {
       id: 1,
-      title: 'put in job ad',
+      title: 'place job ad',
       content: "we need a new Scrum Master since Tim's unfortunate accident",
       due_date: '2018-06-11'
     },
     {
       id: 2,
-      title: 'call back Stefan',
-      content: "needs to be assured that project will be done on time",
+      title: 'call back angel investor',
+      content: "let him know everything will be done on time",
       due_date: '2018-07-02'
     },
     {id: 3, title: 'refill beer keg', content: "check if they have any good seasonal brews", due_date: '2018-07-02'},
     {
       id: 4,
-      title: 'make API edits',
-      content: "Miffy said that we weren't being RESTful enough",
+      title: 'make API more RESTful',
+      content: "it's very sleepy",
       due_date: '2018-07-02'
     },
     {
@@ -52,7 +52,7 @@ let ApiWrapper = (function () {
     {
       id: 9,
       title: 'eat your own dog food',
-      content: 'this thing had better do everything Trello can do',
+      content: 'otherwise known as building the bridge while you cross it',
       due_date: '2018-07-05'
     }
   ];
@@ -82,7 +82,7 @@ let ApiWrapper = (function () {
 
       id: record.id,
       title: record.title,
-      due_date: new Date(record.due_date),
+      due_date: record.due_date === '' ? null : new Date(record.due_date),
       content: record.content,
 
       getID() {
@@ -111,7 +111,7 @@ let ApiWrapper = (function () {
 
       setDueDate(date) {
         record.due_date = new Date(date).toISOString().split('T')[0];
-        this.due_date = Date.parse(record.due_date);
+        this.due_date = record.due_date === '' ? null : new Date(record.due_date);
       },
 
       isOverdue() {
@@ -153,7 +153,7 @@ let ApiWrapper = (function () {
       },
 
       setTitle(string) {
-        record.title = string;
+        this.title = record.title = string;
       },
 
       getTasks() {
