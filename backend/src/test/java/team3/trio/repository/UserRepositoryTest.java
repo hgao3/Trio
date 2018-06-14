@@ -32,16 +32,6 @@ public class UserRepositoryTest {
     private User mhachey = new User("Michael", "Hachey", "mhachey@bu.edu", "password3", true);
     private User nehap = new User("Neha", "Pawar", "nehap86@bu.edu", "password4", false);
     private User japrker = new User("Jefferson", "Parker", "japarker@bu.edu", "password4", false);
-    
-    @Before
-    public void fillSomeDataIntoOurDb() {
-        // Add new Users to Database
-        entityManager.persist(hgao);
-        entityManager.persist(mchen);
-        entityManager.persist(mhachey);
-        entityManager.persist(nehap);
-        entityManager.persist(japrker);
-    }
 
     @Test
     public void testTotalSize() throws Exception {
@@ -51,20 +41,16 @@ public class UserRepositoryTest {
     }
     
     @Test
-    public void testRemoveOne() throws Exception {
-        // Search for specific User in Database according to lastname
-    	users.delete(hgao);
-        List<User> userList = users.findAll();
-        Assert.assertTrue(userList.size()==4);
-    }
-    
-    @Test
-    public void testAddOne() throws Exception {
+    public void testAddAndRemoveOne() throws Exception {
         // Search for specific User in Database according to lastname
     	User newuser = new User("new", "user", "new@bu.edu", "password4", false);
     	users.save(newuser);
         List<User> userList = users.findAll();
         assertThat(userList.size()==6);
+        
+    	users.delete(hgao);
+        userList = users.findAll();
+        Assert.assertTrue(userList.size()==4);
     }
     
     @Test
