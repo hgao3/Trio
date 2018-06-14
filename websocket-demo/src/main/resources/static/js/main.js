@@ -76,10 +76,10 @@ function onMessageReceived(payload) {
 
     if(message.type === 'JOIN') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + ' joined!';
+        message.content = message.sender + ' joined the chat room! Say hi to ' + message.sender + '!';
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + ' left!';
+        message.content = message.sender + ' left...';
     } else {
         messageElement.classList.add('chat-message');
 
