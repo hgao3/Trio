@@ -32,6 +32,11 @@ public class Issue extends AuditModel {
 	private String title;
 
 	@NotNull
+	@Size(max = 100)
+	@Column(name = "priority_level")
+	private String priorityLevel;
+	
+	@NotNull
 	@Size(max = 1000)
 	private String content;
 
@@ -97,4 +102,13 @@ public class Issue extends AuditModel {
 	public void setOpenStatus(boolean openStatus) {
 		this.openStatus = openStatus;
 	}
+
+	public String getPriorityLevel() {
+		return priorityLevel;
+	}
+
+	public void setPriorityLevel(String priorityLevel) {
+		this.priorityLevel = priorityLevel;
+	}
+	
 }
