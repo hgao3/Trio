@@ -1,7 +1,6 @@
 package team3.trio.controller;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import org.apache.http.HttpStatus;
