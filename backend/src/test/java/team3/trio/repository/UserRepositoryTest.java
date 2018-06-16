@@ -48,9 +48,9 @@ public class UserRepositoryTest {
         List<User> userList = users.findAll();
         assertThat(userList.size()==6);
         
-    	users.delete(hgao);
+    	users.delete(newuser);
         userList = users.findAll();
-        Assert.assertTrue(userList.size()==4);
+        Assert.assertTrue(userList.size()==5);
     }
     
     @Test
