@@ -1,4 +1,4 @@
-package edu.bu.exception;
+package team3.trio.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

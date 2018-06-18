@@ -1,30 +1,34 @@
 package team3.trio.model;
 
+import java.util.Objects;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "users_projects")
 public class UserProject {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @EmbeddedId
+    private UserProjectId id;
 	
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")  
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userId")
 	private User user;
 	
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "project_id")  
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("projectId")
 	private Project project;
 	
 	@Enumerated(EnumType.STRING)
@@ -33,14 +37,30 @@ public class UserProject {
 	
 	public UserProject() {}
 
-	public Long getId() {
-		return id;
-	}
+	public UserProject(User user, Project project, Role role) {
+		this.user = user;
+		this.project = project;
+		this.role = role;
+		this.id = new UserProjectId(user.getId(), project.getId());
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+ 
+        if (o == null || getClass() != o.getClass())
+            return false;
+ 
+        UserProject that = (UserProject) o;
+        return Objects.equals(user, that.user) &&
+               Objects.equals(project, that.project);
+    }
+ 
+    @Override
+    public int hashCode() {
+        return Objects.hash(user, project);
+    }
+    
 	public User getUser() {
 		return user;
 	}
@@ -63,6 +83,14 @@ public class UserProject {
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	public UserProjectId getId() {
+		return id;
+	}
+
+	public void setId(UserProjectId id) {
+		this.id = id;
 	}
 	
 	

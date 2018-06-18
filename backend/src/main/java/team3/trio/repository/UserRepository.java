@@ -1,16 +1,16 @@
 package team3.trio.repository;
 
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import team3.trio.model.User;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    List<User> findByLastName(@Param("lastName") String lastName);
 
-    List<User> findByLastName(@Param("lastname") String lastname);
-
-    List<User> findByFirstName(@Param("firstname") String firstname);
-
+    List<User> findByFirstName(@Param("firstName") String firstName);
 }
