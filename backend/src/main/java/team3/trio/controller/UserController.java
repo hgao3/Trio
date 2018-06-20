@@ -111,20 +111,20 @@ public class UserController {
 		jo.addProperty("last_name", user.getLastName());
 		jo.addProperty("is_admin", user.isAdmin());
 
-		ArrayList<String> projectList = new ArrayList<String>();
+		JsonArray projectsAssignedTo = new JsonArray();
 		user.getUserProjects().forEach((s) -> {
-			projectList.add(s.getId().getProjectId().toString());
+			projectsAssignedTo.add(s.getId().getProjectId().toString());
 		});
-		jo.addProperty("projects", projectList.toString());
+		jo.add("projects", projectsAssignedTo);
 
-		ArrayList<String> projectList2 = new ArrayList<String>();
+		JsonArray projectsManaging = new JsonArray();
 		user.getUserProjects().forEach((s) -> {
 			if (s.getRole().equals(Role.Manager)) {
-				projectList2.add(s.getId().getProjectId().toString());
+				projectsManaging.add(s.getId().getProjectId().toString());
 			}
 
 		});
-		jo.addProperty("projects_managing", projectList2.toString());
+		jo.add("projects_managing", projectsManaging);
 		return jo;
 	}
 

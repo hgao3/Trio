@@ -155,8 +155,8 @@ public class ProjectController {
 		jo.addProperty("project_id", project.getId());
 		jo.addProperty("project_title", project.getTitle());
 
-		ArrayList<String> manager = new ArrayList<String>();
-		ArrayList<String> teammateList = new ArrayList<String>();
+		JsonArray manager = new JsonArray();
+		JsonArray teammateList = new JsonArray();
 
 		project.getUserProjects().forEach((p) -> {
 			if (p.getRole().equals(Role.Manager)) {
@@ -165,10 +165,11 @@ public class ProjectController {
 				teammateList.add(p.getId().getUserId().toString());
 			}
 		});
-		jo.addProperty("manager", manager.toString());
-		jo.addProperty("teammate", teammateList.toString());
 
-		ArrayList<Long> stageList = new ArrayList<Long>();
+		jo.add("manager", manager);
+		jo.add("teammate", teammateList);
+
+		JsonArray stageList = new JsonArray();
 
 		stageRepository.findAll().forEach((s) -> {
 			if (s.getProject().getId().equals(project.getId())) {
@@ -176,7 +177,7 @@ public class ProjectController {
 			}
 		});
 
-		jo.addProperty("stages", stageList.toString());
+		jo.add("stages", stageList);
 
 		return jo;
 	}
