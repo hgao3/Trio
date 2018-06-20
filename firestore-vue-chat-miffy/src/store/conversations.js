@@ -39,16 +39,16 @@ const actions = {
 
 		convoRef.add({
 			created: Date.now(),
-			users: ['mr_a', 'mr_b'],
+			users: ['miffy', 'mike'],
 			messages: [
-				{ id: uuidv4(), text: 'Hi there', sender: 'mr_a', created: Date.now() },
-				{ id: uuidv4(), text: 'Hi to you too!', sender: 'mr_b', created: Date.now() }
+				{ id: uuidv4(), text: 'Hi, Mike!', sender: 'miffy', created: Date.now() },
+				{ id: uuidv4(), text: 'Hi, Miffy! How are you?', sender: 'mike', created: Date.now() }
 			]
 		})
 
 		convoRef.add({
 			created: Date.now(),
-			users: ['mr_a', 'mr_c'],
+			users: ['miffy', 'hugh'],
 			messages: []
 		})
 	},
