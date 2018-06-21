@@ -59,7 +59,6 @@ let ApiWrapper = (function () {
 
   function User(obj) {
 
-
     let local_object = {
       user_id: obj.user_id || null,
       email: obj.email || '',
@@ -68,6 +67,7 @@ let ApiWrapper = (function () {
       is_admin: obj.is_admin || false,
       projects: obj.projects || [],
       projects_managing: obj.projects_managing || [],
+      _waiting_for_data: true,
 
       getID: function() { return this.user_id;},
       apiURL: function() { return `/user/${this.getID()}`;},
@@ -101,7 +101,16 @@ let ApiWrapper = (function () {
     };
 
     if (local_object.user_id !== null) {
-      AXIOS.get(local_object.apiURL()).then( response => { local_object = response.data; } );
+      AXIOS.get(local_object.apiURL()).then( response => {
+        let data = response.data;
+        local_object.user_id = data.user_id;
+        local_object.first_name = data.first_name;
+        local_object.last_name = data.last_name;
+        local_object.email = data.email;
+        local_object.projects_managing = data.projects_managing;
+        local_object.projects = data.projects;
+        local_object._waiting_for_data = false;
+      });
     }
     else {
       AXIOS.post(`/user/`, {
@@ -109,7 +118,10 @@ let ApiWrapper = (function () {
         last_name: obj.last_name || '',
         email: obj.email || '',
         password: obj.password || ''
-      }).then(new_user_id => { local_object.user_id = new_user_id; });
+      }).then(response => {
+        local_object.user_id = response.data;
+        local_object._waiting_for_data = false;
+      });
     }
 
     return local_object;
@@ -250,13 +262,12 @@ let ApiWrapper = (function () {
   return {
 
     getUser(id) {
-      return new User({id: id});
+      return new User({user_id: id});
     },
 
     getUsers() {
       let users = [];
       AXIOS.get('/user').then(function(user_records) {
-        console.log(user_records);
         user_records.data.forEach(function(record) {
           users.push(new User(record));
         })
@@ -265,7 +276,7 @@ let ApiWrapper = (function () {
     },
 
     getStage(id) {
-      return new Stage(StagesTable[id]);
+      return new Stage({id: id});
     },
 
     getStages() {

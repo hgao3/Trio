@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span>{{ [user.first_name[0], user.last_name[0]].join('').toUpperCase() }}</span>
+    <span v-if="!user._waiting_for_data">{{ [user.first_name[0], user.last_name[0]].join('').toUpperCase() }}</span>
   </div>
 
 </template>
