@@ -57,6 +57,64 @@ let ApiWrapper = (function () {
     }
   ];
 
+  function User(obj) {
+
+
+    let local_object = {
+      user_id: obj.user_id || null,
+      email: obj.email || '',
+      first_name: obj.first_name || '',
+      last_name: obj.last_name || '',
+      is_admin: obj.is_admin || false,
+      projects: obj.projects || [],
+      projects_managing: obj.projects_managing || [],
+
+      getID: function() { return this.user_id;},
+      apiURL: function() { return `/user/${this.getID()}`;},
+      getEmail: function() { return this.email; },
+      getFirstName: function () { return this.first_name; },
+      getLastName: function () { return this.last_name; },
+      isAdmin: function () { return this.is_admin; },
+      getProjects: function () { return this.projects; },
+      getManagedProjects: function () { return this.projects_managing; },
+
+      setEmail: function(email) {
+        this.email = email;
+        AXIOS.patch(this.apiURL(), {email: this.email});
+      },
+
+      setFirstName: function (first_name) {
+        this.first_name = first_name;
+        AXIOS.patch(this.apiURL(), {first_name: first_name});
+      },
+
+      setLastName: function(last_name) {
+        this.last_name = last_name;
+        AXIOS.patch(this.apiURL(), {last_name: last_name});
+      },
+
+      setAdmin: function(admin_status) {
+        this.is_admin = admin_status;
+        AXIOS.patch(this.apiURL(), {is_admin: admin_status});
+      }
+
+    };
+
+    if (local_object.user_id !== null) {
+      AXIOS.get(local_object.apiURL()).then( response => { local_object = response.data; } );
+    }
+    else {
+      AXIOS.post(`/user/`, {
+        first_name: obj.first_name || '',
+        last_name: obj.last_name || '',
+        email: obj.email || '',
+        password: obj.password || ''
+      }).then(new_user_id => { local_object.user_id = new_user_id; });
+    }
+
+    return local_object;
+  }
+
   function Task(obj) {
     let record = (function () {
       let id;
@@ -190,6 +248,22 @@ let ApiWrapper = (function () {
   }
 
   return {
+
+    getUser(id) {
+      return new User({id: id});
+    },
+
+    getUsers() {
+      let users = [];
+      AXIOS.get('/user').then(function(user_records) {
+        console.log(user_records);
+        user_records.data.forEach(function(record) {
+          users.push(new User(record));
+        })
+      });
+      return users;
+    },
+
     getStage(id) {
       return new Stage(StagesTable[id]);
     },

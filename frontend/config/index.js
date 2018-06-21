@@ -31,7 +31,10 @@ module.exports = {
       // proxy all webpack dev-server requests starting with /api to our Spring Boot backend (localhost:8088)
       '/api': {
         target: 'http://localhost:8088',
-        changeOrigin: true
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': ''
+        }
       }
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"
