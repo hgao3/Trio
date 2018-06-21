@@ -1,3 +1,6 @@
+<!-- This component will give us an interface to seed the data. -->
+<!-- The actual creation of data will happen in the Vuex store. -->
+
 <template>
   <div>
     <button @click="init">Initialize app base state</button>

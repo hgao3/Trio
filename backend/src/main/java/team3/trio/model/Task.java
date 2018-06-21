@@ -44,6 +44,24 @@ public class Task extends AuditModel {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Stage stage;
     
+	public Task() {		
+		super();
+	}
+	
+	public Task(String title, String content, Date dueAt,
+			User assignedUser, Stage stage) {		
+		super();
+		Date dt = new Date();
+		this.setCreatedAt(dt);
+		this.setUpdatedAt(dt);
+		
+		this.title = title;
+		this.content = content;
+		this.dueAt = dueAt;
+		this.assignedUser = assignedUser;
+		this.stage = stage;
+	}
+
 	public Long getId() {
 		return id;
 	}
