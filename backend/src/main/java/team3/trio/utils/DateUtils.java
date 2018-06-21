@@ -14,6 +14,7 @@ public class DateUtils {
 		return formatter.parse(dateString);
 	} 
 	public static String toString(Date date) {
+		if (date == null) {return "";}
 		return formatter.format(date);
 	} 
 }

@@ -126,14 +126,18 @@ public class TaskController {
 		}
 		
 		if (assignedUserId != null && assignedUserId > 0) {
-			User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+			User user = userRepository.findById(assignedUserId).orElseThrow(() -> new ResourceNotFoundException("User", "id", assignedUserId));
 			task.setAssignedUser(user);
 		}
 		
 		if (stageId != null && stageId > 0) {
-			Stage stage = stageRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Stage", "id", id));
+			Stage stage = stageRepository.findById(stageId).orElseThrow(() -> new ResourceNotFoundException("Stage", "id", stageId));
 			task.setStage(stage);
 		}
+		
+		Date dt = new Date();
+		task.setUpdatedAt(dt);
+		taskRepository.save(task);
 		
 		LOG.info("Task with id " + id + " successfully updated into database.");
 	}	
@@ -141,7 +145,7 @@ public class TaskController {
 	@RequestMapping(path = "/task/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public @ResponseBody void deleteTask(@PathVariable("id") Long id) {
-		stageRepository.deleteById(id);
+		taskRepository.deleteById(id);
 		LOG.info("Task with id " + id + " successfully deleted into database.");
 	}
 

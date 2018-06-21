@@ -126,13 +126,13 @@ public class StageController {
 		jo.addProperty("title", stage.getTitle());
 		jo.addProperty("project_id", stage.getProject().getId());
 
-		ArrayList<Long> taskList = new ArrayList<Long>();
-
+		JsonArray taskList = new JsonArray();
+		
 		List<Task> tasks = this.taskRepository.findByStageId(stage.getId());
 		for (Task task: tasks) {
 			taskList.add(task.getId());
 		}
-		jo.addProperty("tasks", taskList.toString());
+		jo.add("tasks", taskList);
 		return jo;
 	}
 
