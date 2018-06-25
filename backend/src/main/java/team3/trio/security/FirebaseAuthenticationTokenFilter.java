@@ -17,10 +17,11 @@ import team3.trio.security.model.FirebaseAuthenticationToken;
 
 public class FirebaseAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
 
-	private final static String TOKEN_HEADER = "X-Firebase-Auth";
+	private final static String TOKEN_HEADER = "idToken";
 
 	public FirebaseAuthenticationTokenFilter() {
-		super("/project/**");
+		super("/rest/**");
+		
 	}
 	
 	@Override

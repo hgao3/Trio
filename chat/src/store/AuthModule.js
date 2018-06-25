@@ -86,6 +86,26 @@ const AuthModule = {
             commit('setError', error)
           }
         )
+    },
+    getIdToken ({commit}, user) {
+      commit('setLoading', true)
+      commit('clearError')
+      firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+        .then(function (idToken) {
+          const newUser = {
+            id: user.id,
+            username: user.username,
+            idToken: idToken
+          }
+          commit('setUser', newUser)
+        }
+        )
+        .catch(
+          error => {
+            commit('setLoading', false)
+            commit('setError', error)
+          }
+        )
     }
   },
   getters: {

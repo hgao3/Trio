@@ -33,7 +33,16 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 
-	@RequestMapping(path = "/user", method = RequestMethod.POST)
+	@RequestMapping(path = "/signup", method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseBody
+	public long signup(@RequestParam(value = "first_name", required = false) String firstName,
+			@RequestParam(value = "last_name", required = false) String lastName, @RequestParam String email,
+			@RequestParam String password) {
+		return addNewUser(firstName, lastName, email, password);
+	}
+	
+	@RequestMapping(path = "/rest/user", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public long addNewUser(@RequestParam(value = "first_name", required = false) String firstName,
@@ -47,7 +56,7 @@ public class UserController {
 		return user.getId();
 	}
 
-	@RequestMapping(path = "/user/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getUserById(@PathVariable("id") Long id) {
 		LOG.info("Reading user with id " + id + " from database.");
@@ -56,7 +65,7 @@ public class UserController {
 		return userToJO(user).toString();
 	}
 
-	@RequestMapping(path = "/user", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/user", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getUsers() {
 		LOG.info("Reading all user from database.");
@@ -68,14 +77,14 @@ public class UserController {
 		return ja.toString();
 	}
 
-	@RequestMapping(path = "/user/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public @ResponseBody void deleteUser(@PathVariable("id") Long id) {
 		LOG.info("User with id " + id + " successfully deleted into database.");
 		userRepository.deleteById(id);
 	}
 
-	@RequestMapping(path = "/user/{id}", method = RequestMethod.PATCH)
+	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.PATCH)
 	public @ResponseBody void updateUser(@PathVariable("id") Long id,
 			@RequestParam(value = "first_name", required = false) String firstName,
 			@RequestParam(value = "last_name", required = false) String lastName,

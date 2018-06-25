@@ -7,6 +7,9 @@ import router from './router'
 import { store } from './store'
 
 import AlertComponent from './components/Shared/Alert.vue'
+import { TableComponent, TableColumn } from 'vue-table-component'
+
+require('../node_modules/vue-table-component/docs/table-component.css')
 
 Vue.use(Vuetify)
 Vue.use(VueResource)
@@ -14,6 +17,8 @@ Vue.use(VueResource)
 Vue.config.productionTip = false
 
 Vue.component('app-alert', AlertComponent)
+Vue.component('table-component', TableComponent)
+Vue.component('table-column', TableColumn)
 
 /* eslint-disable no-new */
 new Vue({

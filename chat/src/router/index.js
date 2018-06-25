@@ -6,6 +6,7 @@ import Create from '@/components/Chat/Create'
 import Profile from '@/components/User/Profile'
 import Signup from '@/components/User/Signup'
 import Signin from '@/components/User/Signin'
+import UsersTable from '@/components/User/UsersTable'
 import AuthGuard from './auth-guard'
 
 Vue.use(Router)
@@ -44,6 +45,12 @@ export default new Router({
       path: '/create',
       name: 'CreateChat',
       component: Create,
+      beforeEnter: AuthGuard
+    },
+    {
+      path: '/UsersTable',
+      name: 'UsersTable',
+      component: UsersTable,
       beforeEnter: AuthGuard
     }
   ],

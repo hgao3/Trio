@@ -69,6 +69,7 @@
     watch: {
       user (value) {
         if (value !== null && value !== undefined) {
+          this.$store.dispatch('getIdToken', this.$store.getters.user)
           this.$router.push('/chat/0')
         }
       }
