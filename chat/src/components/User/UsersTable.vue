@@ -13,7 +13,6 @@
 
 <script>
   import axios from 'axios'
-  import * as firebase from 'firebase'
   export default {
     methods: {
       async fetchData ({ page, filter, sort }) {
@@ -25,47 +24,6 @@
 
         // An object that has a `data` and an optional `pagination` property
         return response
-      },
-      async fetchData3 ({ page, filter, sort }) {
-        const response = await axios.get('http://localhost:8088/rest/user',
-          {
-            headers: {
-              'idToken': function () {
-                firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-                  .then(function (idToken) {
-                    return idToken
-                  }
-                  )
-                  .catch(function (error) {
-                      // Handle error
-                    console.log(error)
-                  }
-                  )
-              }
-            }
-          }
-        )
-
-        // An object that has a `data` and an optional `pagination` property
-        return response
-      },
-      async fetchData34 ({ page, filter, sort }) {
-        firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-          .then(await function (idToken) {
-            const response = { data: axios.get('http://localhost:8088/rest/user',
-              {
-                headers: {'idToken': idToken}
-              }
-            )}
-            // An object that has a `data` and an optional `pagination` property
-            return response
-          }
-          )
-          .catch(function (error) {
-              // Handle error
-            console.log(error)
-          }
-          )
       }
     }
   }

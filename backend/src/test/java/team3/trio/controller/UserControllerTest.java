@@ -46,11 +46,11 @@ public class UserControllerTest {
 
 	@Test
 	public void addNewUser_GetIt_DeleteIt() {
-		User newuser = new User("new", "user", "new@bu.edu", "password4", false);
+		User newuser = new User("new", "user", "new@bu.edu",  false);
 
 		Long userId = given().queryParam("first_name", newuser.getFirstName())
 				.queryParam("last_name", newuser.getLastName()).queryParam("email", newuser.getEmail())
-				.queryParam("password", newuser.getPassword()).when().post("/user").then()
+				.when().post("/user").then()
 				.statusCode(is(HttpStatus.SC_CREATED)).extract().body().as(Long.class);
 
 		String response = given().pathParam("id", userId).when().get("/user/{id}").then().statusCode(HttpStatus.SC_OK)

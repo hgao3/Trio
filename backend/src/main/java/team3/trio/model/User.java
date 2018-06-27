@@ -43,9 +43,6 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
 
-    @NotNull
-    @Size(max = 128)
-    private String password;
     
     @Column(name = "is_admin", columnDefinition = "TINYINT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
@@ -75,11 +72,10 @@ public class User implements Serializable {
 	// Hibernate requires a no-arg constructor
     public User() {}
 
-    public User(String firstName, String lastName, String email, String password, boolean isAdmin) {
+    public User(String firstName, String lastName, String email, boolean isAdmin) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.password = password;
         this.isAdmin = isAdmin;
     }
 
@@ -113,14 +109,6 @@ public class User implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public boolean isAdmin() {

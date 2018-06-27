@@ -36,6 +36,28 @@
                 <v-layout row>
                   <v-flex xs12>
                     <v-text-field
+                      name="firstname"
+                      label="First Name"
+                      id="firstname"
+                      v-model="firstname"
+                      type="text"
+                      required></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-text-field
+                      name="lastname"
+                      label="Last Name"
+                      id="lastname"
+                      v-model="lastname"
+                      type="text"
+                      required></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-text-field
                       name="password"
                       label="Password"
                       id="password"
@@ -70,12 +92,15 @@
 </template>
 
 <script>
+  import axios from 'axios'
   export default {
     data () {
       return {
         email: '',
         username: '',
         password: '',
+        firstname: '',
+        lastname: '',
         confirmPassword: ''
       }
     },
@@ -98,6 +123,7 @@
         if (value !== null && value !== undefined) {
           this.$store.dispatch('getIdToken', this.$store.getters.user)
           this.$router.push('/')
+          this.signUserUpDb(this.email, this.firstname, this.lastname)
         }
       }
     },
@@ -107,6 +133,16 @@
       },
       onDismissed () {
         this.$store.dispatch('clearError')
+      },
+      signUserUpDb ({ email, firstname, lastname }) {
+        const qs = require('qs')
+        axios.post('http://localhost:8088/signup', qs.stringify(
+          {
+            'first_name': firstname,
+            'last_name': lastname,
+            'email': email
+          }
+          ))
       }
     }
   }

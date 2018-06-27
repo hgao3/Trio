@@ -37,18 +37,18 @@ public class UserController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public long signup(@RequestParam(value = "first_name", required = false) String firstName,
-			@RequestParam(value = "last_name", required = false) String lastName, @RequestParam String email,
-			@RequestParam String password) {
-		return addNewUser(firstName, lastName, email, password);
+			@RequestParam(value = "last_name", required = false) String lastName, 
+			@RequestParam String email) {
+		return addNewUser(firstName, lastName, email);
 	}
 	
 	@RequestMapping(path = "/rest/user", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public long addNewUser(@RequestParam(value = "first_name", required = false) String firstName,
-			@RequestParam(value = "last_name", required = false) String lastName, @RequestParam String email,
-			@RequestParam String password) {
-		User user = new User(firstName, lastName, email, PasswordUtils.saltAndHasing(password), false);
+			@RequestParam(value = "last_name", required = false) String lastName, 
+			@RequestParam String email) {
+		User user = new User(firstName, lastName, email, false);
 		userRepository.save(user);
 
 		LOG.info(user.toString() + " successfully saved into DB");
@@ -103,10 +103,6 @@ public class UserController {
 
 		if (!StringUtils.isEmpty(email)) {
 			user.setEmail(email);
-		}
-
-		if (!StringUtils.isEmpty(password)) {
-			user.setPassword(PasswordUtils.saltAndHasing(password));
 		}
 
 		userRepository.saveAndFlush(user);
