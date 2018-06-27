@@ -134,13 +134,13 @@
       onDismissed () {
         this.$store.dispatch('clearError')
       },
-      signUserUpDb ({ email, firstname, lastname }) {
+      signUserUpDb () {
         const qs = require('qs')
         axios.post('http://localhost:8088/signup', qs.stringify(
           {
-            'first_name': firstname,
-            'last_name': lastname,
-            'email': email
+            'first_name': this.firstname,
+            'last_name': this.lastname,
+            'email': this.email
           }
           ))
       }
