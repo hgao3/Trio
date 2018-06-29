@@ -30,7 +30,6 @@ import team3.trio.utils.JsonUtils;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@TestPropertySource(locations = "classpath:unit-test.properties")
 public class UserControllerTest2 {
 
     @Autowired
