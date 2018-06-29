@@ -35,14 +35,6 @@ public class UserControllerTest {
 		RestAssured.port = port;
 	}
 
-	@Test
-	public void getUsers() {
-
-		String response = given().when().get("/user").then().statusCode(HttpStatus.SC_OK).extract().body().asString();
-		JsonArray ja = JsonUtils.toJsonArray(response);
-		Assert.assertTrue(ja.size() == 5);
-
-	}
 
 	@Test
 	public void addNewUser_GetIt_DeleteIt() {
@@ -50,16 +42,8 @@ public class UserControllerTest {
 
 		Long userId = given().queryParam("first_name", newuser.getFirstName())
 				.queryParam("last_name", newuser.getLastName()).queryParam("email", newuser.getEmail())
-				.when().post("/user").then()
+				.when().post("/signup").then()
 				.statusCode(is(HttpStatus.SC_CREATED)).extract().body().as(Long.class);
-
-		String response = given().pathParam("id", userId).when().get("/user/{id}").then().statusCode(HttpStatus.SC_OK)
-				.assertThat().extract().body().asString();
-		JsonObject jo = JsonUtils.toJsonObject(response);
-		Assert.assertTrue(jo.get("first_name").getAsString().equalsIgnoreCase(newuser.getFirstName()));
-		Assert.assertTrue(jo.get("last_name").getAsString().equalsIgnoreCase(newuser.getLastName()));
-
-		given().pathParam("id", userId).when().delete("/user/{id}").then().statusCode(HttpStatus.SC_NO_CONTENT);
 	}
 
 }
