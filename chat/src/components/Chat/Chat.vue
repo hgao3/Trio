@@ -52,6 +52,9 @@
       username () {
         return this.$store.getters.user.username
       },
+      userId () {
+        return this.$store.getters.user.id
+      },
       onChildAdded () {
         var that = this
         var onChildAdded = function (snapshot) {
@@ -106,7 +109,7 @@
       },
       sendMessage () {
         if (this.content !== '') {
-          this.$store.dispatch('sendMessage', { username: this.username, content: this.content, date: new Date().toString(), chatID: this.id })
+          this.$store.dispatch('sendMessage', { userId: this.userId, username: this.username, content: this.content, chatID: this.id })
           this.content = ''
         }
       },

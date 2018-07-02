@@ -20,7 +20,7 @@
       }
     },
     created () {
-      this.$store.dispatch('loadChats')
+      this.$store.dispatch('loadChats', { userId: this.$store.getters.user.id })
     },
     computed: {
       chats () {
