@@ -49,7 +49,7 @@ public class TaskController {
     @Autowired
     private StageRepository stageRepository;
     
-    @RequestMapping(path = "/task", method = RequestMethod.POST)
+    @RequestMapping(path = "/rest/task", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
 	public long addNewTaskt(@RequestParam(value = "title") String title,
@@ -75,7 +75,7 @@ public class TaskController {
         return task.getId();
 	}
 	
-	@RequestMapping(path = "/task/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getTaskById(@PathVariable("id") Long id) {
 		LOG.info("Reading stage with id " + id + " from database.");
@@ -86,7 +86,7 @@ public class TaskController {
 		return taskToJO(task).toString();
 	}
 	
-	@RequestMapping(path = "/task", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/task", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getTasks() {
 		LOG.info("Reading all task from database.");
@@ -98,7 +98,7 @@ public class TaskController {
 		return ja.toString();
 	}
 
-	@RequestMapping(path = "/task/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public void updateTask(@PathVariable("id") Long id,
 			@RequestParam(value = "title", required = false) String title,
@@ -142,7 +142,7 @@ public class TaskController {
 		LOG.info("Task with id " + id + " successfully updated into database.");
 	}	
 
-	@RequestMapping(path = "/task/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public @ResponseBody void deleteTask(@PathVariable("id") Long id) {
 		taskRepository.deleteById(id);

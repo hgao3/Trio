@@ -15,14 +15,13 @@ const AuthModule = {
           'value', function (snap) {
             if (snap.val()) {
               // if we lose network then remove this user from the list
-              myUserRef.onDisconnect()
-                .remove()
+              myUserRef.onDisconnect().remove()
               // set user's online status
-              let presenceObject = {user: payload, status: 'online'}
+              let presenceObject = {user: payload.username, status: 'online'}
               myUserRef.set(presenceObject)
             } else {
               // client has lost network
-              let presenceObject = {user: payload, status: 'offline'}
+              let presenceObject = {user: payload.username, status: 'offline'}
               myUserRef.set(presenceObject)
             }
           }
@@ -37,7 +36,9 @@ const AuthModule = {
         .then(
           user => {
             firebase.database().ref('users').child(user.uid).set({
-              name: payload.username
+              name: payload.username,
+              id: user.uid,
+              rooms: []
             })
               .then(
                 message => {
@@ -74,11 +75,33 @@ const AuthModule = {
               commit('setLoading', false)
               const newUser = {
                 id: user.uid,
-                username: data.val().name
+                username: data.val().name,
+                rooms: data.val().rooms
               }
               commit('setUser', newUser)
             })
           }
+        )
+        .catch(
+          error => {
+            commit('setLoading', false)
+            commit('setError', error)
+          }
+        )
+    },
+    getIdToken ({commit}, user) {
+      commit('setLoading', true)
+      commit('clearError')
+      firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+        .then(function (idToken) {
+          const newUser = {
+            id: user.id,
+            username: user.username,
+            idToken: idToken,
+            rooms: user.rooms
+          }
+          commit('setUser', newUser)
+        }
         )
         .catch(
           error => {

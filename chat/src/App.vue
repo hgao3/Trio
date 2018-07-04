@@ -56,7 +56,8 @@
         ]
         if (this.userIsAuthenticated) {
           items = [
-            {icon: 'chat', title: 'Create a Channel', route: '/create'}
+            {icon: 'chat', title: 'Create a Channel', route: '/create'},
+            {icon: 'face', title: 'Users Table', route: '/UsersTable'}
           ]
         }
         return items

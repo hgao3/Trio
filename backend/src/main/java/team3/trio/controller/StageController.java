@@ -53,7 +53,7 @@ public class StageController {
 	@Autowired
 	private TaskRepository taskRepository;
 
-	@RequestMapping(path = "/stage", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/stage", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public long addNewStage(@RequestParam(value = "title", required = false) String title,
@@ -72,7 +72,7 @@ public class StageController {
 		return stage.getId();
 	}
 	
-	@RequestMapping(path = "/stage/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/stage/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getStageById(@PathVariable("id") Long id) {
 		LOG.info("Reading stage with id " + id + " from database.");
@@ -83,7 +83,7 @@ public class StageController {
 		return stageToJO(stage).toString();
 	}
 	
-	@RequestMapping(path = "/stage", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/stage", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getStages() {
 		LOG.info("Reading all stage from database.");
@@ -95,7 +95,7 @@ public class StageController {
 		return ja.toString();
 	}
 
-	@RequestMapping(path = "/stage/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/stage/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public void updateStage(@PathVariable("id") Long id,
 			@RequestParam(value = "title", required = false) String title) {
@@ -113,7 +113,7 @@ public class StageController {
 	}
 	
 
-	@RequestMapping(path = "/stage/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(path = "/rest/stage/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public @ResponseBody void deleteStage(@PathVariable("id") Long id) {
 		stageRepository.deleteById(id);

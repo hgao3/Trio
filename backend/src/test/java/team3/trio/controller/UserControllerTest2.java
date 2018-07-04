@@ -3,11 +3,16 @@ package team3.trio.controller;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
+import java.lang.reflect.Field;
+
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
@@ -19,26 +24,36 @@ import com.google.gson.JsonObject;
 import io.restassured.RestAssured;
 import team3.trio.Trio;
 import team3.trio.model.User;
+import team3.trio.repository.TaskRepository;
+import team3.trio.repository.UserRepository;
 import team3.trio.utils.JsonUtils;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Trio.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(locations = "classpath:unit-test.properties")
-public class UserControllerTest {
+@DataJpaTest
+public class UserControllerTest2 {
 
-	@LocalServerPort
-	private int port;
+    @Autowired
+    private TestEntityManager entityManager;
 
+    @Autowired
+    private UserRepository users;
+    
+	UserController controller;
+	
 	@Before
-	public void init() {
-		RestAssured.baseURI = "http://localhost";
-		RestAssured.port = port;
+	public void init() throws Exception {
+		controller = new UserController();
+		
+		Field field = UserController.class.getDeclaredField("userRepository");
+		field.setAccessible(true);
+		field.set(controller, users);
 	}
 
 	@Test
 	public void getUsers() {
 
-		String response = given().when().get("/user").then().statusCode(HttpStatus.SC_OK).extract().body().asString();
+		String response = controller.getUsers();
+		
 		JsonArray ja = JsonUtils.toJsonArray(response);
 		Assert.assertTrue(ja.size() == 5);
 
@@ -46,20 +61,17 @@ public class UserControllerTest {
 
 	@Test
 	public void addNewUser_GetIt_DeleteIt() {
-		User newuser = new User("new", "user", "new@bu.edu", "password4", false);
+		User newuser = new User("new", "user", "new@bu.edu",  false);
 
-		Long userId = given().queryParam("first_name", newuser.getFirstName())
-				.queryParam("last_name", newuser.getLastName()).queryParam("email", newuser.getEmail())
-				.queryParam("password", newuser.getPassword()).when().post("/user").then()
-				.statusCode(is(HttpStatus.SC_CREATED)).extract().body().as(Long.class);
-
-		String response = given().pathParam("id", userId).when().get("/user/{id}").then().statusCode(HttpStatus.SC_OK)
-				.assertThat().extract().body().asString();
+		Long userId = controller.addNewUser(newuser.getFirstName(), newuser.getLastName(), newuser.getEmail());				
+		
+		String response = controller.getUserById(userId);
 		JsonObject jo = JsonUtils.toJsonObject(response);
 		Assert.assertTrue(jo.get("first_name").getAsString().equalsIgnoreCase(newuser.getFirstName()));
 		Assert.assertTrue(jo.get("last_name").getAsString().equalsIgnoreCase(newuser.getLastName()));
 
-		given().pathParam("id", userId).when().delete("/user/{id}").then().statusCode(HttpStatus.SC_NO_CONTENT);
+		controller.deleteUser(userId);	
+		
 	}
 
 }

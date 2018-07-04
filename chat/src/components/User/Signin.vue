@@ -51,8 +51,8 @@
   export default {
     data () {
       return {
-        email: '',
-        password: ''
+        email: 'hugh@bu.edu',
+        password: '123123'
       }
     },
     computed: {
@@ -69,6 +69,7 @@
     watch: {
       user (value) {
         if (value !== null && value !== undefined) {
+          this.$store.dispatch('getIdToken', this.$store.getters.user)
           this.$router.push('/chat/0')
         }
       }
