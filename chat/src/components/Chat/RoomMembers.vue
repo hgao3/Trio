@@ -21,6 +21,7 @@
 </template>
 
 <script>
+  import axios from 'axios'
   export default{
     data () {
       return {
@@ -41,10 +42,16 @@
     computed: {
     },
     methods: {
-      addMember () {
+      async addMember () {
         if (this.newMember !== '') {
-          this.$store.dispatch('addMember', { newMember: this.newMember, roomId: this.$store.getters.currentChatId }).then((value) => {
-            value
+          const user = await axios.get('http://localhost:8088/rest/user/email/' + this.newMember,
+            {
+              headers: {'idToken': this.$store.getters.user.idToken}
+            }
+          )
+          this.$store.dispatch('addMember', { newMember: user.data.uid, roomId: this.$store.getters.currentChatId }).then((value) => {
+            this.$store.dispatch('loadChats', { userId: this.$store.getters.user.id })
+            this.newMember = ''
           })
         }
       }
@@ -56,3 +63,5 @@
     margin-top: 30px;
   }
 </style>
+
+

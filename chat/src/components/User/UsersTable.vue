@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <div>TEst</div>
     <table-component :data="fetchData">
       <table-column show="user_id" label="ID"></table-column>
       <table-column show="first_name" label="First name"></table-column>

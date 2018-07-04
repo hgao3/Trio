@@ -17,7 +17,7 @@
             <img src="../static/icon.jpg" />
           </v-list-tile-avatar>
           <v-list-tile-content>
-            <v-list-tile-title>{{user.user.username}}</v-list-tile-title>
+            <v-list-tile-title>{{user.user}}</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
