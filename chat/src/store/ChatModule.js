@@ -111,17 +111,11 @@ const ChatModule = {
       })
     },
     addMember ({commit}, payload) {
-      firebase.auth().getUserByEmail(payload.newMember)
-        .then(function (userRecord) {
-          // See the UserRecord reference doc for the contents of userRecord.
-          console.log('Successfully fetched user data:', userRecord.toJSON())
-          firebase.database().ref('chats').child(payload.roomId).child('members').child(userRecord.id).set({
-            name: payload.userId.username
-          })
+      firebase.database().ref('users').child(payload.newMember).on('value', function (snapshot) {
+        firebase.database().ref('chats').child(payload.roomId).child('members').child(payload.newMember).set({
+          name: snapshot.val().name
         })
-        .catch(function(error) {
-          console.log('Error fetching user data:', error)
-        })
+      })
     }
   },
   getters: {

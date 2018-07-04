@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -32,6 +35,9 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private FirebaseAuth firebaseAuth;
 
 	@RequestMapping(path = "/signup", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
@@ -63,6 +69,20 @@ public class UserController {
 		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
 		return userToJO(user).toString();
+	}
+	
+	@RequestMapping(path = "/rest/user/email/{email}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getUserByEmail(@PathVariable("email") String email) throws FirebaseAuthException {
+		LOG.info("Reading user with email " + email + " from firebase.");
+
+		UserRecord userRecord = firebaseAuth.getUserByEmail(email);
+		System.out.println("Successfully fetched user data: " + userRecord.getEmail());
+
+		JsonObject jo = new JsonObject();
+		jo.addProperty("uid", userRecord.getUid());
+		
+		return jo.toString();
 	}
 
 	@RequestMapping(path = "/rest/user", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
