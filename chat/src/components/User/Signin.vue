@@ -51,8 +51,8 @@
   export default {
     data () {
       return {
-        email: '',
-        password: ''
+        email: 'hugh@bu.edu',
+        password: '123123'
       }
     },
     computed: {

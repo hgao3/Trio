@@ -30,7 +30,7 @@
       createChat () {
         if (this.chatName !== '') {
           let key = 0
-          this.$store.dispatch('createChat', { chatName: this.chatName, userId: this.$store.getters.user.id }).then((value) => {
+          this.$store.dispatch('createChat', { chatName: this.chatName, userId: this.$store.getters.user }).then((value) => {
             key = value
             this.$router.push('/chat/' + key)
           })

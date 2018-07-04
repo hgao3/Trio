@@ -14,6 +14,7 @@
     </v-flex>
     <v-flex sm2 order-xs1 class="scrollable">
       <chats></chats>
+      <members></members>
     </v-flex>
   </v-layout>
 </template>
@@ -22,6 +23,7 @@
   import Message from './Message.vue'
   import EmojiPicker from './EmojiPicker.vue'
   import Chats from './Chats.vue'
+  import Members from './RoomMembers.vue'
   import * as firebase from 'firebase'
 
   export default {
@@ -40,10 +42,14 @@
       this.loadChat()
       this.$store.dispatch('loadOnlineUsers')
     },
+    created () {
+      this.$store.dispatch('loadChats', { userId: this.$store.getters.user.id })
+    },
     components: {
       'message': Message,
       'emoji-picker': EmojiPicker,
-      'chats': Chats
+      'chats': Chats,
+      'members': Members
     },
     computed: {
       messages () {
@@ -83,6 +89,11 @@
       '$route.params.id' (newId, oldId) {
         this.currentRef.off('child_added', this.onChildAdded)
         this.loadChat()
+      },
+      '$store.getters.chats' (newId, oldId) {
+        if (newId !== undefined) {
+          this.$store.commit('setMembers', {id: this.$store.getters.chats[this.id]})
+        }
       }
     },
     methods: {
@@ -92,6 +103,9 @@
           let chatID = this.id
           this.currentRef = firebase.database().ref('messages').child(chatID).child('messages').limitToLast(20)
           this.currentRef.on('child_added', this.onChildAdded)
+          if (this.$store.getters.chats !== undefined && this.$store.getters.chats.size > 0) {
+            this.$store.commit('setMembers', {id: this.$store.getters.chats[this.id]})
+          }
         }
       },
       processMessage (message) {

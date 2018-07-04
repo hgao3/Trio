@@ -14,9 +14,11 @@
 
 <script>
   import Chats from './Chat/Chats.vue'
+  import Members from './Chat/RoomMembers.vue'
   export default {
     components: {
-      'chats': Chats
+      'chats': Chats,
+      'members': Members
     }
   }
 </script>
