@@ -6,7 +6,7 @@
           <v-flex xs12>
             <v-text-field
               name="chatname"
-              label="Chat Name"
+              label="Channel Name"
               id="chatname"
               v-model="chatName"
               type="text"
