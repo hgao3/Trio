@@ -48,7 +48,7 @@ public class ProjectController {
 	@Autowired
 	private UserProjectRepository userProjectRepository;
 
-	@RequestMapping(path = "/project", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/project", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public long addNewProject(@RequestParam(value = "title", required = false) String title,
@@ -68,7 +68,7 @@ public class ProjectController {
 		return project.getId();
 	}
 
-	@RequestMapping(path = "/project/{id}/add_teammate", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/project/{id}/add_teammate", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public void addTeammateToProject(@PathVariable("id") Long id,
@@ -89,7 +89,7 @@ public class ProjectController {
 				+ " into DB");
 	}
 
-	@RequestMapping(path = "/project/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public void updateProject(@PathVariable("id") Long id,
 			@RequestParam(value = "title", required = false) String title,
@@ -121,7 +121,7 @@ public class ProjectController {
 		}
 	}
 
-	@RequestMapping(path = "/project/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getProjectById(@PathVariable("id") Long id) {
 		LOG.info("Reading project with id " + id + " from database.");
@@ -131,7 +131,7 @@ public class ProjectController {
 		return projectToJO(project).toString();
 	}
 
-	@RequestMapping(path = "/project", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/project", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getProjects() {
 		LOG.info("Reading all project from database.");
@@ -143,7 +143,7 @@ public class ProjectController {
 		return ja.toString();
 	}
 
-	@RequestMapping(path = "/project/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public @ResponseBody void deleteProject(@PathVariable("id") Long id) {
 		LOG.info("Project with id " + id + " successfully deleted into database.");

@@ -26,11 +26,11 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository users;
 
-    private User hgao = new User("Hugh", "Gao", "hgao3@bu.edu", "password", true);
-    private User mchen = new User("Miffy", "Chen", "mchen15@bu.edu", "password2", false);
-    private User mhachey = new User("Michael", "Hachey", "mhachey@bu.edu", "password3", true);
-    private User nehap = new User("Neha", "Pawar", "nehap86@bu.edu", "password4", false);
-    private User japrker = new User("Jefferson", "Parker", "japarker@bu.edu", "password4", false);
+    private User hgao = new User("Hugh", "Gao", "hgao3@bu.edu", true);
+    private User mchen = new User("Miffy", "Chen", "mchen15@bu.edu", false);
+    private User mhachey = new User("Michael", "Hachey", "mhachey@bu.edu", true);
+    private User nehap = new User("Neha", "Pawar", "nehap86@bu.edu", false);
+    private User japrker = new User("Jefferson", "Parker", "japarker@bu.edu", false);
 
     @Test
     public void testTotalSize() throws Exception {
@@ -42,7 +42,7 @@ public class UserRepositoryTest {
     @Test
     public void testAddAndRemoveOne() throws Exception {
         // Search for specific User in Database according to lastname
-    	User newuser = new User("new", "user", "new@bu.edu", "password4", false);
+    	User newuser = new User("new", "user", "new@bu.edu", false);
     	users.save(newuser);
         List<User> userList = users.findAll();
         assertThat(userList.size()==6);

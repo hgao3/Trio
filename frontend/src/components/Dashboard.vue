@@ -9,6 +9,7 @@
         :project="project"
       >
       </stage-summary>
+      <div class="new_stage_button" @click="addStage">Add a stage...</div>
 
     </div>
 </template>
@@ -29,15 +30,10 @@
       },
       data: function() {
         return {
-          user: {
-            first_name: 'Mike',
-            last_name: 'Hachey',
-            email: 'mhachey@bu.edu',
-
-          },
           project: {
             title: 'Project Title',
             stages: ApiWrapper.getStages(),
+            users: ApiWrapper.getUsers(),
             manager: 'mhachey@bu.edu',
             teammates: ['mhachey@bu.edu']
 
@@ -45,8 +41,16 @@
 
         };
       },
-      methods: {},
-      computed: {},
+      methods: {
+        addStage: function() {
+          this.project.stages.push(ApiWrapper.postStage("", []));
+        }
+      },
+      computed: {
+        user: function() {
+          return this.$store.state.user;
+        }
+      },
       watch: {}
     }
 </script>
@@ -58,6 +62,16 @@
     padding: 0;
     margin: 0;
     background-color: lightblue;
+  }
+
+  div.new_stage_button {
+    display: inline-block;
+    font-style: italic;
+    font-family: Calibri, sans-serif;
+  }
+
+  .new_stage_button:hover {
+    cursor: pointer;
   }
 
 </style>

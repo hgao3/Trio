@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -32,14 +35,26 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private FirebaseAuth firebaseAuth;
 
-	@RequestMapping(path = "/user", method = RequestMethod.POST)
+	@RequestMapping(path = "/signup", method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseBody
+	public long signup(@RequestParam(value = "first_name", required = false) String firstName,
+			@RequestParam(value = "last_name", required = false) String lastName, 
+			@RequestParam String email) {
+		return addNewUser(firstName, lastName, email);
+	}
+	
+	@RequestMapping(path = "/rest/user", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public long addNewUser(@RequestParam(value = "first_name", required = false) String firstName,
-			@RequestParam(value = "last_name", required = false) String lastName, @RequestParam String email,
-			@RequestParam String password) {
-		User user = new User(firstName, lastName, email, PasswordUtils.saltAndHasing(password), false);
+			@RequestParam(value = "last_name", required = false) String lastName, 
+			@RequestParam String email) {
+		User user = new User(firstName, lastName, email, false);
 		userRepository.save(user);
 
 		LOG.info(user.toString() + " successfully saved into DB");
@@ -47,7 +62,7 @@ public class UserController {
 		return user.getId();
 	}
 
-	@RequestMapping(path = "/user/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getUserById(@PathVariable("id") Long id) {
 		LOG.info("Reading user with id " + id + " from database.");
@@ -55,8 +70,35 @@ public class UserController {
 
 		return userToJO(user).toString();
 	}
+	
+	@RequestMapping(path = "/rest/user/email/{email}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getUserByEmail(@PathVariable("email") String email) throws FirebaseAuthException {
+		LOG.info("Reading user with email " + email + " from firebase.");
 
-	@RequestMapping(path = "/user", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+		UserRecord userRecord = firebaseAuth.getUserByEmail(email);
+		System.out.println("Successfully fetched user data: " + userRecord.getEmail());
+
+		JsonObject jo = new JsonObject();
+		jo.addProperty("uid", userRecord.getUid());
+		
+		return jo.toString();
+	}
+	
+	@RequestMapping(path = "/rest/user/uid/{uid}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getUserByUid(@PathVariable("uid") String uid) throws FirebaseAuthException {
+		LOG.info("Reading user with uid " + uid + " from firebase.");
+
+		UserRecord userRecord = firebaseAuth.getUser(uid);
+		System.out.println("Successfully fetched user data: " + userRecord.getUid());
+
+		List<User> users = userRepository.findByEmail(userRecord.getEmail());
+		
+		return userToJO(users.get(0)).toString();
+	}
+
+	@RequestMapping(path = "/rest/user", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getUsers() {
 		LOG.info("Reading all user from database.");
@@ -68,14 +110,14 @@ public class UserController {
 		return ja.toString();
 	}
 
-	@RequestMapping(path = "/user/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public @ResponseBody void deleteUser(@PathVariable("id") Long id) {
 		LOG.info("User with id " + id + " successfully deleted into database.");
 		userRepository.deleteById(id);
 	}
 
-	@RequestMapping(path = "/user/{id}", method = RequestMethod.PATCH)
+	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.PATCH)
 	public @ResponseBody void updateUser(@PathVariable("id") Long id,
 			@RequestParam(value = "first_name", required = false) String firstName,
 			@RequestParam(value = "last_name", required = false) String lastName,
@@ -94,10 +136,6 @@ public class UserController {
 
 		if (!StringUtils.isEmpty(email)) {
 			user.setEmail(email);
-		}
-
-		if (!StringUtils.isEmpty(password)) {
-			user.setPassword(PasswordUtils.saltAndHasing(password));
 		}
 
 		userRepository.saveAndFlush(user);

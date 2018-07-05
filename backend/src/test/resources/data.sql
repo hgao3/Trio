@@ -4,12 +4,12 @@ INSERT INTO projects (id, title) VALUES
 	(3, 'PROJECT 3'),
 	(4, 'PROJECT 4');
 
-INSERT INTO users (id, email, first_name, last_name, is_admin, password) VALUES 
-	(1, 'hgao3@bu.edu', 'Hugh', 'Gao', 1, 'password'),
-	(2, 'mchen15@bu.edu', 'Miffy', 'Chen', 0, 'password'),
-	(3, 'mhachey@bu.edu', 'Michael', 'Hachey', 0, 'password'),
-	(4, 'nehap86@bu.edu', 'Neha', 'Pawar', 0, 'password'),
-	(5, 'japarker@bu.edu', 'Jefferson', 'Parker', 0, 'password');
+INSERT INTO users (id, email, first_name, last_name, is_admin) VALUES 
+	(1, 'hgao3@bu.edu', 'Hugh', 'Gao', 1),
+	(2, 'mchen15@bu.edu', 'Miffy', 'Chen', 0),
+	(3, 'mhachey@bu.edu', 'Michael', 'Hachey', 0),
+	(4, 'nehap86@bu.edu', 'Neha', 'Pawar', 0),
+	(5, 'japarker@bu.edu', 'Jefferson', 'Parker', 0);
 	
 INSERT INTO users_projects (role, project_id, user_id) VALUES
 	('Manager', 1, 1),

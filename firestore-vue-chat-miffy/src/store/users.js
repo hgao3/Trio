@@ -1,6 +1,6 @@
 const state = {
   all: {},
-  currentUser: 'mr_b'
+  currentUser: 'miffy'
 }
 
 const mutations = {
@@ -13,19 +13,24 @@ const actions = {
   seed ({ rootState }) {
     let userRef = rootState.db.collection('users')
 
-    userRef.doc('mr_a').set({
-      firstName: 'Andy',
-      lastName: 'Andyson'
+    userRef.doc('miffy').set({
+      firstName: 'Miffy',
+      lastName: 'Chen'
     })
 
-    userRef.doc('mr_b').set({
-      firstName: 'Ben',
-      lastName: 'Benson'
+    userRef.doc('hugh').set({
+      firstName: 'Hugh',
+      lastName: 'Gao'
     })
 
-    userRef.doc('mr_c').set({
-      firstName: 'Cee',
-      lastName: 'Ceeson'
+    userRef.doc('mike').set({
+      firstName: 'Michael',
+      lastName: 'Hachey'
+    })
+
+    userRef.doc('neha').set({
+      firstName: 'Neha',
+      lastName: 'Pawar'
     })
   },
 

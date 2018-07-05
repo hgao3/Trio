@@ -28,11 +28,6 @@ export default new Router({
       path: '/user',
       name: 'User',
       component: User
-    },
-    {
-      path: '/dashboard',
-      name: 'Dashboard',
-      component: Dashboard
     }
   ]
 })

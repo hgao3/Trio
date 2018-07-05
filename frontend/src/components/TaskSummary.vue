@@ -22,6 +22,7 @@
           <span>Move to:</span>
           <stage-picker v-for="stage in project.stages"
                         :stage="stage"
+                        :key="stage.getID()"
                         @chosen-stage="moveTask(stage)">
           </stage-picker>
           <img src="../assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
