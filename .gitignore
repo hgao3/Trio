@@ -39,3 +39,5 @@ idea/*
 .DS_Store
 /firestore-vue-chat-master/node_modules/**
 /.gitignore
+/chat/node/node.exe
+/chat/target/maven-archiver/pom.properties

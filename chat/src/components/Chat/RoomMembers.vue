@@ -1,5 +1,5 @@
 <template>
-  <v-list subheader>
+  <v-list subheader class="line">
     <v-subheader>Members</v-subheader>
     <v-list-tile avatar v-for="(member, index) in members" v-bind:key="member.name">
       <v-list-tile-content>
@@ -61,6 +61,9 @@
 <style>
   .new-member {
     margin-top: 30px;
+  }
+  .line {
+    border-top: 5px solid #e1e1e1;
   }
 </style>
 
