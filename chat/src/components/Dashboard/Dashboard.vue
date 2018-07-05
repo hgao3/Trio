@@ -1,5 +1,6 @@
 <template>
     <div class="dashboard">
+      {{ user }}
       <project-summary v-bind:project="project"></project-summary>
       <stage-summary
         v-for="stage in project.stages"
@@ -44,7 +45,7 @@
       },
       computed: {
         user: function() {
-          return this.$store.state.user;
+          return this.$store.getters.user;
         }
       },
       watch: {}
