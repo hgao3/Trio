@@ -17,7 +17,7 @@
             <img src="../static/icon.jpg" />
           </v-list-tile-avatar>
           <v-list-tile-content>
-            <v-list-tile-title>{{user.user.username}}</v-list-tile-title>
+            <v-list-tile-title>{{user.user}}</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -51,13 +51,15 @@
     computed: {
       menuItems () {
         let items = [
+          { icon: 'dvr', title: 'Dashboard', route: ''},
           { icon: 'face', title: 'Register', route: '/register' },
           { icon: 'lock_open', title: 'Login', route: '/login' }
         ]
         if (this.userIsAuthenticated) {
           items = [
+            {icon: 'dvr', title: 'Dashboard'},
             {icon: 'chat', title: 'Create a Channel', route: '/create'},
-            {icon: 'face', title: 'Users Table', route: '/UsersTable'}
+            {icon: 'face', title: 'Users', route: '/UsersTable'}
           ]
         }
         return items

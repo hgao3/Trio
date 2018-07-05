@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="message" v-for="(message,index) in messages" :class="{own: message.user == username}">
-      <div class="username" v-if="index>0 && messages[index-1].user != message.user">{{message.user}}</div>
-      <div class="username" v-if="index == 0">{{message.user}}</div>
+    <div class="message" v-for="(message,index) in messages" :class="{own: message.username == username}">
+      <div class="username" v-if="index>0 && messages[index-1].username != message.username">{{message.username}}</div>
+      <div class="username" v-if="index == 0">{{message.username}}</div>
       <div style="margin-top: 5px"></div>
       <div class="content">
         <div v-html="message.content"></div>

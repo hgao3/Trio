@@ -26,6 +26,9 @@ const AuthModule = {
             }
           }
         )
+    },
+    setUserOnly (state, payload) {
+      state.user = payload
     }
   },
   actions: {
@@ -100,7 +103,7 @@ const AuthModule = {
             idToken: idToken,
             rooms: user.rooms
           }
-          commit('setUser', newUser)
+          commit('setUserOnly', newUser)
         }
         )
         .catch(

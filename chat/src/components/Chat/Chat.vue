@@ -103,7 +103,7 @@
           let chatID = this.id
           this.currentRef = firebase.database().ref('messages').child(chatID).child('messages').limitToLast(20)
           this.currentRef.on('child_added', this.onChildAdded)
-          if (this.$store.getters.chats !== undefined && this.$store.getters.chats.size > 0) {
+          if (this.$store.getters.chats !== undefined && this.$store.getters.chats.length > 0) {
             this.$store.commit('setMembers', {id: this.$store.getters.chats[this.id]})
           }
         }
