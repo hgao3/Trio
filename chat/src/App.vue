@@ -51,7 +51,6 @@
     computed: {
       menuItems () {
         let items = [
-          { icon: 'dvr', title: 'Dashboard', route: ''},
           { icon: 'face', title: 'Register', route: '/register' },
           { icon: 'lock_open', title: 'Login', route: '/login' }
         ]
