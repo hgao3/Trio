@@ -44,7 +44,7 @@
     methods: {
       async addMember () {
         if (this.newMember !== '') {
-          const user = await axios.get('http://localhost:8088/rest/user/email/' + this.newMember,
+          const user = await axios.get(this.$store.getters.serverHost + '/rest/user/email/' + this.newMember,
             {
               headers: {'idToken': this.$store.getters.user.idToken}
             }

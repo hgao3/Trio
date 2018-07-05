@@ -57,7 +57,14 @@ public class Trio extends SpringBootServletInitializer {
 	@Bean
 	public FirebaseAuth firebaseAuth() throws IOException {
 		
-		File file = ResourceUtils.getFile("classpath:trio.json");
+		String path;
+		String OS = System.getProperty("os.name").toLowerCase();
+		if (OS.indexOf("win") >= 0) {
+			path = "classpath:trio.json";
+		} else {
+			path = "/home/ec2-user/trio.json";
+		}
+		File file = ResourceUtils.getFile(path);
 		
 		FileInputStream serviceAccount = new FileInputStream(file);
 

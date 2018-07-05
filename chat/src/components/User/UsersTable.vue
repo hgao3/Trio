@@ -15,7 +15,7 @@
   export default {
     methods: {
       async fetchData ({ page, filter, sort }) {
-        const response = await axios.get('http://localhost:8088/rest/user',
+        const response = await axios.get(this.$store.getters.serverHost + '/rest/user',
           {
             headers: {'idToken': this.$store.getters.user.idToken}
           }
