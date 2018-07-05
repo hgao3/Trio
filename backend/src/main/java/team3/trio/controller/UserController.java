@@ -84,6 +84,19 @@ public class UserController {
 		
 		return jo.toString();
 	}
+	
+	@RequestMapping(path = "/rest/user/uid/{uid}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getUserByUid(@PathVariable("uid") String uid) throws FirebaseAuthException {
+		LOG.info("Reading user with uid " + uid + " from firebase.");
+
+		UserRecord userRecord = firebaseAuth.getUser(uid);
+		System.out.println("Successfully fetched user data: " + userRecord.getUid());
+
+		List<User> users = userRepository.findByEmail(userRecord.getEmail());
+		
+		return userToJO(users.get(0)).toString();
+	}
 
 	@RequestMapping(path = "/rest/user", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody

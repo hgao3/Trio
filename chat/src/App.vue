@@ -59,7 +59,7 @@
           items = [
             {icon: 'dvr', title: 'Dashboard'},
             {icon: 'chat', title: 'Create a Channel', route: '/create'},
-            {icon: 'face', title: 'Users Table', route: '/UsersTable'}
+            {icon: 'face', title: 'Users', route: '/UsersTable'}
           ]
         }
         return items
