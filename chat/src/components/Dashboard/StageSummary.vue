@@ -2,10 +2,11 @@
   <div>
     <textarea class="title" v-model="title"></textarea>
     <task-summary
-      v-for="task in stage.tasks"
-      :key="task.getID()"
-      :task="task"
+      v-for="task_id in stage.tasks"
+      :key="task_id"
+      :task_id="task_id"
       :stage="stage"
+      :stages="stages"
       :project="project"
     >
     </task-summary>
@@ -26,11 +27,12 @@
 
   export default {
     name: "stage-summary",
-    props: ['stage', 'project'],
+    props: ['stage_id', 'project', 'stages'],
     data: function () {
       return {
         edit_mode: false,
         new_task_title: '',
+        stage: ApiWrapper.getStage(this.stage_id)
       }
     },
     components: {
@@ -44,6 +46,14 @@
         get() {
           return this.stage.title;
         }
+      },
+      tasks: function() {
+        let task_ids = this.stage.tasks;
+        let task_list = [];
+        task_ids.forEach( id => {
+          task_list.push(ApiWrapper.getTask(id));
+        });
+        return task_list;
       }
     },
     methods: {
@@ -62,6 +72,9 @@
         this.new_task_title = '';
         this.turnOffEditMode();
       }
+    },
+    beforeMount: function() {
+      this.stages.push(this.stage);
     }
 
   }
@@ -110,6 +123,11 @@
     margin: 0.5em;
     width: 6em;
     font-size: 1.10em;
+    background-color: white;
+  }
+
+  textarea {
+    background-color: white;
   }
 
   textarea.title {

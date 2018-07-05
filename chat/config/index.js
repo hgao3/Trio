@@ -29,11 +29,11 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       // proxy all webpack dev-server requests starting with /api to our Spring Boot backend (localhost:8088)
-      '/api': {
+      '/rest': {
         target: 'http://localhost:8088/rest/',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': ''
+          '^/rest': ''
         }
       }
     },

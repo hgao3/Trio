@@ -20,10 +20,10 @@
         <button v-if="!moving" class="move_button" @click="moving = true">Move</button>
         <div class="move_menu"  v-if="moving">
           <span>Move to:</span>
-          <stage-picker v-for="stage in project.stages"
+          <stage-picker v-for="stage in stages"
                         :stage="stage"
                         :key="stage.getID()"
-                        @chosen-stage="moveTask(stage)">
+                        @chosen-stage="moveTask">
           </stage-picker>
           <img src="@/assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
         </div>
@@ -33,7 +33,7 @@
 
 </template>
 <script>
-    //import {ApiWrapper} from './http-common'
+    import {ApiWrapper} from './http-common'
     import Datepicker from 'vuejs-datepicker'
     import TaskStagePicker from './TaskStagePicker'
     export default {
@@ -42,9 +42,10 @@
           'datepicker': Datepicker,
           'stage-picker': TaskStagePicker
         },
-        props: ['task', 'stage', 'project'],
+        props: ['task_id', 'stage', 'project', 'stages'],
         data: function () {
           return {
+            task: ApiWrapper.getTask(this.task_id),
             details_visible: false,
             moving: false,
             chosen_stage: null
@@ -52,10 +53,10 @@
         },
         computed: {
           title: {
-            set(new_title) {
+            set: function (new_title) {
               this.task.setTitle(new_title);
             },
-            get() {
+            get: function () {
               return this.task.title;
             }
           },
@@ -64,7 +65,7 @@
               this.task.setContent(new_content);
             },
             get() {
-              return this.task.content;
+              return this.task.getContent();
             }
           },
           due_date: {
@@ -72,7 +73,7 @@
               this.task.setDueDate(date);
             },
             get() {
-              return this.task.due_date;
+              return this.task.getDueDate();
             }
           }
         },
@@ -85,9 +86,9 @@
             this.details_visible = true;
           },
 
-          moveTask(newStage) {
-            newStage.insertTask(this.task);
+          async moveTask(newStage) {
             this.stage.removeTask(this.task);
+            newStage.insertTask(this.task);
             this.moving = false;
           }
         }
@@ -174,6 +175,12 @@
     position: static;
     display: inline-block;
     float: none;
+  }
+
+  button {
+    background-color: white;
+    border: 1px solid black;
+    padding: 0.25em;
   }
 
   button.move_button {

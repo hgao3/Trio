@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ project.title }}</h1>
+    <h1>{{ project.project_title }}</h1>
   </div>
 
 </template>
@@ -19,7 +19,8 @@
 
   h1 {
     display: inline-block;
-    font-size: 1.25em;
+    font-size: 2em;
+    font-weight: bold;
   }
 
 </style>

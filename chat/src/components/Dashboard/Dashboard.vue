@@ -1,15 +1,22 @@
 <template>
     <div class="dashboard">
-      {{ user }}
-      <project-summary v-bind:project="project"></project-summary>
-      <stage-summary
-        v-for="stage in project.stages"
-        :key="stage.getID()"
-        :stage="stage"
-        :project="project"
+      <div>
+        <div class="project_selector"
+             v-for="project in project_list"
+             @click="selectProject(project)"
+        >{{ project.project_title }}</div>
+      </div>
+      <br>
+      <project-summary v-bind:project="selected_project"></project-summary>
+      <stage-summary v-if="selected_project.project_id"
+        v-for="stage_id in selected_project.stages"
+        :key="stage_id"
+        :stage_id="stage_id"
+         :stages="stages"
+        :project="selected_project"
       >
       </stage-summary>
-      <div class="new_stage_button" @click="addStage">Add a stage...</div>
+      <!--<div class="new_stage_button" @click="addStage" v-if="selected_project.project_id">Add a stage...</div> -->
 
     </div>
 </template>
@@ -19,6 +26,7 @@
   import ProjectSummary from './ProjectSummary'
   import StageSummary from './StageSummary'
   import {ApiWrapper} from "./http-common"
+  import {AXIOS} from './http-common'
 
   export default {
       name: 'dashboard',
@@ -28,27 +36,27 @@
       },
       data: function() {
         return {
-          project: {
-            title: 'Trio Project',
-            stages: ApiWrapper.getStages(),
-            manager: 'mhachey@bu.edu',
-            teammates: ['mhachey@bu.edu']
-
-          },
-
+          selected_project: { stages: [], project_id: '', project_title: ''},
+          project_list: [],
+          user: ApiWrapper.getUser(this.$store.getters.user.id),
+          stages: []
         };
       },
       methods: {
         addStage: function() {
           this.project.stages.push(ApiWrapper.postStage("", []));
+        },
+        selectProject(project) {
+          this.selected_project = project;
         }
       },
-      computed: {
-        user: function() {
-          return this.$store.getters.user;
-        }
-      },
-      watch: {}
+      computed: {},
+      beforeCreate: function() {
+        ApiWrapper.setIdToken(this.$store.getters.user.idToken);
+        AXIOS.get('/project', {headers: {'idToken': this.$store.getters.user.idToken}}).then( response => {
+          this.project_list = response.data;
+        } )
+      }
     }
 </script>
 
@@ -59,6 +67,23 @@
     padding: 0;
     margin: 0;
     background-color: lightblue;
+  }
+
+  div.dashboard {
+    padding: 1em;
+  }
+
+  div.project_selector {
+    display: inline-block;
+    background-color: white;
+    padding: 0.5em;
+    text-align: center;
+    margin: 0.5em 0.5em 0.5em 0;
+    border: 0.25em solid #c0f1ff;
+  }
+
+  div.project_selector:hover {
+    cursor: pointer;
   }
 
   div.new_stage_button {

@@ -60,7 +60,10 @@ public class Trio extends SpringBootServletInitializer {
 		String path;
 		String OS = System.getProperty("os.name").toLowerCase();
 		if (OS.indexOf("win") >= 0) {
-			path = "classpath:trio.json";
+            path = "classpath:trio.json";
+        }
+		else if (OS.indexOf("mac") >= 0) {
+			path = "/ec2-user/trio.json";
 		} else {
 			path = "/home/ec2-user/trio.json";
 		}
