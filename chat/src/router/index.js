@@ -57,7 +57,8 @@ export default new Router({
     {
       path: '/dashboard',
       name: 'Dashboard',
-      component: Dashboard
+      component: Dashboard,
+      beforeEnter: AuthGuard
     }
   ],
   mode: 'history'
