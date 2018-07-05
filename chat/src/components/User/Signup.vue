@@ -136,7 +136,7 @@
       },
       signUserUpDb () {
         const qs = require('qs')
-        axios.post('http://localhost:8088/signup', qs.stringify(
+        axios.post(this.$store.getters.serverHost + '/signup', qs.stringify(
           {
             'first_name': this.firstname,
             'last_name': this.lastname,

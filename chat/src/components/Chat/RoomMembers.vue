@@ -1,5 +1,5 @@
 <template>
-  <v-list subheader>
+  <v-list subheader class="line">
     <v-subheader>Members</v-subheader>
     <v-list-tile avatar v-for="(member, index) in members" v-bind:key="member.name">
       <v-list-tile-content>
@@ -44,7 +44,7 @@
     methods: {
       async addMember () {
         if (this.newMember !== '') {
-          const user = await axios.get('http://localhost:8088/rest/user/email/' + this.newMember,
+          const user = await axios.get(this.$store.getters.serverHost + '/rest/user/email/' + this.newMember,
             {
               headers: {'idToken': this.$store.getters.user.idToken}
             }
@@ -61,6 +61,9 @@
 <style>
   .new-member {
     margin-top: 30px;
+  }
+  .line {
+    border-top: 5px solid #e1e1e1;
   }
 </style>
 

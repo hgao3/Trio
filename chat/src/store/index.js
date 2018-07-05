@@ -15,7 +15,8 @@ export const store = new Vuex.Store({
   state: {
     loading: false,
     error: null,
-    onlineUsers: []
+    onlineUsers: [],
+    serverHost: 'http://ec2-54-210-102-133.compute-1.amazonaws.com:8088'
   },
   mutations: {
     setLoading (state, payload) {
@@ -53,6 +54,9 @@ export const store = new Vuex.Store({
     },
     onlineUsers (state) {
       return state.onlineUsers
+    },
+    serverHost (state) {
+      return state.serverHost
     }
   }
 })
