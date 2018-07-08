@@ -4,7 +4,7 @@
       <v-layout row wrap>
         <v-flex xs12 class="text-xs-center">
           <h3>Select a Channel! Or create a new one!</h3>
-          // channels previously called chats //-->
+          <!-- channels previously called chats -->
           <chats></chats>
         </v-flex>
       </v-layout>
