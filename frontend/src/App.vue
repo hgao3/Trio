@@ -56,10 +56,11 @@
         ]
         if (this.userIsAuthenticated) {
           items = [
-            {icon: 'dvr', title: 'Dashboard', route: '/dashboard'},
+            {icon: 'assignment', title: 'Dashboard', route: '/dashboard'},
             {icon: 'chat', title: 'Chat', route: '/chat/0'},
-            {icon: 'chat', title: 'Create a Channel', route: '/create'},
-            {icon: 'face', title: 'Users', route: '/UsersTable'}
+            {icon: 'storage', title: 'Create New Channel', route: '/create'},
+            {icon: 'face', title: 'Users', route: '/UsersTable'},
+            {icon: 'error', title: 'Issue Tracker', route: '/IssueTracker'}
           ]
         }
         return items
