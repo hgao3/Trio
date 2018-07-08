@@ -1,9 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Service from '../components/Service'
-import Bootstrap from '../components/Bootstrap'
-import User from '../components/User'
-import Dashboard from '../components/Dashboard'
+import Home from '@/components/Home'
+import Chat from '@/components/Chat/Chat'
+import Create from '@/components/Chat/Create'
+import Profile from '@/components/User/Profile'
+import Signup from '@/components/User/Signup'
+import Signin from '@/components/User/Signin'
+import UsersTable from '@/components/User/UsersTable'
+import Dashboard from '@/components/Dashboard/Dashboard'
+import AuthGuard from './auth-guard'
 
 Vue.use(Router)
 
@@ -11,23 +16,50 @@ export default new Router({
   routes: [
     {
       path: '/',
+      name: 'Home',
+      component: Home,
+      beforeEnter: AuthGuard
+    },
+    {
+      path: '/login',
+      name: 'Signin',
+      component: Signin
+    },
+    {
+      path: '/register',
+      name: 'Signup',
+      component: Signup
+    },
+    {
+      path: '/profile',
+      name: 'Profile',
+      component: Profile
+    },
+    {
+      path: '/chat/:id',
+      name: 'Chat',
+      component: Chat,
+      props: true,
+      beforeEnter: AuthGuard
+    },
+    {
+      path: '/create',
+      name: 'CreateChat',
+      component: Create,
+      beforeEnter: AuthGuard
+    },
+    {
+      path: '/UsersTable',
+      name: 'UsersTable',
+      component: UsersTable,
+      beforeEnter: AuthGuard
+    },
+    {
+      path: '/dashboard',
       name: 'Dashboard',
-      component: Dashboard
-    },
-    {
-      path: '/callservice',
-      name: 'Service',
-      component: Service
-    },
-    {
-      path: '/bootstrap',
-      name: 'Bootstrap',
-      component: Bootstrap
-    },
-    {
-      path: '/user',
-      name: 'User',
-      component: User
+      component: Dashboard,
+      beforeEnter: AuthGuard
     }
-  ]
+  ],
+  mode: 'history'
 })

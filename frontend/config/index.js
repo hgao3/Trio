@@ -4,8 +4,8 @@ var path = require('path')
 module.exports = {
   build: {
     env: require('./prod.env'),
-    index: path.resolve(__dirname, '../target/dist/index.html'),
-    assetsRoot: path.resolve(__dirname, '../target/dist'),
+    index: path.resolve(__dirname, '../dist/index.html'),
+    assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     productionSourceMap: true,
@@ -29,11 +29,11 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       // proxy all webpack dev-server requests starting with /api to our Spring Boot backend (localhost:8088)
-      '/api': {
-        target: 'http://localhost:8088',
+      '/rest': {
+        target: 'http://localhost:8088/rest/',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': ''
+          '^/rest': ''
         }
       }
     },

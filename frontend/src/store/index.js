@@ -1,12 +1,62 @@
-import Vuex from 'vuex'
 import Vue from 'vue'
+import Vuex from 'vuex'
+import * as firebase from 'firebase'
 
-Vue.use(Vuex);
+import AuthModule from './AuthModule'
+import ChatModule from './ChatModule'
 
-import {ApiWrapper} from "../components/http-common";
+Vue.use(Vuex)
 
-export default new Vuex.Store( {
+export const store = new Vuex.Store({
+  modules: {
+    auth: AuthModule,
+    chat: ChatModule
+  },
   state: {
-    user: ApiWrapper.getUser(1)
+    loading: false,
+    error: null,
+    onlineUsers: [],
+    serverHost: 'http://ec2-54-210-102-133.compute-1.amazonaws.com:8088'
+  },
+  mutations: {
+    setLoading (state, payload) {
+      state.loading = payload
+    },
+    setError (state, payload) {
+      state.error = payload
+    },
+    clearError (state) {
+      state.error = null
+    },
+    setOnlineUsers (state, payload) {
+      state.onlineUsers = payload
+    }
+  },
+  actions: {
+    loadOnlineUsers ({commit}) {
+      firebase.database().ref('presence').on('value', function (snapshot) {
+        let result = []
+        result[0] = snapshot.numChildren()
+        result[1] = snapshot.val()
+        commit('setOnlineUsers', result)
+      })
+    },
+    clearError ({commit}) {
+      commit('clearError')
+    }
+  },
+  getters: {
+    loading (state) {
+      return state.loading
+    },
+    error (state) {
+      return state.error
+    },
+    onlineUsers (state) {
+      return state.onlineUsers
+    },
+    serverHost (state) {
+      return state.serverHost
+    }
   }
-});
+})

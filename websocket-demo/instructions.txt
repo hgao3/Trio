@@ -1,6 +1,0 @@
-cd /home/m4jp6/websocket-demo
-mvn spring-boot:run
-
-
-netstat -ano | findstr :8080
-taskkill /PID /F 
