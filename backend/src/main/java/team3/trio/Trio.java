@@ -49,6 +49,8 @@ public class Trio extends SpringBootServletInitializer {
 		config.addAllowedMethod("GET");
 		config.addAllowedMethod("PUT");
 		config.addAllowedMethod("POST");
+		config.addAllowedMethod("PATCH");
+		config.addAllowedMethod("DELETE");
 		config.addAllowedHeader("x-firebase-auth");
 		source.registerCorsConfiguration("/**", config);
 		return new CorsFilter(source);
