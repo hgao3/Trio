@@ -1,8 +1,8 @@
 {
-  "name": "vuetify-chat",
-  "version": "0.0.1",
-  "description": "A chat built with Vue + Vuex + Vuetify + Firebase",
-  "author": "Berk Emre Saribas",
+  "name": "Trio",
+  "version": "0.2.1",
+  "description": "A 3-in-1 Tool with a Project Management Dashboard, Instant Group Chat, and Issue Tracker",
+  "author": "Hugh Gao, Michael Hachey, Miffy Chen",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",

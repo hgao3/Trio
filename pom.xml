@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 
 	<name>Trio</name>
-	<description>3-in-1 software project management tool</description>
+	<description>3-in-1 Software Project Management Tool</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

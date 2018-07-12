@@ -14,7 +14,7 @@
       <v-list >
         <v-list-tile avatar v-for="user in onlineUsers[1]" @click="">
           <v-list-tile-avatar>
-            <img src="../static/icon.jpg" />
+            <img src="../static/profile_icon.jpg" />
           </v-list-tile-avatar>
           <v-list-tile-content>
             <v-list-tile-title>{{user.user}}</v-list-tile-title>
