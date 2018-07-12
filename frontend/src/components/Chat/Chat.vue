@@ -4,12 +4,20 @@
       <div class="chat-container">
         <message :messages="messages" @imageLoad="scrollToEnd"></message>
       </div>
+      <alert-picker :show="alertPanel" @close="toggleAlertPanel" :alert_list="alert_list"></alert-picker>
       <emoji-picker :show="emojiPanel" @close="toggleEmojiPanel" @click="addMessage"></emoji-picker>
       <div class="typer">
         <input type="text" placeholder="Type here..." v-on:keyup.enter="sendMessage" v-model="content">
-        <v-btn icon class="blue--text emoji-panel" @click="toggleEmojiPanel">
+        <v-btn icon class="blue--text icon" @click="toggleAlertPanel">
+          <v-icon>add_alert</v-icon>
+        </v-btn>
+        <v-btn icon class="blue--text icon" @click="toggleEmojiPanel">
           <v-icon>mood</v-icon>
         </v-btn>
+      </div>
+      <div v-if="alert_list.length > 0">
+        Sending this message will alert
+        <span class="alert_names">{{ alert_list.map(user=>{return user.name}).join(', ') }}</span>
       </div>
     </v-flex>
     <v-flex sm2 order-xs1 class="scrollable">
@@ -21,10 +29,12 @@
 
 <script>
   import Message from './Message.vue'
+  import AlertPicker from './AlertPicker'
   import EmojiPicker from './EmojiPicker.vue'
   import Chats from './Chats.vue'
   import Members from './RoomMembers.vue'
   import * as firebase from 'firebase'
+  import Alert from "../Shared/Alert";
 
   export default {
     data () {
@@ -32,24 +42,28 @@
         content: '',
         chatMessages: [],
         emojiPanel: false,
-        currentRef: {}
+        alertPanel: false,
+        currentRef: {},
+        alert_list: []
       }
     },
     props: [
       'id'
     ],
     mounted () {
-      this.loadChat()
-      this.$store.dispatch('loadOnlineUsers')
+      this.loadChat();
+      this.$store.dispatch('loadOnlineUsers');
     },
     created () {
       this.$store.dispatch('loadChats', { userId: this.$store.getters.user.id })
     },
     components: {
+      Alert,
       'message': Message,
       'emoji-picker': EmojiPicker,
       'chats': Chats,
-      'members': Members
+      'members': Members,
+      'alert-picker': AlertPicker
     },
     computed: {
       messages () {
@@ -123,8 +137,9 @@
       },
       sendMessage () {
         if (this.content !== '') {
-          this.$store.dispatch('sendMessage', { userId: this.userId, username: this.username, content: this.content, chatID: this.id })
-          this.content = ''
+          this.$store.dispatch('sendMessage', { userId: this.userId, username: this.username, content: this.content, chatID: this.id });
+          this.content = '';
+          this.alert_list = [];
         }
       },
       scrollToEnd () {
@@ -136,6 +151,9 @@
       },
       toggleEmojiPanel () {
         this.emojiPanel = !this.emojiPanel
+      },
+      toggleAlertPanel() {
+        this.alertPanel = !this.alertPanel;
       }
     }
   }
@@ -156,12 +174,12 @@
     background-color: #fff;
     box-shadow: 0 -5px 10px -5px rgba(0,0,0,.2);
   }
-  .typer .emoji-panel{
-    /*margin-right: 15px;*/
+  .typer .icon {
+    margin: 0;
   }
   .typer input[type=text]{
     position: absolute;
-    left: 2.5rem;
+    left: 5rem;
     padding: 1rem;
     width: 80%;
     background-color: transparent;
@@ -202,6 +220,10 @@
     .chat-container .content{
       max-width: 60%;
     }
+  }
+
+  .alert_names {
+    font-weight: bold;
   }
 
 </style>
