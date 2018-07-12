@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +31,7 @@ import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
 import team3.trio.repository.UserProjectRepository;
 import team3.trio.repository.UserRepository;
+import team3.trio.utils.JsonUtils;
 
 @RestController
 public class ProjectController {
@@ -48,12 +50,16 @@ public class ProjectController {
 	@Autowired
 	private UserProjectRepository userProjectRepository;
 
-	@RequestMapping(path = "/rest/project", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/project", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
-	public long addNewProject(@RequestParam(value = "title", required = false) String title,
-			@RequestParam(value = "manager_id", required = false) Long managerId) {
+	public long addNewProject(@RequestBody String jsonString) throws Exception {
 
+		// json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String");
+		Long managerId = (Long) JsonUtils.findElementFromJson(jo, "manager_id", "Long");
+		
 		User user = userRepository.findById(managerId)
 				.orElseThrow(() -> new ResourceNotFoundException("User", "id", managerId));
 
@@ -68,12 +74,16 @@ public class ProjectController {
 		return project.getId();
 	}
 
-	@RequestMapping(path = "/rest/project/{id}/add_teammate", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/project/{id}/add_teammate", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public void addTeammateToProject(@PathVariable("id") Long id,
-			@RequestParam(value = "teammate_id", required = false) Long teammateId) {
+			@RequestBody String jsonString) throws Exception {
 		LOG.info("Reading user with id " + id + " from database.");
+		
+		//json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		Long teammateId = (Long) JsonUtils.findElementFromJson(jo, "teammate_id", "Long");
 
 		Project project = this.projectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
@@ -89,12 +99,16 @@ public class ProjectController {
 				+ " into DB");
 	}
 
-	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public void updateProject(@PathVariable("id") Long id,
-			@RequestParam(value = "title", required = false) String title,
-			@RequestParam(value = "manager_id", required = false) Long managerId) {
+			@RequestBody String jsonString) throws Exception {
 		LOG.info("User with id " + id + " successfully updated into database.");
+		
+		// json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String");
+		Long managerId = (Long) JsonUtils.findElementFromJson(jo, "manager_id", "Long");
 
 		Project project = projectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));

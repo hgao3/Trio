@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +33,7 @@ import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
 import team3.trio.repository.UserProjectRepository;
 import team3.trio.repository.UserRepository;
+import team3.trio.utils.JsonUtils;
 
 @RestController
 public class StageController {
@@ -53,12 +55,15 @@ public class StageController {
 	@Autowired
 	private TaskRepository taskRepository;
 
-	@RequestMapping(path = "/rest/stage", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/stage", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
-	public long addNewStage(@RequestParam(value = "title", required = false) String title,
-			@RequestParam(value = "project_id", required = false) Long projectId) {
+	public long addNewStage(@RequestBody String jsonString) throws Exception {
 
+		// json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String");
+		Long projectId = (Long) JsonUtils.findElementFromJson(jo, "project_id", "Long");
 		
 		Project project = projectRepository.findById(projectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
@@ -95,11 +100,14 @@ public class StageController {
 		return ja.toString();
 	}
 
-	@RequestMapping(path = "/rest/stage/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/stage/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public void updateStage(@PathVariable("id") Long id,
-			@RequestParam(value = "title", required = false) String title) {
+	public void updateStage(@RequestBody String jsonString,
+			@PathVariable("id") Long id) throws Exception {
 		
+		// json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String"); 
 
 		Stage stage = stageRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Stage", "id", id));

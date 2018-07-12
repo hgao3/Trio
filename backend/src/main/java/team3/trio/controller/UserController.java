@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,7 @@ import team3.trio.exception.ResourceNotFoundException;
 import team3.trio.model.Role;
 import team3.trio.model.User;
 import team3.trio.repository.UserRepository;
+import team3.trio.utils.JsonUtils;
 import team3.trio.utils.PasswordUtils;
 
 @RestController
@@ -117,12 +119,18 @@ public class UserController {
 		userRepository.deleteById(id);
 	}
 
-	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.PATCH)
+	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
 	public @ResponseBody void updateUser(@PathVariable("id") Long id,
-			@RequestParam(value = "first_name", required = false) String firstName,
-			@RequestParam(value = "last_name", required = false) String lastName,
-			@RequestParam(required = false) String email, @RequestParam(required = false) String password) {
+			@RequestBody String jsonString) throws Exception {
 		LOG.info("User with id " + id + " successfully updated into database.");
+		
+		// json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String firstName = (String) JsonUtils.findElementFromJson(jo, "first_name", "String");
+		String lastName = (String) JsonUtils.findElementFromJson(jo, "last_name", "String");
+		String email = (String) JsonUtils.findElementFromJson(jo, "email", "String");
+		String password = (String) JsonUtils.findElementFromJson(jo, "password", "String");
+		
 
 		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
