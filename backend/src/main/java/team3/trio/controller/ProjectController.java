@@ -58,10 +58,17 @@ public class ProjectController {
 		// json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
 		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String");
-		Long managerId = (Long) JsonUtils.findElementFromJson(jo, "manager_id", "Long");
+		String managerEmail = (String) JsonUtils.findElementFromJson(jo, "manager_email", "String");
 		
-		User user = userRepository.findById(managerId)
-				.orElseThrow(() -> new ResourceNotFoundException("User", "id", managerId));
+		List<User> users = userRepository.findByEmail(managerEmail);
+		if (users.size()==0) {
+			throw new ResourceNotFoundException("User", "email", managerEmail);
+		}
+		
+		User user = users.get(0);
+		
+		//User user = userRepository.findById(managerId)
+		//		.orElseThrow(() -> new ResourceNotFoundException("User", "id", managerId));
 
 		Project project = new Project(title);
 
@@ -79,17 +86,24 @@ public class ProjectController {
 	@ResponseBody
 	public void addTeammateToProject(@PathVariable("id") Long id,
 			@RequestBody String jsonString) throws Exception {
-		LOG.info("Reading user with id " + id + " from database.");
+		LOG.info("Reading project with id " + id + " from database.");
 		
 		//json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
-		Long teammateId = (Long) JsonUtils.findElementFromJson(jo, "teammate_id", "Long");
-
+		String teammateEmail = (String) JsonUtils.findElementFromJson(jo, "teammate_email", "String");
+		
 		Project project = this.projectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
 
-		User user = userRepository.findById(teammateId)
-				.orElseThrow(() -> new ResourceNotFoundException("User", "id", teammateId));
+		List<User> users = userRepository.findByEmail(teammateEmail);
+		if (users.size()==0) {
+			throw new ResourceNotFoundException("User", "email", teammateEmail);
+		}
+		
+		User user = users.get(0);
+		
+		//User user = userRepository.findById(teammateId)
+		//		.orElseThrow(() -> new ResourceNotFoundException("User", "id", teammateId));
 
 		UserProject up = new UserProject(user, project, Role.Teammate);
 		project.addUserProjects(up);
@@ -108,7 +122,7 @@ public class ProjectController {
 		// json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
 		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String");
-		Long managerId = (Long) JsonUtils.findElementFromJson(jo, "manager_id", "Long");
+		String managerEmail = (String) JsonUtils.findElementFromJson(jo, "manager_email", "String");
 
 		Project project = projectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
@@ -118,9 +132,13 @@ public class ProjectController {
 			projectRepository.saveAndFlush(project);
 		}
 
-		if (managerId != null && managerId > 0) {
-			User user = userRepository.findById(managerId)
-					.orElseThrow(() -> new ResourceNotFoundException("User", "id", managerId));
+		if (!StringUtils.isEmpty(managerEmail)) {
+			List<User> users = userRepository.findByEmail(managerEmail);
+			if (users.size()==0) {
+				throw new ResourceNotFoundException("User", "email", managerEmail);
+			}
+			
+			User user = users.get(0);
 			
 			userProjectRepository.findAll().forEach((up) -> {
 				System.out.println("project id: " + project.getId());
@@ -174,13 +192,17 @@ public class ProjectController {
 
 		project.getUserProjects().forEach((p) -> {
 			if (p.getRole().equals(Role.Manager)) {
-				manager.add(p.getId().getUserId().toString());
+				User user = userRepository.findById(p.getId().getUserId())
+					.orElseThrow(() -> new ResourceNotFoundException("User", "id", p.getId().getUserId()));
+				manager.add(user.getEmail());
 			} else if (p.getRole().equals(Role.Teammate)) {
-				teammateList.add(p.getId().getUserId().toString());
+				User user = userRepository.findById(p.getId().getUserId())
+						.orElseThrow(() -> new ResourceNotFoundException("User", "id", p.getId().getUserId()));
+				teammateList.add(user.getEmail());
 			}
 		});
 
-		jo.add("manager", manager);
+		jo.add("manager_email", manager);
 		jo.add("teammate", teammateList);
 
 		JsonArray stageList = new JsonArray();

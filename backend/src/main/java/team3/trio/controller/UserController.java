@@ -64,11 +64,18 @@ public class UserController {
 		return user.getId();
 	}
 
-	@RequestMapping(path = "/rest/user/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/user/{email}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String getUserById(@PathVariable("id") Long id) {
-		LOG.info("Reading user with id " + id + " from database.");
-		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+	public String getUserById(@PathVariable("email") String email) {
+		LOG.info("Reading user with email " + email + " from database.");
+		
+		List<User> users = userRepository.findByEmail(email);
+		if (users.size()==0) {
+			throw new ResourceNotFoundException("User", "email", email);
+		}
+		
+		User user = users.get(0);
+		//User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
 		return userToJO(user).toString();
 	}
@@ -129,7 +136,7 @@ public class UserController {
 		String firstName = (String) JsonUtils.findElementFromJson(jo, "first_name", "String");
 		String lastName = (String) JsonUtils.findElementFromJson(jo, "last_name", "String");
 		String email = (String) JsonUtils.findElementFromJson(jo, "email", "String");
-		String password = (String) JsonUtils.findElementFromJson(jo, "password", "String");
+		//String password = (String) JsonUtils.findElementFromJson(jo, "password", "String");
 		
 
 		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
