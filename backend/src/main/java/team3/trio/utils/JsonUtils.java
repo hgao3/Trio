@@ -17,4 +17,16 @@ public class JsonUtils {
 		JsonParser parser = new JsonParser();
 		return parser.parse(nonJson);
 	}
+	public static final String ERROR_MISSING = " is missing from request json";
+	public static Object findElementFromJson(JsonObject jo, String name, String returnType) throws Exception {
+		if (jo != null && jo.has(name)) {
+			if (returnType.equals("String")) {
+				return jo.get(name).getAsString();
+			} else if (returnType.equals("Long")) {
+				return jo.get(name).getAsLong();
+			} 
+		}
+		throw new Exception(name + ERROR_MISSING);
+	}
+	
 }

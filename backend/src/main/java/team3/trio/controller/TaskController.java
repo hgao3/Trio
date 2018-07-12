@@ -21,6 +21,7 @@ import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
 import team3.trio.repository.UserRepository;
 import team3.trio.utils.DateUtils;
+import team3.trio.utils.JsonUtils;
 import team3.trio.utils.PasswordUtils;
 
 import java.text.ParseException;
@@ -49,17 +50,28 @@ public class TaskController {
     @Autowired
     private StageRepository stageRepository;
     
-    @RequestMapping(path = "/rest/task", method = RequestMethod.POST)
+    @RequestMapping(path = "/rest/task", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-	public long addNewTaskt(@RequestParam(value = "title") String title,
-			@RequestParam(value = "assigned_user_id") Long assignedUserId,
-			@RequestParam(value = "stage_id") Long stageId,
-			@RequestParam(value = "content", required = false) String content,
-			@RequestParam(value = "due_date", required = false) String dueDate) throws ParseException {    	
+	public long addNewTaskt(@RequestBody String jsonString) throws Exception {    	
     	
-    	User user = userRepository.findById(assignedUserId)
-				.orElseThrow(() -> new ResourceNotFoundException("User", "id", assignedUserId));
+		// json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String");
+		String assignedUserEmail = (String) JsonUtils.findElementFromJson(jo, "assigned_user_email", "String");
+		Long stageId = (Long) JsonUtils.findElementFromJson(jo, "stage_id", "Long");
+		String content = (String) JsonUtils.findElementFromJson(jo, "content", "String");
+		String dueDate = (String) JsonUtils.findElementFromJson(jo, "due_date", "String");
+		
+		List<User> users = userRepository.findByEmail(assignedUserEmail);
+		if (users.size()==0) {
+			throw new ResourceNotFoundException("User", "email", assignedUserEmail);
+		}
+		
+		User user = users.get(0);
+		
+    	//User user = userRepository.findById(assignedUserId)
+		//		.orElseThrow(() -> new ResourceNotFoundException("User", "id", assignedUserId));
     	
     	Stage stage = stageRepository.findById(stageId)
 				.orElseThrow(() -> new ResourceNotFoundException("Stage", "id", stageId));
@@ -98,16 +110,19 @@ public class TaskController {
 		return ja.toString();
 	}
 
-	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.PATCH, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public void updateTask(@PathVariable("id") Long id,
-			@RequestParam(value = "title", required = false) String title,
-			@RequestParam(value = "assigned_user_id", required = false) Long assignedUserId,
-			@RequestParam(value = "stage_id", required = false) Long stageId,
-			@RequestParam(value = "content", required = false) String content,
-			@RequestParam(value = "due_date", required = false) String dueDate) throws ParseException {
+	public void updateTask(@RequestBody String jsonString,
+			@PathVariable("id") Long id) throws Exception {
 		
-
+		// json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String");
+		String assignedUserEmail = (String) JsonUtils.findElementFromJson(jo, "assigned_user_email", "String");
+		Long stageId = (Long) JsonUtils.findElementFromJson(jo, "stage_id", "Long");
+		String content = (String) JsonUtils.findElementFromJson(jo, "content", "String");
+		String dueDate = (String) JsonUtils.findElementFromJson(jo, "due_date", "String");
+		
 		Task task = taskRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
 
@@ -125,9 +140,14 @@ public class TaskController {
 			task.setDueAt(dueAt);
 		}
 		
-		if (assignedUserId != null && assignedUserId > 0) {
-			User user = userRepository.findById(assignedUserId).orElseThrow(() -> new ResourceNotFoundException("User", "id", assignedUserId));
-			task.setAssignedUser(user);
+		if (!StringUtils.isEmpty(assignedUserEmail)) {
+			List<User> users = userRepository.findByEmail(assignedUserEmail);
+			if (users.size()==0) {
+				throw new ResourceNotFoundException("User", "email", assignedUserEmail);
+			}
+			
+			//User user = userRepository.findById(assignedUserId).orElseThrow(() -> new ResourceNotFoundException("User", "id", assignedUserId));
+			task.setAssignedUser(users.get(0));
 		}
 		
 		if (stageId != null && stageId > 0) {
@@ -153,7 +173,7 @@ public class TaskController {
 		JsonObject jo = new JsonObject();
 		jo.addProperty("task_id", task.getId());
 		jo.addProperty("title", task.getTitle());
-		jo.addProperty("assigned_user_id", task.getAssignedUser().getId());
+		jo.addProperty("assigned_user_email", task.getAssignedUser().getEmail());
 		jo.addProperty("content", task.getContent());
 		jo.addProperty("due_date", DateUtils.toString(task.getDueAt()));
 		jo.addProperty("create_date", DateUtils.toString(task.getCreatedAt()));

@@ -65,7 +65,7 @@ public class UserControllerTest2 {
 
 		Long userId = controller.addNewUser(newuser.getFirstName(), newuser.getLastName(), newuser.getEmail());				
 		
-		String response = controller.getUserById(userId);
+		String response = controller.getUserById(newuser.getEmail());
 		JsonObject jo = JsonUtils.toJsonObject(response);
 		Assert.assertTrue(jo.get("first_name").getAsString().equalsIgnoreCase(newuser.getFirstName()));
 		Assert.assertTrue(jo.get("last_name").getAsString().equalsIgnoreCase(newuser.getLastName()));
