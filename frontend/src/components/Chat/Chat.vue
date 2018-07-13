@@ -137,9 +137,20 @@
       },
       sendMessage () {
         if (this.content !== '') {
-          this.$store.dispatch('sendMessage', { userId: this.userId, username: this.username, content: this.content, chatID: this.id });
+          const payload = {
+            userId: this.userId,
+            username: this.username,
+            content: this.content,
+            chatID: this.id,
+            from: this.$store.getters.user.email,
+            idToken: this.$store.getters.user.idToken,
+            channel: this.$store.getters.currentChatName,
+            alert_list: this.alert_list };
+          this.$store.dispatch('sendMessage', payload);
           this.content = '';
           this.alert_list = [];
+          this.alertPanel = false;
+          this.emojiPanel = false;
         }
       },
       scrollToEnd () {

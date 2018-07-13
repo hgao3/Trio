@@ -1,8 +1,10 @@
 package team3.trio.controller;
 
-import java.util.ArrayList;
+import java.time.Month;
 import java.util.List;
+import java.util.Date;
 
+import com.google.gson.JsonElement;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +24,11 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.Gson;
 
 import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.InternetAddress;
 import org.masukomi.aspirin.Aspirin;
@@ -70,15 +75,39 @@ public class UserController {
 		return user.getId();
 	}
 
-	@RequestMapping(path = "/rest/user/{email}/notify", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/user/{email}/notify", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String notifyUser(@RequestParam(value = "email", required = true) String email) {
+	public String notifyUser(@PathVariable("email") String email, @RequestBody String jsonString) throws MessagingException {
 		LOG.info("Sending email notification to user " + email + ".");
 		List<User> users = userRepository.findByEmail(email);
 		if (users.size() == 0) {
 			throw new ResourceNotFoundException("User", "email", email);
 		}
 
+		class Data {
+			public String from;
+			public String channel;
+			public String body;
+			Data(String from, String channel, String body) {
+				this.from = from;
+				this.channel = channel;
+				this.body = body;
+			}
+			Data() {
+				this("", "", "");
+			}
+		}
+
+		Gson gson = new Gson();
+		Data data = gson.fromJson(jsonString, Data.class);
+
+		MimeMessage msg = AspirinInternal.createNewMimeMessage();
+		msg.setFrom(new InternetAddress("notifications@trio.com"));
+		msg.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
+		msg.setSubject("Trio alert: new chat message from " + email);
+		String messageBody = "Trio user " + data.from + " posted this message to " + data.channel + ":<br><br>" + data.body;
+		msg.setText(messageBody);
+		Aspirin.add(msg);
 		return "";
 	}
 

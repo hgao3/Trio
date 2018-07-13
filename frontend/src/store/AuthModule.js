@@ -1,5 +1,4 @@
 import * as firebase from 'firebase'
-
 const AuthModule = {
   state: {
     user: null
@@ -78,7 +77,7 @@ const AuthModule = {
         .then(
           user => {
             firebase.database().ref('users').child(user.uid).once('value', function (data) {
-              commit('setLoading', false)
+              commit('setLoading', false);
               const newUser = {
                 id: user.uid,
                 username: data.val().name,
@@ -86,7 +85,7 @@ const AuthModule = {
                 lastname: data.val().lastname,
                 email: data.val().email,
                 rooms: data.val().rooms
-              }
+              };
               commit('setUser', newUser)
             })
           }
@@ -106,9 +105,12 @@ const AuthModule = {
           const newUser = {
             id: user.id,
             username: user.username,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
             idToken: idToken,
             rooms: user.rooms
-          }
+          };
           commit('setUserOnly', newUser)
         }
         )

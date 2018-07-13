@@ -1,10 +1,12 @@
 import * as firebase from 'firebase'
+import {AXIOS} from '../components/Dashboard/http-common'
 
 const ChatModule = {
   state: {
     chats: [],
     members: [],
-    currentChatId: ''
+    currentChatId: '',
+    currentChatName: ''
   },
   mutations: {
     setMessagesEmpty (state) {
@@ -28,17 +30,18 @@ const ChatModule = {
         });
       }
       state.currentChatId = payload.id.id;
+      state.currentChatName = payload.id.name;
     }
   },
   actions: {
     sendMessage ({commit}, payload) {
-      let chatID = payload.chatID
+      let chatID = payload.chatID;
       const message = {
         userId: payload.userId,
         username: payload.username,
         content: payload.content,
         date: firebase.database.ServerValue.TIMESTAMP
-      }
+      };
       firebase.database().ref('messages').child(chatID).child('messages').push(message)
         .then(
           (data) => {
@@ -48,7 +51,18 @@ const ChatModule = {
           (error) => {
             console.log(error)
           }
-        )
+        );
+      for (const user of payload.alert_list) {
+        const postData = {
+          from: payload.from,
+          body: payload.content,
+          channel: payload.channel
+        };
+        const postConfig = {
+          headers: {'idToken': payload.idToken}
+        };
+        AXIOS.post(`/user/${user.email}/notify`, postData, postConfig);
+      }
     },
     loadChats2 ({commit}) {
       firebase.database().ref('chats').on('value', function (snapshot) {
@@ -138,6 +152,9 @@ const ChatModule = {
     },
     currentChatId (state) {
       return state.currentChatId
+    },
+    currentChatName (state) {
+      return state.currentChatName;
     }
   }
 }
