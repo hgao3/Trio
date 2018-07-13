@@ -1,43 +1,43 @@
-'Components': path.resolve(__dirname, 'src/components')
 <template>
-  <div class="issuetracker">
-    <v-button : onClick="consoleClick">Console Log</v-button>
-    <v-button : onClick="alertClick">Alert</v-button>
-  </div>
 
-  <button @click=onClick" class="Issue">
-    <slot>Issue</slot>
-  </button>
+    <div class="issuetracker">
+<!--      <v-button : onClick="consoleClick">Console Log</v-button>
+      <v-button : onClick="alertClick">Alert</v-button>-->
+    </div>
 
-  <button class="Description">
-    <slot>Description</slot>
-  </button>
+<!--    <button @click="onClick" class="Issue">
+      <slot>Issue</slot>
+    </button>
 
-  <button class="Date">
-    <slot>Date</slot>
-  </button>
+    <button class="Description">
+      <slot>Description</slot>
+    </button>
 
-  <button class="Priority">
-    <slot>Priority</slot>
-  </button>
+    <button class="Date">
+      <slot>Date</slot>
+    </button>
 
-  <button class="Assign">
-    <slot>Assign</slot>
-  </button>
+    <button class="Priority">
+      <slot>Priority</slot>
+    </button>
 
-  <button class="Prioritize">
-    <slot>Prioritize</slot>
-  </button>
+    <button class="Assign">
+      <slot>Assign</slot>
+    </button>
 
-  <button class="Submit New Ticket">
-    <slot>Submit New Ticket</slot>
-  </button>
+    <button class="Prioritize">
+      <slot>Prioritize</slot>
+    </button>
+
+    <button class="Submit New Ticket">
+      <slot>Submit New Ticket</slot>
+    </button>-->
 
 </template>
 
 <script>
-  import {ApiWrapper} from "./http-common"
-  import {AXIOS} from './http-common'
+  import {ApiWrapper} from '../Dashboard/http-common'
+  import {AXIOS} from '../Dashboard/http-common'
 
   export default {
     name: 'issuetracker',
