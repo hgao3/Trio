@@ -23,6 +23,12 @@ import com.google.firebase.auth.UserRecord;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import javax.mail.Message;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.InternetAddress;
+import org.masukomi.aspirin.Aspirin;
+import org.masukomi.aspirin.core.AspirinInternal;
+
 import team3.trio.exception.ResourceNotFoundException;
 import team3.trio.model.Role;
 import team3.trio.model.User;
@@ -62,6 +68,18 @@ public class UserController {
 		LOG.info(user.toString() + " successfully saved into DB");
 
 		return user.getId();
+	}
+
+	@RequestMapping(path = "/rest/user/{email}/notify", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String notifyUser(@RequestParam(value = "email", required = true) String email) {
+		LOG.info("Sending email notification to user " + email + ".");
+		List<User> users = userRepository.findByEmail(email);
+		if (users.size() == 0) {
+			throw new ResourceNotFoundException("User", "email", email);
+		}
+
+		return "";
 	}
 
 	@RequestMapping(path = "/rest/user/{email}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")

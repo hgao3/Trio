@@ -14,12 +14,20 @@ const ChatModule = {
       state.chats = payload
     },
     setMembers (state, payload) {
-      var list = []
-      for (var userId in payload.id.members) {
-        list.push({name: payload.id.members[userId].name, id: userId})
+      state.members = [];
+      for (const userId in payload.id.members) {
+        firebase.database().ref('users').child(userId).on('value', data => {
+          let snapshot = data.val();
+          let user = {
+            id: snapshot.id,
+            email: snapshot.email,
+            firstname: snapshot.firstname,
+            lastname: snapshot.lastname,
+            name: snapshot.name};
+          state.members.push(user);
+        });
       }
-      state.members = list
-      state.currentChatId = payload.id.id
+      state.currentChatId = payload.id.id;
     }
   },
   actions: {

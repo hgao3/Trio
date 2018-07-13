@@ -40,6 +40,9 @@ const AuthModule = {
           user => {
             firebase.database().ref('users').child(user.uid).set({
               name: payload.username,
+              firstname: payload.firstname,
+              email: payload.email,
+              lastname: payload.lastname,
               id: user.uid,
               rooms: []
             })
@@ -79,6 +82,9 @@ const AuthModule = {
               const newUser = {
                 id: user.uid,
                 username: data.val().name,
+                firstname: data.val().firstname,
+                lastname: data.val().lastname,
+                email: data.val().email,
                 rooms: data.val().rooms
               }
               commit('setUser', newUser)

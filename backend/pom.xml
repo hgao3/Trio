@@ -55,6 +55,13 @@
 			<artifactId>firebase-server-sdk</artifactId>
 			<version>3.0.3</version>
 		</dependency> -->
+
+		<!-- https://mvnrepository.com/artifact/org.masukomi/aspirin -->
+		<dependency>
+			<groupId>org.masukomi</groupId>
+			<artifactId>aspirin</artifactId>
+			<version>0.10.00</version>
+		</dependency>
 		
 		<dependency>
 		  <groupId>com.google.firebase</groupId>

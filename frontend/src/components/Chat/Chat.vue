@@ -17,7 +17,7 @@
       </div>
       <div v-if="alert_list.length > 0">
         Sending this message will alert
-        <span class="alert_names">{{ alert_list.map(user=>{return user.name}).join(', ') }}</span>
+        <span class="alert_names">{{ alert_list.map(user=>{return `${user.firstname} ${user.lastname}`}).join(', ') }}</span>
       </div>
     </v-flex>
     <v-flex sm2 order-xs1 class="scrollable">

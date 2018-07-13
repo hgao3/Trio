@@ -129,7 +129,8 @@
     },
     methods: {
       onSignup () {
-        this.$store.dispatch('signUserUp', {email: this.email, password: this.password, username: this.username})
+        this.$store.dispatch('signUserUp', {email: this.email, password: this.password, username: this.username,
+          firstname: this.firstname, lastname: this.lastname})
       },
       onDismissed () {
         this.$store.dispatch('clearError')
