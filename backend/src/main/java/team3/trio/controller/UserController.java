@@ -77,14 +77,14 @@ public class UserController {
 
 	@RequestMapping(path = "/rest/user/{email}/notify", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String notifyUser(@PathVariable("email") String email, @RequestBody String jsonString) throws MessagingException {
+	public String notifyUser(@PathVariable("email") String email, @RequestBody String jsonString) throws Exception {
 		LOG.info("Sending email notification to user " + email + ".");
 		List<User> users = userRepository.findByEmail(email);
 		if (users.size() == 0) {
 			throw new ResourceNotFoundException("User", "email", email);
 		}
 
-		class Data {
+		/*class Data {
 			public String from;
 			public String channel;
 			public String body;
@@ -99,13 +99,19 @@ public class UserController {
 		}
 
 		Gson gson = new Gson();
-		Data data = gson.fromJson(jsonString, Data.class);
+		Data data = gson.fromJson(jsonString, Data.class);*/
+		
+		// json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String from = (String) JsonUtils.findElementFromJson(jo, "from", "String");
+		String channel = (String) JsonUtils.findElementFromJson(jo, "channel", "String");
+		String body = (String) JsonUtils.findElementFromJson(jo, "body", "String");
 
 		MimeMessage msg = AspirinInternal.createNewMimeMessage();
 		msg.setFrom(new InternetAddress("notifications@trio.com"));
 		msg.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
 		msg.setSubject("Trio alert: new chat message from " + email);
-		String messageBody = "Trio user " + data.from + " posted this message to " + data.channel + ":<br><br>" + data.body;
+		String messageBody = "Trio user " + from + " posted this message to " + channel + ":<br><br>" + body;
 		msg.setText(messageBody);
 		Aspirin.add(msg);
 		return "";
