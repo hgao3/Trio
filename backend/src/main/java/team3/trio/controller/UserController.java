@@ -24,21 +24,13 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.Gson;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.InternetAddress;
-import org.masukomi.aspirin.Aspirin;
-import org.masukomi.aspirin.core.AspirinInternal;
 
 import team3.trio.exception.ResourceNotFoundException;
 import team3.trio.model.Role;
 import team3.trio.model.User;
 import team3.trio.repository.UserRepository;
 import team3.trio.utils.JsonUtils;
+import team3.trio.utils.GmailMessage;
 import team3.trio.utils.PasswordUtils;
 
 @RestController
@@ -77,44 +69,25 @@ public class UserController {
 
 	@RequestMapping(path = "/rest/user/{email}/notify", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String notifyUser(@PathVariable("email") String email, @RequestBody String jsonString) throws Exception {
+	void notifyUser(@PathVariable("email") String email, @RequestBody String jsonString) throws Exception {
 		LOG.info("Sending email notification to user " + email + ".");
 		List<User> users = userRepository.findByEmail(email);
 		if (users.size() == 0) {
 			throw new ResourceNotFoundException("User", "email", email);
 		}
 
-		/*class Data {
-			public String from;
-			public String channel;
-			public String body;
-			Data(String from, String channel, String body) {
-				this.from = from;
-				this.channel = channel;
-				this.body = body;
-			}
-			Data() {
-				this("", "", "");
-			}
-		}
-
-		Gson gson = new Gson();
-		Data data = gson.fromJson(jsonString, Data.class);*/
-		
 		// json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
 		String from = (String) JsonUtils.findElementFromJson(jo, "from", "String");
 		String channel = (String) JsonUtils.findElementFromJson(jo, "channel", "String");
-		String body = (String) JsonUtils.findElementFromJson(jo, "body", "String");
+		String content = (String) JsonUtils.findElementFromJson(jo, "body", "String");
 
-		MimeMessage msg = AspirinInternal.createNewMimeMessage();
-		msg.setFrom(new InternetAddress("notifications@trio.com"));
-		msg.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
-		msg.setSubject("Trio alert: new chat message from " + email);
-		String messageBody = "Trio user " + from + " posted this message to " + channel + ":<br><br>" + body;
-		msg.setText(messageBody);
-		Aspirin.add(msg);
-		return "";
+		String subject = "" + from + " has alerted you on Trio";
+		String body = "Trio user " + from + " has alerted you to a new message in <strong>" +
+				channel + "</strong>:<br><br>" + content;
+
+		GmailMessage message = new GmailMessage(email, subject, body);
+		message.send();
 	}
 
 	@RequestMapping(path = "/rest/user/{email}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
