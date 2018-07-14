@@ -60,7 +60,8 @@
             {icon: 'chat', title: 'Chat', route: '/chat/0'},
             {icon: 'storage', title: 'Create New Channel', route: '/create'},
             {icon: 'face', title: 'Users', route: '/UsersTable'},
-            {icon: 'error', title: 'Issue Tracker', route: '/IssueTracker'}
+            {icon: 'error', title: 'Issue Tracker', route: '/IssueTracker'},
+            {icon: 'lock_open', title: 'Logout', route: '/login'},
           ]
         }
         return items
