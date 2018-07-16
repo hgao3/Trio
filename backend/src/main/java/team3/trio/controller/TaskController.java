@@ -11,11 +11,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import team3.trio.exception.ResourceNotFoundException;
-import team3.trio.model.Project;
-import team3.trio.model.Role;
-import team3.trio.model.Stage;
-import team3.trio.model.Task;
-import team3.trio.model.User;
+import team3.trio.model.*;
 import team3.trio.repository.ProjectRepository;
 import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
@@ -24,6 +20,7 @@ import team3.trio.utils.DateUtils;
 import team3.trio.utils.JsonUtils;
 import team3.trio.utils.PasswordUtils;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -109,6 +106,19 @@ public class TaskController {
 		}
 		return ja.toString();
 	}
+
+	@RequestMapping(path = "/rest/task/{id}/mark_ready", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	public void markReady( @PathVariable("id") Long id, @RequestBody String jsonString)
+	{
+		Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
+		if (task.checkManagerByEmail(email)) {
+			task.markReadyForReview();
+		}
+	}
+
+
 
 	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody

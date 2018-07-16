@@ -8,8 +8,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.google.gson.JsonObject;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import team3.trio.utils.JsonUtils;
 
 @Entity
 @Table(name = "tasks")
@@ -29,6 +31,12 @@ public class Task extends AuditModel {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "due_at")
     private Date dueAt;
+
+    @Column(name = "ready_for_review")
+	private Boolean readyForReview = false;
+
+    private Boolean completed = false;
+
     
     // User entity is not responsible for this relationship 
     //It should look for a field named assigned_user_id in the Task entity to find the configuration for the JoinColumn/ForeignKey column
@@ -102,12 +110,50 @@ public class Task extends AuditModel {
 		this.assignedUser = assignedUser;
 	}
 
+	public Boolean isReadyForReview() {
+		return readyForReview;
+	}
+
+	public void markReadyForReview() {
+		this.readyForReview = true;
+	}
+
+	public void markNotReadyForReview() {
+		this.readyForReview = false;
+	}
+
+	public Boolean isCompleted() {
+		return this.completed;
+	}
+
+	public void markCompleted() {
+		this.completed = true;
+	}
+
+	public void markIncomplete() {
+		this.completed = false;
+	}
+
 	public Stage getStage() {
 		return stage;
 	}
 
 	public void setStage(Stage stage) {
 		this.stage = stage;
+	}
+
+	public Boolean checkManagerByEmail(String email) {
+		Stage stage = this.getStage();
+		Project project = stage.getProject();
+		User manager = null;
+		for (UserProject up : project.getUserProjects()) {
+			if (up.getRole() == Role.Manager) {
+				manager = up.getUser();
+				break;
+			}
+		}
+		if (manager == null) { return false; }
+		return manager.getEmail().equals(email);
 	}
 	
 	
