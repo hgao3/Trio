@@ -50,7 +50,7 @@ public class TaskController {
     @RequestMapping(path = "/rest/task", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-	public long addNewTaskt(@RequestBody String jsonString) throws Exception {    	
+	public long addNewTask(@RequestBody String jsonString) throws Exception {
     	
 		// json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
@@ -108,16 +108,55 @@ public class TaskController {
 	}
 
 	@RequestMapping(path = "/rest/task/{id}/mark_ready", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
-	public void markReady( @PathVariable("id") Long id, @RequestBody String jsonString)
+	public void markReady( @PathVariable("id") Long id)
 	{
 		Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
-		JsonObject jo = JsonUtils.toJsonObject(jsonString);
-		String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
-		if (task.checkManagerByEmail(email)) {
-			task.markReadyForReview();
+		task.markReadyForReview();
+		LOG.info("Task id " + id + " marked ready for review");
+	}
+
+	@RequestMapping(path = "/rest/task/{id}/mark_not_ready", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	public void markNotReady(@PathVariable("id") Long id, @RequestBody String jsonString) throws Exception {
+    	Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+    	JsonObject jo = JsonUtils.toJsonObject(jsonString);
+    	String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
+    	if (task.checkManagerByEmail(email)) {
+    		task.markNotReadyForReview();
+    		LOG.info("Task id " + id + " marked not ready for review");
+		}
+		else {
+    		LOG.error("Refused to mark task id " + id + " not ready for review, " + email + " is not the task manager");
 		}
 	}
 
+	@RequestMapping(path = "/rest/task/{id}/mark_completed", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	public void markComplete(@PathVariable("id") Long id, @RequestBody String jsonString) throws Exception {
+    	Task task = taskRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Task", "id", id));
+    	JsonObject jo = JsonUtils.toJsonObject(jsonString);
+    	String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
+    	if (task.checkManagerByEmail(email)) {
+    		task.markCompleted();
+    		LOG.info("");
+		}
+		else {
+    		LOG.error("Refused to mark task id " + id + " complete, user" + email + " not the task manager");
+		}
+	}
+
+	@RequestMapping(path = "/rest/task/{id}/mark_incompete", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	void markIncomplete(@PathVariable("id") Long id, @RequestBody String jsonString) throws Exception
+	{
+		Task task = taskRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Task", "id", id));
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
+		if (task.checkManagerByEmail(email)) {
+			task.markIncomplete();
+			LOG.info("Task id " + id + " marked incomplete");
+		}
+		else {
+			LOG.error("Refused to mark task id " + id + " incomplete, user " + email + " not the task manager");
+		}
+	}
 
 
 	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
