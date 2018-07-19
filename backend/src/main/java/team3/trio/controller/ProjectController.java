@@ -1,6 +1,7 @@
 package team3.trio.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -107,10 +108,32 @@ public class ProjectController {
 
 		UserProject up = new UserProject(user, project, Role.Teammate);
 		project.addUserProjects(up);
+		user.addUserProjects(up);
 
 		projectRepository.save(project);
+		userRepository.save(user);
 		LOG.info("successfully record add teammate " + user.getEmail() + " to project " + project.getTitle()
 				+ " into DB");
+	}
+
+	@RequestMapping(path = "/rest/project/{id}/set_user_role", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	public void setUserRole(@PathVariable("id") long id, @RequestBody String jsonString) throws Exception {
+		Project project = projectRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Project", "id", id));
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
+		List<User> u = userRepository.findByEmail(email);
+		if (u.size()==0) {
+			throw new ResourceNotFoundException("User", "email", email);
+		}
+		User user = u.get(0);
+		String roleString = (String) JsonUtils.findElementFromJson(jo, "role", "String");
+		HashMap<String, Role> hash = new HashMap<>();
+		hash.put("manager", Role.Manager);
+		hash.put("teammate", Role.Teammate);
+		hash.put("client", Role.Client);
+		Role role = hash.getOrDefault(roleString, Role.Client);
+		project.setUserRole(user, role);
+
 	}
 
 	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")

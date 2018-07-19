@@ -147,7 +147,7 @@ public class Task extends AuditModel {
 		Project project = stage.getProject();
 		User manager = null;
 		for (UserProject up : project.getUserProjects()) {
-			if (up.getRole() == Role.Manager) {
+			if (up.getRole().equals(Role.Manager)) {
 				manager = up.getUser();
 				break;
 			}

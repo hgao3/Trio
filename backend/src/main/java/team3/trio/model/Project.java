@@ -51,26 +51,49 @@ public class Project implements Serializable {
     
     //Getters and setters omitted for brevity
     
-/*    public void addUser(User user) {
-    	UserProject userProject = new UserProject(user, this, );
+   public void addUser(User user, Role role) {
+    	UserProject userProject = new UserProject(user, this, role);
     	userProjects.add(userProject);
     	user.getUserProjects().add(userProject);
     }
+
+    public void addUser(User user) {
+    	addUser(user, Role.Teammate);
+	}
  
     public void removeUser(User user) {
-        for (Iterator<UserProject> iterator = userProjects.iterator(); 
-             iterator.hasNext(); ) {
-        	UserProject userProject = iterator.next();
- 
-            if (userProject.getProject().equals(this) &&
-            		userProject.getUser().equals(user)) {
-                iterator.remove();
-                userProject.getUser().getUserProjects().remove(userProject);
-                userProject.setProject(null);
-                userProject.setUser(null);
-            }
-        }
-    }*/
+		for (Iterator<UserProject> iterator = userProjects.iterator();
+			 iterator.hasNext(); ) {
+			UserProject userProject = iterator.next();
+
+			if (userProject.getProject().equals(this) &&
+					userProject.getUser().equals(user)) {
+				iterator.remove();
+				userProject.getUser().getUserProjects().remove(userProject);
+				userProject.setProject(null);
+				userProject.setUser(null);
+			}
+		}
+	}
+
+	public void setUserRole(User user, Role role) {
+    	UserProject roleToChange = null;
+    	for (UserProject up : userProjects) {
+    		if (up.getUser().equals(user)) {
+    			roleToChange = up;
+    			break;
+			}
+		}
+
+		if (roleToChange == null) {
+    		roleToChange = new UserProject(user, this, role);
+    		userProjects.add(roleToChange);
+		}
+		else {
+    		roleToChange.setRole(role);
+		}
+	}
+
     
     // Hibernate requires a no-arg constructor
     public Project() {}
