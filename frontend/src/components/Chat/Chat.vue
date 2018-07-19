@@ -161,10 +161,12 @@
         this.content += emoji.value
       },
       toggleEmojiPanel () {
-        this.emojiPanel = !this.emojiPanel
+        this.emojiPanel = !this.emojiPanel;
+        if (this.emojiPanel) { this.alertPanel = false; }
       },
       toggleAlertPanel() {
         this.alertPanel = !this.alertPanel;
+        if (this.alertPanel) { this.emojiPanel = false; }
       }
     }
   }
