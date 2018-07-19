@@ -1,67 +1,94 @@
 <template>
 
     <div class="issuetracker">
-<!--      <v-button : onClick="consoleClick">Console Log</v-button>
-      <v-button : onClick="alertClick">Alert</v-button>-->
+      <div>
+        <div class="project_selector"
+             v-for="project in project_list"
+             @click="selectProject(project)"
+        >{{ project.project_title }}</div>
+      </div>
+      <br>
+      <project-summary v-bind:project="selected_project"></project-summary>
+      <issue-table v-bind:project="selected_project"></issue-table>
+
+
     </div>
-
-<!--    <button @click="onClick" class="Issue">
-      <slot>Issue</slot>
-    </button>
-
-    <button class="Description">
-      <slot>Description</slot>
-    </button>
-
-    <button class="Date">
-      <slot>Date</slot>
-    </button>
-
-    <button class="Priority">
-      <slot>Priority</slot>
-    </button>
-
-    <button class="Assign">
-      <slot>Assign</slot>
-    </button>
-
-    <button class="Prioritize">
-      <slot>Prioritize</slot>
-    </button>
-
-    <button class="Submit New Ticket">
-      <slot>Submit New Ticket</slot>
-    </button>-->
 
 </template>
 
 <script>
+  import ProjectSummary from '../Dashboard/ProjectSummary'
+  import IssueTable from './IssueTable'
   import {ApiWrapper} from '../Dashboard/http-common'
   import {AXIOS} from '../Dashboard/http-common'
 
   export default {
     name: 'issuetracker',
-    components: {},
+    components: {
+      'project-summary': ProjectSummary,
+      'issue-table': IssueTable
+    },
     data: function() {
-      return {};
+      return {
+        selected_project: { stages: [], project_id: '', project_title: ''},
+        project_list: [],
+        user: ApiWrapper.getUser(this.$store.getters.user.id),
+        stages: []
+      }
     },
     methods: {
-      consoleClick() {
-        console.log('Button clicked')
+      addStage: function () {
+        this.project.stages.push(ApiWrapper.postStage('', []))
       },
-      alertClick() {
-        alert('Button clicked')
+      selectProject (project) {
+        this.selected_project = project
       }
     },
     computed: {},
-    beforeCreate: function() {},
-
-    props: {
-      onClick: {
-        type: Function,
-        required: true
-      }
+    beforeCreate: function() {
+      ApiWrapper.setIdToken(this.$store.getters.user.idToken);
+      AXIOS.get('/project', {headers: {'idToken': this.$store.getters.user.idToken}}).then( response => {
+        this.project_list = response.data
+      })
     }
   }
 
 </script>
+
+<style scoped>
+  div {
+    vertical-align: text-top;
+    font-size: 10pt;
+    padding: 0;
+    margin: 0;
+    background-color: lightblue;
+  }
+
+  div.dashboard {
+    padding: 1em;
+  }
+
+  div.project_selector {
+    display: inline-block;
+    background-color: white;
+    padding: 0.5em;
+    text-align: center;
+    margin: 0.5em 0.5em 0.5em 0;
+    border: 0.25em solid #c0f1ff;
+  }
+
+  div.project_selector:hover {
+    cursor: pointer;
+  }
+
+  div.new_stage_button {
+    display: inline-block;
+    font-style: italic;
+    font-family: Calibri, sans-serif;
+  }
+
+  .new_stage_button:hover {
+    cursor: pointer;
+  }
+
+</style>

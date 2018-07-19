@@ -55,6 +55,28 @@ public class Issue extends AuditModel {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     public boolean openStatus = true;
 
+    @OneToOne
+    @JoinColumn(name = "task_id")
+    private Task task;
+    
+    @OneToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+    
+    public Issue() {}
+	public Issue(String title, String content, User user, String priorityLevel, Project project) {
+		super();
+		Date dt = new Date();
+		this.setCreatedAt(dt);
+		this.setUpdatedAt(dt);
+		
+		this.setTitle(title);
+		this.setContent(content);
+		this.setOwnerUser(user);
+		this.setPriorityLevel(priorityLevel);
+		this.setProject(project);
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -110,5 +132,20 @@ public class Issue extends AuditModel {
 	public void setPriorityLevel(String priorityLevel) {
 		this.priorityLevel = priorityLevel;
 	}
-	
+
+	public Task getTask() {
+		return task;
+	}
+
+	public void setTask(Task task) {
+		this.task = task;
+	}
+
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}	
 }

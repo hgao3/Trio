@@ -8,6 +8,8 @@ import Signup from '@/components/User/Signup'
 import Signin from '@/components/User/Signin'
 import UsersTable from '@/components/User/UsersTable'
 import Dashboard from '@/components/Dashboard/Dashboard'
+import IssueTracker from '@/components/IssueTracker/IssueTracker'
+import Issue from '@/components/IssueTracker/Issue'
 import AuthGuard from './auth-guard'
 
 Vue.use(Router)
@@ -58,6 +60,19 @@ export default new Router({
       path: '/dashboard',
       name: 'Dashboard',
       component: Dashboard,
+      beforeEnter: AuthGuard
+    },
+    {
+      path: '/issueTracker',
+      name: 'IssueTracker',
+      component: IssueTracker,
+      beforeEnter: AuthGuard
+    },
+    {
+      path: '/issue/:id',
+      name: 'Issue',
+      component: Issue,
+      props: true,
       beforeEnter: AuthGuard
     }
   ],
