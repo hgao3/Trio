@@ -44,9 +44,9 @@ INSERT INTO tasks (id, created_at, updated_at, content, due_at, title, assigned_
 INSERT INTO issues (id, created_at, updated_at, content, open_status, priority_level, title, owner_user_id, task_id, project_id) VALUES 
 (1, '2018-06-13 09:18:56', '2018-06-13 09:18:56', 'test do not work', 'true', 'High', 'bug1', 1, null, 1),
 (2, '2018-06-13 09:18:56', '2018-06-13 09:18:56', 'test do not work', 'true', 'High', 'bug2', 1, null, 1);
-(3, '2018-06-13 09:18:56', '2018-06-13 09:18:56', 'test do not work', 'true', 'High', 'bug3', 1, null),
-(4, '2018-06-13 09:18:56', '2018-06-13 09:18:56', 'test do not work', 'true', 'High', 'bug4', 1, null),
-(5, '2018-06-13 09:18:56', '2018-06-13 09:18:56', 'test do not work', 'true', 'High', 'bug5', 1, null);
+(3, '2018-06-13 09:18:56', '2018-06-13 09:18:56', 'test do not work', 'true', 'High', 'bug3', 1, null, 2),
+(4, '2018-06-13 09:18:56', '2018-06-13 09:18:56', 'test do not work', 'true', 'High', 'bug4', 1, null, 2),
+(5, '2018-06-13 09:18:56', '2018-06-13 09:18:56', 'test do not work', 'true', 'High', 'bug5', 1, null, 3);
 
 
 	
