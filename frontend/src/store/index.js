@@ -17,7 +17,7 @@ export const store = new Vuex.Store({
     error: null,
     onlineUsers: [],
     generalRoomId: '-LGak_O3KJElAXGM3Jgl',
-    serveserverHostrHost: 'http://ec2-54-210-102-133.compute-1.amazonaws.com:8088' //'http://localhost:8088'
+    serverHost: 'http://ec2-54-210-102-133.compute-1.amazonaws.com:8088' //'http://localhost:8088'
   },
   mutations: {
     setLoading (state, payload) {
