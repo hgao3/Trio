@@ -1,6 +1,21 @@
 <template>
   <div>
     <textarea class="title" v-model="title"></textarea>
+    <v-dialog v-if="managerMode" class="deleter" v-model="dialog">
+      <img src="@/assets/x_button.png" height="20" width="20" slot="activator">
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title>Delete Stage</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete the stage <strong>{{title}}?</strong> This will also delete all associated tasks.
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" flat @click="deleteStage">Accept</v-btn>
+          <v-btn color="primary" flat @click="dialog = false">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <task-summary
       v-for="task_id in stage.tasks"
       :key="task_id"
@@ -12,7 +27,7 @@
     >
     </task-summary>
     <textarea v-if="edit_mode" v-model="new_task_title"></textarea>
-    <button v-if="edit_mode" @click="saveTask">Save</button>
+    <v-btn v-if="edit_mode" @click="saveTask">Save</v-btn>
     <img v-if="edit_mode" src="@/assets/x_button.png" height="20" width="20" @click="turnOffEditMode">
     <span v-if="!edit_mode" @click="turnOnEditMode">Add a task...</span>
 
@@ -25,6 +40,7 @@
 
   import TaskSummary from './TaskSummary'
   import {ApiWrapper} from './http-common'
+  import {AXIOS} from './http-common'
 
   export default {
     name: "stage-summary",
@@ -33,7 +49,8 @@
       return {
         edit_mode: false,
         new_task_title: '',
-        stage: ApiWrapper.getStage(this.stage_id)
+        stage: ApiWrapper.getStage(this.stage_id),
+        dialog: false
       }
     },
     components: {
@@ -67,7 +84,16 @@
         this.edit_mode = false;
 
       },
-      saveTask: async function () {
+      deleteStage (){
+        let stageId = this.stage.stage_id;
+        let url = `/stage/${stageId}`;
+        let requestConfig = {headers: {idToken: this.$store.getters.user.idToken}};
+        AXIOS.delete(url, requestConfig);
+        this.stages.splice(this.stages.indexOf(this.stage), 1);
+        this.project.stages.splice(this.project.stages.indexOf(stageId), 1);
+        this.dialog = false;
+      },
+      async saveTask () {
         let newTaskId = await ApiWrapper.postTask(this.new_task_title, "", "", this.$store.getters.user.email, this.stage.stage_id);
         console.log(newTaskId);
         this.stage.tasks.push(newTaskId);
@@ -146,6 +172,10 @@
 
   textarea.title:focus {
     background-color: white;
+  }
+
+  .deleter {
+    float: right;
   }
 
 </style>
