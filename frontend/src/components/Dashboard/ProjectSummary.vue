@@ -22,6 +22,13 @@
                    :managerMode="managerMode"
     >
     </stage-summary>
+    <div v-if="project.project_id && managerMode" class="new_stage_widget">
+      <span v-if="!edit_mode" @click="edit_mode = true">Add new stage...</span>
+      <textarea v-if="edit_mode" v-model="new_stage_title"></textarea>
+      <br>
+      <v-btn v-if="edit_mode" @click="createStage">Save</v-btn>
+      <img v-if="edit_mode" src="@/assets/x_button.png" height="20" width="20" @click="turnOffEditMode">
+    </div>
   </div>
 
 </template>
@@ -42,12 +49,31 @@
         return {
           managers: [],
           teammates: [],
-          stages: []
+          stages: [],
+          new_stage_title: "",
+          edit_mode: false
         }
       },
       computed: {
         managerMode: function() {
           return this.managers.map(manager => {return manager.email}).indexOf(this.$store.getters.user.email) > -1;
+        }
+      },
+      methods: {
+        turnOffEditMode() {
+          this.edit_mode = false;
+          this.new_stage_title = "";
+        },
+        async createStage () {
+          let postConfig = {headers: {idToken: this.$store.getters.user.idToken}};
+          let postObject = {
+            title: this.new_stage_title,
+            project_id: this.project.project_id
+          };
+          let response = await AXIOS.post(`/stage`, postObject, postConfig);
+          let newStageId = response.data;
+          this.project.stages.push(newStageId);
+          this.turnOffEditMode();
         }
       },
       watch: {
@@ -78,6 +104,15 @@
     vertical-align: text-top;
   }
 
+  div.new_stage_widget {
+    display: inline-block;
+    font-style: italic;
+  }
+
+  div.new_stage_widget span:hover {
+    cursor: pointer;
+  }
+
   div.staffing {
     display: inline-block;
   }
@@ -90,6 +125,12 @@
     display: inline-block;
     font-size: 2em;
     font-weight: bold;
+  }
+
+  textarea {
+    background-color: white;
+    font-size: large;
+    font-style: normal;
   }
 
 
