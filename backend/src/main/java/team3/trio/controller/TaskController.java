@@ -73,7 +73,13 @@ public class TaskController {
     	Stage stage = stageRepository.findById(stageId)
 				.orElseThrow(() -> new ResourceNotFoundException("Stage", "id", stageId));
     	
-    	Date dueAt = DateUtils.toDate(dueDate);
+    	Date dueAt;
+
+    	try {
+			dueAt = DateUtils.toDate(dueDate);
+		} catch (ParseException e) {
+    		dueAt = null;
+		}
     	
     	Task task = new Task(title, content, dueAt, user, stage);
     	
@@ -223,6 +229,8 @@ public class TaskController {
 		jo.addProperty("task_id", task.getId());
 		jo.addProperty("title", task.getTitle());
 		jo.addProperty("assigned_user_email", task.getAssignedUser().getEmail());
+		jo.addProperty("ready_for_review", task.isReadyForReview());
+		jo.addProperty("completed", task.isCompleted());
 		jo.addProperty("content", task.getContent());
 		jo.addProperty("due_date", DateUtils.toString(task.getDueAt()));
 		jo.addProperty("create_date", DateUtils.toString(task.getCreatedAt()));

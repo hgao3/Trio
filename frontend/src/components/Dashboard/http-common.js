@@ -1,4 +1,5 @@
 import axios from 'axios'
+import * as firebase from 'firebase'
 
 export const AXIOS = axios.create({
   baseURL: `/rest`
@@ -6,92 +7,17 @@ export const AXIOS = axios.create({
 
 let ApiWrapper = (function () {
 
-  function User(obj) {
-
-    let local_object = {
-      uid: obj.uid || null,
-      email: obj.email || '',
-      first_name: obj.first_name || '',
-      last_name: obj.last_name || '',
-      is_admin: obj.is_admin || false,
-      projects: obj.projects || [],
-      projects_managing: obj.projects_managing || [],
-      _waiting_for_data: true,
-
-      getUID: function() { return this.uid;},
-      apiURL: function() { return `/user/uid/${this.getUID()}`;},
-      getEmail: function() { return this.email; },
-      getFirstName: function () { return this.first_name; },
-      getLastName: function () { return this.last_name; },
-      isAdmin: function () { return this.is_admin; },
-      getProjects: function () { return this.projects; },
-      getManagedProjects: function () { return this.projects_managing; },
-
-      setEmail: function(email) {
-        this.email = email;
-        AXIOS.patch(this.apiURL(), {email: this.email});
-      },
-
-      setFirstName: function (first_name) {
-        this.first_name = first_name;
-        AXIOS.patch(this.apiURL(), {first_name: first_name});
-      },
-
-      setLastName: function(last_name) {
-        this.last_name = last_name;
-        AXIOS.patch(this.apiURL(), {last_name: last_name});
-      },
-
-      setAdmin: function(admin_status) {
-        this.is_admin = admin_status;
-        AXIOS.patch(this.apiURL(), {is_admin: admin_status});
-      }
-
-    };
-
-    if (local_object.uid !== null) {
-      AXIOS.get(
-        `/user/uid/${local_object.getUID()}`,
-        {headers:
-            {'idToken': id_token}
-        })
-        .then( response => {
-          let data = response.data;
-          local_object.user_id = data.user_id;
-          local_object.first_name = data.first_name;
-          local_object.last_name = data.last_name;
-          local_object.email = data.email;
-          local_object.projects_managing = data.projects_managing;
-          local_object.projects = data.projects;
-          local_object._waiting_for_data = false;
-      });
-    }
-    else {
-      AXIOS.post(`/user/`, {
-        first_name: obj.first_name || '',
-        last_name: obj.last_name || '',
-        email: obj.email || '',
-        password: obj.password || '',
-        headers: { idToken: id_token }
-      }).then(response => {
-        local_object.user_id = response.data;
-        local_object._waiting_for_data = false;
-      });
-    }
-
-    return local_object;
-  }
-
   function Task(obj) {
     let local_object = {
 
       task_id: obj.task_id || null,
       title: obj.title || '',
-      due_date: obj.due_date === '' ? null : new Date(obj.due_date),
+      due_date: obj.due_date|| '',
       content: obj.content || '',
-      create_date: obj.create_date || '',
-      update_date: obj.update_date || '',
-      stage_id: obj.stage_id || '',
+      stage_id: obj.stage_id || null,
+      assigned_user_email: obj.assigned_user_email || '',
+      ready_for_review: obj.ready_for_review || false,
+      completed: obj.completed || false,
       _waiting_for_data: true,
 
       getID() {
@@ -110,12 +36,20 @@ let ApiWrapper = (function () {
         return Date.parse(this.due_date);
       },
 
-      get createDate() {
+      getCreateDate() {
         return Date.parse(this.create_date);
       },
 
-      get updateDate() {
+      getUpdateDate() {
         return Date.parse(this.update_date);
+      },
+
+      isReadyForReview() {
+        return this.ready_for_review;
+      },
+
+      isCompleted() {
+        return this.completed;
       },
 
       setTitle(string) {
@@ -129,7 +63,7 @@ let ApiWrapper = (function () {
       },
 
       setDueDate(date) {
-        this.due_date = new Date(date).toISOString().split('T')[0];
+        this.due_date = date;
         //AXIOS.patch(`task/${this.task_id}`, {due_date: this.due_date}, {headers: {idToken: id_token}});
       },
 
@@ -144,7 +78,28 @@ let ApiWrapper = (function () {
 
       getStage() {
         return this.stage_id;
+      },
+
+      markReady() {
+        this.ready_for_review = true;
+        //AXIOS.patch(`task/${this.task_id}/mark_ready`, {}, {headers: {idToken: id_token}});
+      },
+
+      markNotReady() {
+        this.ready_for_review = false;
+        //AXIOS.patch(`task/${this.task_id}/mark_not_ready`, {}, {headers: {idToken: id_token}});
+      },
+
+      markCompleted() {
+        this.completed = true;
+        //AXIOS.patch(`task/${this.task_id}/mark_completed`, {}, {headers: {idToken: id_token}});
+      },
+
+      markIncomplete() {
+        this.completed = false;
+        //AXIOS.patch(`task/${this.task_id}/mark_incomplete`, {}, {headers: {idToken: id_token}});
       }
+
 
     };
 
@@ -154,9 +109,10 @@ let ApiWrapper = (function () {
         local_object.title = data.title;
         local_object.due_date = data.due_date;
         local_object.content = data.content;
-        local_object.create_date = data.create_date;
-        local_object.update_date = data.update_date;
         local_object.stage_id = data.stage_id;
+        local_object.assigned_user_email = data.assigned_user_email;
+        local_object.ready_for_review = data.ready_for_review;
+        local_object.completed = data.completed;
         local_object._waiting_for_data = false;
       })
     }
@@ -165,17 +121,18 @@ let ApiWrapper = (function () {
         title: local_object.title,
         due_date: local_object.due_date,
         content: local_object.content,
-        create_date: local_object.create_date,
-        update_date: local_object.update_date,
-        stage_id: local_object.stage_id
+        stage_id: local_object.stage_id,
+        assigned_user_email: local_object.assigned_user_email
       };
       let request_config = {
         headers: {idToken: id_token}
       };
-      AXIOS.post(`task`, post_data, request_config).then(response => {
-        local_object.task_id = response.data;
-        local_object._waiting_for_data = false;
-      })
+      AXIOS.post(`task`, post_data, request_config)
+        .then(response => {
+          local_object.task_id = response.data;
+          local_object._waiting_for_data = false;
+        })
+        .catch(response => { console.log(response); });
     }
 
     return local_object;
@@ -213,8 +170,7 @@ let ApiWrapper = (function () {
       },
 
       insertTask(task) {
-        this.tasks.push(task.getID());
-        task.setStage(this.stage_id);
+        //
       },
 
       removeTask(task) {
@@ -265,8 +221,29 @@ let ApiWrapper = (function () {
       id_token = string;
     },
 
-    getUser(uid) {
-      return new User({uid: uid});
+    getUser(email) {
+      let user = {
+        email: '',
+        firstname: '',
+        lastname: '',
+        uid: '',
+        _waiting_for_data: true
+      };
+      AXIOS.get(`/user/email/${email}`, {headers: {idToken: id_token}})
+        .then( function(response) {
+          let uid = response.data.uid;
+          firebase.database().ref('users').child(uid)
+            .on('value', snapshot => {
+              let payload = snapshot.val();
+              user.email = payload.email;
+              user.firstname = payload.firstname;
+              user.lastname = payload.lastname;
+              user.uid = uid;
+              user._waiting_for_data = false;
+            })
+        } )
+        .catch( response => { console.log(response); })
+      return user;
     },
 
     getUsers() {
@@ -287,14 +264,18 @@ let ApiWrapper = (function () {
       return new Task({task_id: id});
     },
 
-    postTask(new_title, new_content, new_due_date) {
+    async postTask(new_title, new_content, new_due_date, assigned_user_email, stage_id) {
       let constructor_object = {
         title: new_title,
         content: new_content,
         due_date: new_due_date,
-        task_id: null
+        assigned_user_email: assigned_user_email,
+        stage_id: stage_id/*,
+        task_id: null*/
       };
-      return new Task(constructor_object);
+      let postConfig =  {headers: {idToken: id_token}};
+      let response =  await AXIOS.post(`/task`, constructor_object, postConfig);
+      return response.data;
 
     },
 

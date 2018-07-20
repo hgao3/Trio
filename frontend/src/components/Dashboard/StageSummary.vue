@@ -8,6 +8,7 @@
       :stage="stage"
       :stages="stages"
       :project="project"
+      :managerMode="managerMode"
     >
     </task-summary>
     <textarea v-if="edit_mode" v-model="new_task_title"></textarea>
@@ -27,7 +28,7 @@
 
   export default {
     name: "stage-summary",
-    props: ['stage_id', 'project', 'stages'],
+    props: ['stage_id', 'project', 'stages', 'users', 'managerMode'],
     data: function () {
       return {
         edit_mode: false,
@@ -46,7 +47,7 @@
         get() {
           return this.stage.title;
         }
-      },
+      }/*,
       tasks: function() {
         let task_ids = this.stage.tasks;
         let task_list = [];
@@ -54,7 +55,7 @@
           task_list.push(ApiWrapper.getTask(id));
         });
         return task_list;
-      }
+      }*/
     },
     methods: {
       turnOnEditMode: function () {
@@ -66,9 +67,10 @@
         this.edit_mode = false;
 
       },
-      saveTask: function () {
-        let newTask = ApiWrapper.postTask(this.new_task_title, '', '');
-        this.stage.insertTask(newTask);
+      saveTask: async function () {
+        let newTaskId = await ApiWrapper.postTask(this.new_task_title, "", "", this.$store.getters.user.email, this.stage.stage_id);
+        console.log(newTaskId);
+        this.stage.tasks.push(newTaskId);
         this.new_task_title = '';
         this.turnOffEditMode();
       }

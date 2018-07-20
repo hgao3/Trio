@@ -1,5 +1,6 @@
 package team3.trio.controller;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -136,6 +137,27 @@ public class ProjectController {
 
 	}
 
+	@RequestMapping(path = "/rest/project/by_user/{email}", method = RequestMethod.GET)
+	public String getProjectsByUserEmail(@PathVariable("email") String email) throws Exception
+	{
+		List<User> users = userRepository.findByEmail(email);
+		if (users.size() == 0) {
+			throw new ResourceNotFoundException("User", "email", email);
+		}
+		User user = users.get(0);
+		ArrayList<Project> projects = new ArrayList<>();
+		for (UserProject up : user.getUserProjects()) {
+			projects.add(up.getProject());
+		}
+		JsonArray arr = new JsonArray();
+		for (Project project : projects) {
+			JsonObject jo = projectToJO(project);
+			arr.add(jo);
+		}
+		return arr.toString();
+
+	}
+
 	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public void updateProject(@PathVariable("id") Long id,
@@ -225,8 +247,8 @@ public class ProjectController {
 			}
 		});
 
-		jo.add("manager_email", manager);
-		jo.add("teammate", teammateList);
+		jo.add("managers", manager);
+		jo.add("teammates", teammateList);
 
 		JsonArray stageList = new JsonArray();
 

@@ -11,13 +11,15 @@
       <div class="modal_content">
         <img src="@/assets/x_button.png" @click="hideDetails" width="20" height="20">
         <textarea class="title" v-model="title"></textarea>
+        <label>Assigned to</label>
+        <user-icon v-if="assigned_user" :user="assigned_user"></user-icon>
         <label>Due date</label>
         <datepicker v-model="due_date"></datepicker>
         <label>Description</label>
         <textarea v-model="content"></textarea>
         <label>Stage</label>
         <span class="stage">{{ this.stage.getTitle() }}</span>
-        <button v-if="!moving" class="move_button" @click="moving = true">Move</button>
+        <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
         <div class="move_menu"  v-if="moving">
           <span>Move to:</span>
           <stage-picker v-for="stage in stages"
@@ -34,21 +36,26 @@
 </template>
 <script>
     import {ApiWrapper} from './http-common'
+    import {AXIOS} from './http-common'
     import Datepicker from 'vuejs-datepicker'
     import TaskStagePicker from './TaskStagePicker'
+    import UserIcon from '../Shared/UserIcon'
+    import * as firebase from 'firebase'
     export default {
         name: 'TaskSummary',
         components: {
           'datepicker': Datepicker,
-          'stage-picker': TaskStagePicker
+          'stage-picker': TaskStagePicker,
+          'user-icon': UserIcon
         },
-        props: ['task_id', 'stage', 'project', 'stages'],
+        props: ['task_id', 'stage', 'project', 'stages', 'managerMode'],
         data: function () {
           return {
             task: ApiWrapper.getTask(this.task_id),
             details_visible: false,
             moving: false,
-            chosen_stage: null
+            chosen_stage: null,
+            assigned_user: null
           };
         },
         computed: {
@@ -90,6 +97,21 @@
             this.stage.removeTask(this.task);
             newStage.insertTask(this.task);
             this.moving = false;
+          }
+        },
+        beforeUpdate: function () {
+          if (this.task.assigned_user_email.length > 0) {
+            let getConfig = {headers: {idToken: this.$store.getters.user.idToken}};
+            AXIOS.get(`/user/email/${this.task.assigned_user_email}`, getConfig)
+              .then(response => {
+                firebase.database().ref('users').child(response.data.uid)
+                  .on('value', snapshot => {
+                    this.assigned_user = snapshot.val();
+                  })
+              })
+              .catch(response => {
+                console.log(response);
+              });
           }
         }
     }
