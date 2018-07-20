@@ -25,7 +25,7 @@
     <v-toolbar class="light-blue darken-1">
       <v-toolbar-side-icon @click.native.stop="drawerToggle = !drawerToggle"></v-toolbar-side-icon>
       <v-toolbar-title>
-        <router-link to="/chat/0" tag="span" style="cursor: pointer">Trio</router-link>
+        <router-link to="/dashboard" tag="span" style="cursor: pointer">Trio</router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items v-for="item in menuItems">
@@ -57,7 +57,7 @@
         if (this.userIsAuthenticated) {
           items = [
             {icon: 'assignment', title: 'Dashboard', route: '/dashboard'},
-            {icon: 'chat', title: 'Chat', route: '/chat/0'},
+            {icon: 'chat', title: 'Chat', route: '/chat/' + this.$store.getters.generalRoomId},
             {icon: 'storage', title: 'Create New Channel', route: '/create'},
             {icon: 'face', title: 'Users', route: '/UsersTable'},
             {icon: 'error', title: 'Issue Tracker', route: '/issueTracker'},
@@ -72,6 +72,9 @@
       onlineUsers () {
         console.log(this.$store.getters.onlineUsers)
         return this.$store.getters.onlineUsers
+      },
+      defaultRoomId () {
+        return this.$store.getters.generalRoomId
       }
     }
   }
