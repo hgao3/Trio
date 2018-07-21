@@ -4,7 +4,7 @@
     <v-dialog v-if="managerMode" class="deleter" v-model="dialog">
       <img src="@/assets/x_button.png" height="20" width="20" slot="activator">
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>Delete Stage</v-card-title>
+        <v-card-title primary-title>Delete Stage</v-card-title>
         <v-card-text>
           Are you sure you want to delete the stage <strong>{{title}}?</strong> This will also delete all associated tasks.
         </v-card-text>

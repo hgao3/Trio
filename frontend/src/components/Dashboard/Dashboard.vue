@@ -7,6 +7,10 @@
              @click="selectProject(project)"
         >{{ project.project_title }}</div>
       </div>
+      <v-dialog class="project_adder" v-model="dialog" persistent max-width="500px">
+        <v-icon class="project_adder" slot="activator">add_box</v-icon>
+        <new-project-card :open="dialog"></new-project-card>
+      </v-dialog>
       <br>
       <project-summary v-bind:project="selected_project"></project-summary>
 
@@ -16,18 +20,21 @@
 <script>
 
   import ProjectSummary from './ProjectSummary'
+  import NewProjectCard from './NewProjectCard'
   import {ApiWrapper} from "./http-common"
   import {AXIOS} from './http-common'
 
   export default {
       name: 'dashboard',
       components: {
-        'project-summary': ProjectSummary
+        'project-summary': ProjectSummary,
+        'new-project-card': NewProjectCard
       },
       data: function() {
         return {
           selected_project: {managers: [], teammates: [], project_title: "", stages: [], id: null},
-          project_list: []
+          project_list: [],
+          dialog: false
         };
       },
       methods: {
@@ -78,6 +85,14 @@
     display: inline-block;
     font-size: 2em;
     font-weight: bold;
+  }
+
+  .project_adder {
+    display: inline-block;
+  }
+
+  .project_adder:hover {
+    cursor: pointer;
   }
 
 </style>
