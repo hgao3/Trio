@@ -7,9 +7,9 @@
              @click="selectProject(project)"
         >{{ project.project_title }}</div>
       </div>
-      <v-dialog class="project_adder" v-model="dialog" persistent max-width="500px">
+      <v-dialog class="project_adder" v-model="dialog" persistent width="500px">
         <v-icon class="project_adder" slot="activator">add_box</v-icon>
-        <new-project-card :open="dialog"></new-project-card>
+        <new-project-card :open="dialog" :close-dialog="dialog = false"></new-project-card>
       </v-dialog>
       <br>
       <project-summary v-bind:project="selected_project"></project-summary>
@@ -79,6 +79,12 @@
 
   div.project_selector:hover {
     cursor: pointer;
+  }
+
+  label {
+    display: block;
+    width: 80%;
+    margin: auto;
   }
 
   h1 {
