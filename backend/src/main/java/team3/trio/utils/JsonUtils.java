@@ -24,7 +24,9 @@ public class JsonUtils {
 				return jo.get(name).getAsString();
 			} else if (returnType.equals("Long")) {
 				return jo.get(name).getAsLong();
-			} 
+			} else if (returnType.equals("Boolean")) {
+				return jo.get(name).getAsBoolean();
+			}
 		}
 		throw new Exception(name + ERROR_MISSING);
 	}

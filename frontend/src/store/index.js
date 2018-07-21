@@ -16,7 +16,8 @@ export const store = new Vuex.Store({
     loading: false,
     error: null,
     onlineUsers: [],
-    serverHost: 'http://ec2-54-210-102-133.compute-1.amazonaws.com:8088'
+    generalRoomId: '-LGak_O3KJElAXGM3Jgl',
+    serverHost: 'http://ec2-54-210-102-133.compute-1.amazonaws.com:8088' //'http://localhost:8088'
   },
   mutations: {
     setLoading (state, payload) {
@@ -57,6 +58,9 @@ export const store = new Vuex.Store({
     },
     serverHost (state) {
       return state.serverHost
+    },
+    generalRoomId (state) {
+      return state.generalRoomId
     }
   }
 })
