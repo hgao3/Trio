@@ -106,11 +106,18 @@
       },
       '$store.getters.chats' (newId, oldId) {
         if (newId !== undefined) {
-          this.$store.commit('setMembers', {id: this.$store.getters.chats[this.id]})
+          this.$store.commit('setMembers', {id: this.getCurrentChatRoom()})
         }
       }
     },
     methods: {
+      getCurrentChatRoom () {
+        for (var i = 0; i < this.$store.getters.chats.length; i++) {
+          if (this.$store.getters.chats[i].id === this.id) {
+            return this.$store.getters.chats[i]
+          }
+        }
+      },
       loadChat () {
         if (this.id !== undefined) {
           this.chatMessages = []
@@ -118,7 +125,7 @@
           this.currentRef = firebase.database().ref('messages').child(chatID).child('messages')/*.limitToLast(20)*/
           this.currentRef.on('child_added', this.onChildAdded)
           if (this.$store.getters.chats !== undefined && this.$store.getters.chats.length > 0) {
-            this.$store.commit('setMembers', {id: this.$store.getters.chats[this.id]})
+            this.$store.commit('setMembers', {id: this.getCurrentChatRoom()})
           }
         }
       },
