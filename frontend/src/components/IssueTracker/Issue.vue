@@ -90,29 +90,20 @@
                 </v-layout>
                 <v-layout row>
                   <v-flex xs12 class="dateWrapper">
-                    <datepicker v-model="create_date" placeholder="Pick a Create Date"></datepicker>
+                    <label class="myTitle">Create Date</label>
+                    <datepicker v-model="create_date" placeholder="Pick a Create Date" class="datepickerCss"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
-                  <v-flex xs12>
-                    <v-text-field
-                      name="update_date"
-                      label="Update Date"
-                      id="update_date"
-                      v-model="update_date"
-                      type="text"
-                      required></v-text-field>
+                  <v-flex xs12 class="dateWrapper">
+                    <label class="myTitle">Update Date</label>
+                    <datepicker v-model="update_date" placeholder="Pick a Update Date" class="datepickerCss"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
-                  <v-flex xs12>
-                    <v-text-field
-                      name="close_date"
-                      label="Close Date"
-                      id="close_date"
-                      v-model="close_date"
-                      type="text"
-                      required></v-text-field>
+                  <v-flex xs12 class="dateWrapper">
+                    <label class="myTitle">Close Date</label>
+                    <datepicker v-model="close_date" placeholder="Pick a Close Date" class="datepickerCss"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
@@ -148,6 +139,9 @@
     components: {
       'datepicker': Datepicker
     },
+    props: [
+      'id'
+    ],
     data () {
       return {
         issue_id: '',
@@ -169,8 +163,31 @@
         task_id: ''
       }
     },
+    mounted () {
+      axios.get(this.$store.getters.serverHost + '/rest/issue/' + this.id,
+        {
+          headers: {'idToken': this.$store.getters.user.idToken}
+        }
+      ).then(response => {
+        this.issue_id = response.data.issue_id
+        this.title = response.data.title
+        this.content = response.data.content
+        if (response.data.open_status == true) {
+          this.open_status = this.items2[0]
+        } else {
+          this.open_status = this.items2[1]
+        }
+        this.owner_user_email = response.data.owner_user_email
+        this.priority_level = response.data.priority_level
+        this.project_id = response.data.project_id
+        this.create_date = response.data.create_date
+        this.update_date = response.data.update_date
+        this.close_date = response.data.close_date
+        this.task_id = response.data.task_id
+      })
+    },
     methods: {
-      onUpdate () {
+      onUpdate2 () {
         const qs = require('qs')
         axios.post(this.$store.getters.serverHost + '/signup', qs.stringify(
           {
@@ -185,10 +202,15 @@
 </script>
 <style>
   .dateWrapper {
-    height: 40px;
-    /* border: 1px; */
-    border: 1px solid #ccc !important;
+    border-bottom: 1px solid #949494 !important;
     width: 100%;
+    margin-bottom: 20px;
+  }
+  .myTitle {
+    color: rgba(0,0,0,0.54);
+  }
+  .datepickerCss {
+    margin-top: 5px;
   }
 
 </style>
