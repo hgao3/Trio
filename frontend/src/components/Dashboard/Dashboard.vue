@@ -6,10 +6,10 @@
              v-for="project in project_list"
              @click="selectProject(project)"
         >{{ project.project_title }}</div>
+        <v-icon class="project_adder" @click="dialog = true">add_box</v-icon>
       </div>
-      <v-dialog class="project_adder" v-model="dialog" persistent width="500px">
-        <v-icon class="project_adder" slot="activator">add_box</v-icon>
-        <new-project-card :open="dialog" v-on:close-dialog="initialize"></new-project-card>
+      <v-dialog v-model="dialog" persistent width="500px">
+        <new-project-card :open="dialog" @save-project="initialize" @close-dialog="dialog = false"></new-project-card>
       </v-dialog>
       <br>
       <project-summary v-bind:project="selected_project"></project-summary>

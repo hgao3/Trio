@@ -1,27 +1,38 @@
 <template>
-  <div>
+  <div class="project_summary">
     <h1>{{ project.project_title }}</h1>
     <div>
-      <div v-for="manager in managers" :key="manager.email" class="staffing">
-        <label>Manager</label>
-        <user-icon :user="manager"></user-icon>
+      <div v-if="teammates.length > 0 || managers.length > 0" class="user_list">
+        <h2>Project Team</h2>
+        <div v-for="manager in managers" :key="manager.email" class="staffing">
+          <label>Manager</label>
+          <user-icon :user="manager"></user-icon>
+        </div>
+        <label>Teammates</label>
+        <div v-for="teammate in teammates" :key="teammate.email" class="staffing">
+          <user-icon :user="teammate"></user-icon>
+          <v-icon v-if="managerMode">remove_circle</v-icon>
+        </div>
+        <div class="add_teammate_button">
+          <v-icon v-if="managerMode">add_circle</v-icon>
+        </div>
+
       </div>
-      <div v-for="teammate in teammates" :key="teammate.email" class="staffing">
-        <label>Teammate</label>
-        <user-icon :user="teammate"></user-icon>
+      <div>
+        <stage-summary v-if="project.project_id"
+                       v-for="stage_id in project.stages"
+                       :key="stage_id"
+                       :stage_id="stage_id"
+                       :stages="stages"
+                       :project="project"
+                       :users="teammates.concat(managers)"
+                       :managerMode="managerMode"
+        >
+        </stage-summary>
       </div>
     </div>
 
-    <stage-summary v-if="project.project_id"
-                   v-for="stage_id in project.stages"
-                   :key="stage_id"
-                   :stage_id="stage_id"
-                   :stages="stages"
-                   :project="project"
-                   :users="teammates.concat(managers)"
-                   :managerMode="managerMode"
-    >
-    </stage-summary>
+
     <div v-if="project.project_id && managerMode" class="new_stage_widget">
       <span v-if="!edit_mode" @click="edit_mode = true">Add new stage...</span>
       <textarea v-if="edit_mode" v-model="new_stage_title"></textarea>
@@ -111,6 +122,10 @@
     vertical-align: text-top;
   }
 
+  .project_summary {
+    min-height: 700px;
+  }
+
   div.new_stage_widget {
     display: inline-block;
     font-style: italic;
@@ -121,7 +136,7 @@
   }
 
   div.staffing {
-    display: inline-block;
+    display: block;
   }
 
   div.staffing label {
@@ -134,10 +149,31 @@
     font-weight: bold;
   }
 
+  h2 {
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+  }
+
   textarea {
     background-color: white;
     font-size: large;
     font-style: normal;
+  }
+
+  .user_list {
+    min-width: 10%;
+    float: right;
+    background-color: #FBF9F8;
+    padding: 1em;
+
+  }
+
+  .add_teammate_button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
   }
 
 

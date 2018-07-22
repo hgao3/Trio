@@ -64,15 +64,7 @@
         get() {
           return this.stage.title;
         }
-      }/*,
-      tasks: function() {
-        let task_ids = this.stage.tasks;
-        let task_list = [];
-        task_ids.forEach( id => {
-          task_list.push(ApiWrapper.getTask(id));
-        });
-        return task_list;
-      }*/
+      }
     },
     methods: {
       turnOnEditMode: function () {
@@ -95,7 +87,6 @@
       },
       async saveTask () {
         let newTaskId = await ApiWrapper.postTask(this.new_task_title, "", "", this.$store.getters.user.email, this.stage.stage_id);
-        console.log(newTaskId);
         this.stage.tasks.push(newTaskId);
         this.new_task_title = '';
         this.turnOffEditMode();
@@ -103,6 +94,7 @@
     },
     beforeMount: function() {
       this.stages.push(this.stage);
+      ApiWrapper.setIdToken(this.$store.getters.user.idToken);
     }
 
   }

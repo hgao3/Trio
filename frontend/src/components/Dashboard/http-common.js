@@ -8,6 +8,9 @@ export const AXIOS = axios.create({
 let ApiWrapper = (function () {
 
   function Task(obj) {
+
+    const patch_object = {title: "", assigned_user_email: "", stage_id: 0, content: "", due_date: ""};
+
     let local_object = {
 
       task_id: obj.task_id || null,
@@ -54,17 +57,21 @@ let ApiWrapper = (function () {
 
       setTitle(string) {
         this.title = string;
-        //AXIOS.patch(`task/${this.task_id}`, {title: this.title}, {headers: {idToken: id_token}});
+        const object = Object.assign(patch_object, {title: string});
+        AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}});
       },
 
       setContent(string) {
         this.content = string;
-        //AXIOS.patch(`task/${this.task_id}`, {content: this.content}, {headers: {idToken: id_token}});
+        const object = Object.assign(patch_object, {content: string});
+        AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}});
       },
 
       setDueDate(date) {
         this.due_date = date;
-        //AXIOS.patch(`task/${this.task_id}`, {due_date: this.due_date}, {headers: {idToken: id_token}});
+        let formatted_date = new Date(date).toISOString().split('T')[0];
+        const object = Object.assign(patch_object, {due_date: formatted_date});
+        AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}});
       },
 
       isOverdue() {
@@ -73,7 +80,8 @@ let ApiWrapper = (function () {
 
       setStage(stage_id) {
         this.stage_id = stage_id;
-        //AXIOS.patch(`task/${this.task_id}`, {stage_id: this.stage_id}, {headers: {idToken: id_token}});
+        const object = Object.assign(patch_object, {stage_id: stage_id});
+        AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}});
       },
 
       getStage() {
@@ -82,22 +90,22 @@ let ApiWrapper = (function () {
 
       markReady() {
         this.ready_for_review = true;
-        //AXIOS.patch(`task/${this.task_id}/mark_ready`, {}, {headers: {idToken: id_token}});
+        AXIOS.patch(`task/${this.task_id}/mark_ready`, {}, {headers: {idToken: id_token}});
       },
 
       markNotReady() {
         this.ready_for_review = false;
-        //AXIOS.patch(`task/${this.task_id}/mark_not_ready`, {}, {headers: {idToken: id_token}});
+        AXIOS.patch(`task/${this.task_id}/mark_not_ready`, {}, {headers: {idToken: id_token}});
       },
 
       markCompleted() {
         this.completed = true;
-        //AXIOS.patch(`task/${this.task_id}/mark_completed`, {}, {headers: {idToken: id_token}});
+        AXIOS.patch(`task/${this.task_id}/mark_completed`, {}, {headers: {idToken: id_token}});
       },
 
       markIncomplete() {
         this.completed = false;
-        //AXIOS.patch(`task/${this.task_id}/mark_incomplete`, {}, {headers: {idToken: id_token}});
+        AXIOS.patch(`task/${this.task_id}/mark_incomplete`, {}, {headers: {idToken: id_token}});
       }
 
 
@@ -170,7 +178,10 @@ let ApiWrapper = (function () {
       },
 
       insertTask(task) {
-        //
+        if (this.tasks.indexOf(task.getID()) === -1) {
+          this.tasks.push(task.getID());
+          task.setStage(this.stage_id);
+        }
       },
 
       removeTask(task) {

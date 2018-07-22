@@ -29,6 +29,7 @@
           </stage-picker>
           <img src="@/assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
         </div>
+        <button class="delete_button" color="red" v-if="managerMode" @click="deleteTask">Delete Task</button>
       </div>
     </div>
   </div>
@@ -97,6 +98,11 @@
             this.stage.removeTask(this.task);
             newStage.insertTask(this.task);
             this.moving = false;
+          },
+          deleteTask() {
+            this.stage.removeTask(this.task);
+            let config = {headers: {idToken: this.$store.getters.user.idToken}};
+            AXIOS.delete(`task/${this.task.getID()}`, config);
           }
         },
         beforeUpdate: function () {
@@ -225,6 +231,17 @@
   }
 
   .stage {
+    font-size: large;
+  }
+
+  .delete_button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: bold;
+    color: white;
+    background-color: red;
+    text-transform: uppercase;
     font-size: large;
   }
 

@@ -23,6 +23,8 @@
       </div>
     </div>
     <v-btn v-if="title.length > 0 && save_button_on" @click="saveProject">Save Project</v-btn>
+    <v-btn disabled v-if="title.length === 0">Enter title to save</v-btn>
+    <v-btn @click="cancel">Cancel</v-btn>
   </div>
 
 </template>
@@ -70,6 +72,10 @@
         }
       },
       methods: {
+        cancel () {
+          this.title = '';
+          this.$emit('close-dialog');
+        },
         addTeammate(user) {
           if (this.teammates.indexOf(user) === -1) {
             this.teammates.push(user);
@@ -100,7 +106,7 @@
               await AXIOS.patch(`/project/${projectId}/add_teammate`, requestData, requestConfig);
             }
           this.$router.replace(`/dashboard/${projectId}`);
-          this.$emit('close-dialog');
+          this.$emit('save-project');
         }
       },
       beforeMount: function() {
