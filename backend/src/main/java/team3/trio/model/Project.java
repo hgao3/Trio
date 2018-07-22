@@ -23,45 +23,45 @@ import javax.validation.constraints.Size;
     usage = CacheConcurrencyStrategy.READ_WRITE
 )*/
 public class Project implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @NotNull
-    @Size(max = 100)
-    private String title;
+	@NotNull
+	@Size(max = 100)
+	private String title;
 
-    @OneToMany(mappedBy = "project",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private Set<UserProject> userProjects = new HashSet<UserProject>();	
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Project p = (Project) o;
-        return Objects.equals(title, p.title);
-    }
- 
-    @Override
-    public int hashCode() {
-        return Objects.hash(title);
-    }
-    
-    //Getters and setters omitted for brevity
+	@OneToMany(mappedBy = "project",
+			cascade = CascadeType.ALL,
+			orphanRemoval = true)
+	private Set<UserProject> userProjects = new HashSet<UserProject>();
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Project p = (Project) o;
+		return Objects.equals(title, p.title);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(title);
+	}
+
+	//Getters and setters omitted for brevity
     
 /*    public void addUser(User user) {
     	UserProject userProject = new UserProject(user, this, );
     	userProjects.add(userProject);
     	user.getUserProjects().add(userProject);
     }
- 
+
     public void removeUser(User user) {
-        for (Iterator<UserProject> iterator = userProjects.iterator(); 
+        for (Iterator<UserProject> iterator = userProjects.iterator();
              iterator.hasNext(); ) {
         	UserProject userProject = iterator.next();
- 
+
             if (userProject.getProject().equals(this) &&
             		userProject.getUser().equals(user)) {
                 iterator.remove();
@@ -71,10 +71,10 @@ public class Project implements Serializable {
             }
         }
     }*/
-    
-    // Hibernate requires a no-arg constructor
-    public Project() {}
-    
+
+	// Hibernate requires a no-arg constructor
+	public Project() {}
+
 	public Project(String title) {
 		this.title = title;
 	}
@@ -94,15 +94,15 @@ public class Project implements Serializable {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
-    public Set<UserProject> getUserProjects() {
+
+	public Set<UserProject> getUserProjects() {
 		return userProjects;
 	}
 
 	public void setUserProjects(Set<UserProject> userProjects) {
 		this.userProjects = userProjects;
 	}
-	
+
 	public void addUserProjects(UserProject userProject) {
 		this.userProjects.add(userProject);
 	}

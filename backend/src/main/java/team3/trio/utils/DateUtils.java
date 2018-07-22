@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 
 public class DateUtils {
 
+	private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static SimpleDateFormat formatter = new SimpleDateFormat("MMMMM dd, yyyy");
 	private static SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	

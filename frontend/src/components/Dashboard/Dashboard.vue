@@ -1,22 +1,18 @@
 <template>
     <div class="dashboard">
+      <h1>Your Projects</h1>
       <div>
         <div class="project_selector"
              v-for="project in project_list"
              @click="selectProject(project)"
         >{{ project.project_title }}</div>
+        <v-icon class="project_adder" @click="dialog = true">add_box</v-icon>
       </div>
+      <v-dialog v-model="dialog" persistent width="500px">
+        <new-project-card :open="dialog" @save-project="initialize" @close-dialog="dialog = false"></new-project-card>
+      </v-dialog>
       <br>
       <project-summary v-bind:project="selected_project"></project-summary>
-      <stage-summary v-if="selected_project.project_id"
-        v-for="stage_id in selected_project.stages"
-        :key="stage_id"
-        :stage_id="stage_id"
-         :stages="stages"
-        :project="selected_project"
-      >
-      </stage-summary>
-      <!--<div class="new_stage_button" @click="addStage" v-if="selected_project.project_id">Add a stage...</div> -->
 
     </div>
 </template>
@@ -24,7 +20,7 @@
 <script>
 
   import ProjectSummary from './ProjectSummary'
-  import StageSummary from './StageSummary'
+  import NewProjectCard from './NewProjectCard'
   import {ApiWrapper} from "./http-common"
   import {AXIOS} from './http-common'
 
@@ -32,14 +28,13 @@
       name: 'dashboard',
       components: {
         'project-summary': ProjectSummary,
-        'stage-summary': StageSummary
+        'new-project-card': NewProjectCard
       },
       data: function() {
         return {
-          selected_project: { stages: [], project_id: '', project_title: ''},
+          selected_project: {managers: [], teammates: [], project_title: "", stages: [], id: null},
           project_list: [],
-          user: ApiWrapper.getUser(this.$store.getters.user.id),
-          stages: []
+          dialog: false
         };
       },
       methods: {
@@ -47,22 +42,32 @@
           this.project.stages.push(ApiWrapper.postStage("", []));
         },
         selectProject(project) {
-          this.selected_project = project;
+          this.$router.replace(`/dashboard/${project.project_id}`);
+          this.initialize();
+        },
+        async initialize() {
+          this.dialog = false;
+          ApiWrapper.setIdToken(this.$store.getters.user.idToken);
+          let requestConfig = {headers: {'idToken': this.$store.getters.user.idToken}};
+          if (this.$route.params.project_id) {
+            let response = await AXIOS.get(`project/${this.$route.params.project_id}`, requestConfig);
+            //this.selected_project = null;
+            this.selected_project = response.data;
+          }
+          let that = this;
+          AXIOS.get(`/project/by_user/${this.$store.getters.user.email}`, requestConfig)
+            .then(response => { that.project_list = response.data; });
         }
       },
       computed: {},
-      beforeCreate: function() {
-        ApiWrapper.setIdToken(this.$store.getters.user.idToken);
-        AXIOS.get('/project', {headers: {'idToken': this.$store.getters.user.idToken}}).then( response => {
-          this.project_list = response.data;
-        } )
+      beforeMount: function() {
+        this.initialize();
       }
     }
 </script>
 
 <style scoped>
   div {
-    vertical-align: text-top;
     font-size: 10pt;
     padding: 0;
     margin: 0;
@@ -86,13 +91,23 @@
     cursor: pointer;
   }
 
-  div.new_stage_button {
-    display: inline-block;
-    font-style: italic;
-    font-family: Calibri, sans-serif;
+  label {
+    display: block;
+    width: 80%;
+    margin: auto;
   }
 
-  .new_stage_button:hover {
+  h1 {
+    display: inline-block;
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  .project_adder {
+    display: inline-block;
+  }
+
+  .project_adder:hover {
     cursor: pointer;
   }
 
