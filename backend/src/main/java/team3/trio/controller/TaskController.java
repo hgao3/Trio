@@ -11,11 +11,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import team3.trio.exception.ResourceNotFoundException;
-import team3.trio.model.Project;
-import team3.trio.model.Role;
-import team3.trio.model.Stage;
-import team3.trio.model.Task;
-import team3.trio.model.User;
+import team3.trio.model.*;
 import team3.trio.repository.ProjectRepository;
 import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
@@ -24,6 +20,7 @@ import team3.trio.utils.DateUtils;
 import team3.trio.utils.JsonUtils;
 import team3.trio.utils.PasswordUtils;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,7 +50,7 @@ public class TaskController {
     @RequestMapping(path = "/rest/task", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-	public long addNewTaskt(@RequestBody String jsonString) throws Exception {    	
+	public long addNewTask(@RequestBody String jsonString) throws Exception {
     	
 		// json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
@@ -76,7 +73,13 @@ public class TaskController {
     	Stage stage = stageRepository.findById(stageId)
 				.orElseThrow(() -> new ResourceNotFoundException("Stage", "id", stageId));
     	
-    	Date dueAt = DateUtils.toDate(dueDate);
+    	Date dueAt;
+
+    	try {
+			dueAt = DateUtils.toDate(dueDate);
+		} catch (ParseException e) {
+    		dueAt = null;
+		}
     	
     	Task task = new Task(title, content, dueAt, user, stage);
     	
@@ -109,6 +112,58 @@ public class TaskController {
 		}
 		return ja.toString();
 	}
+
+	@RequestMapping(path = "/rest/task/{id}/mark_ready", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	public void markReady( @PathVariable("id") Long id)
+	{
+		Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+		task.markReadyForReview();
+		LOG.info("Task id " + id + " marked ready for review");
+	}
+
+	@RequestMapping(path = "/rest/task/{id}/mark_not_ready", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	public void markNotReady(@PathVariable("id") Long id, @RequestBody String jsonString) throws Exception {
+    	Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+    	JsonObject jo = JsonUtils.toJsonObject(jsonString);
+    	String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
+    	if (task.checkManagerByEmail(email)) {
+    		task.markNotReadyForReview();
+    		LOG.info("Task id " + id + " marked not ready for review");
+		}
+		else {
+    		LOG.error("Refused to mark task id " + id + " not ready for review, " + email + " is not the task manager");
+		}
+	}
+
+	@RequestMapping(path = "/rest/task/{id}/mark_completed", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	public void markComplete(@PathVariable("id") Long id, @RequestBody String jsonString) throws Exception {
+    	Task task = taskRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Task", "id", id));
+    	JsonObject jo = JsonUtils.toJsonObject(jsonString);
+    	String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
+    	if (task.checkManagerByEmail(email)) {
+    		task.markCompleted();
+    		LOG.info("");
+		}
+		else {
+    		LOG.error("Refused to mark task id " + id + " complete, user" + email + " not the task manager");
+		}
+	}
+
+	@RequestMapping(path = "/rest/task/{id}/mark_incompete", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	void markIncomplete(@PathVariable("id") Long id, @RequestBody String jsonString) throws Exception
+	{
+		Task task = taskRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Task", "id", id));
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
+		if (task.checkManagerByEmail(email)) {
+			task.markIncomplete();
+			LOG.info("Task id " + id + " marked incomplete");
+		}
+		else {
+			LOG.error("Refused to mark task id " + id + " incomplete, user " + email + " not the task manager");
+		}
+	}
+
 
 	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -174,6 +229,8 @@ public class TaskController {
 		jo.addProperty("task_id", task.getId());
 		jo.addProperty("title", task.getTitle());
 		jo.addProperty("assigned_user_email", task.getAssignedUser().getEmail());
+		jo.addProperty("ready_for_review", task.isReadyForReview());
+		jo.addProperty("completed", task.isCompleted());
 		jo.addProperty("content", task.getContent());
 		jo.addProperty("due_date", DateUtils.toString(task.getDueAt()));
 		jo.addProperty("create_date", DateUtils.toString(task.getCreatedAt()));

@@ -1,6 +1,8 @@
 package team3.trio.controller;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -85,13 +87,13 @@ public class ProjectController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public void addTeammateToProject(@PathVariable("id") Long id,
-			@RequestBody String jsonString) throws Exception {
+									 @RequestBody String jsonString) throws Exception {
 		LOG.info("Reading project with id " + id + " from database.");
-		
+
 		//json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
 		String teammateEmail = (String) JsonUtils.findElementFromJson(jo, "teammate_email", "String");
-		
+
 		Project project = this.projectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
 
@@ -99,9 +101,9 @@ public class ProjectController {
 		if (users.size()==0) {
 			throw new ResourceNotFoundException("User", "email", teammateEmail);
 		}
-		
+
 		User user = users.get(0);
-		
+
 		//User user = userRepository.findById(teammateId)
 		//		.orElseThrow(() -> new ResourceNotFoundException("User", "id", teammateId));
 
@@ -111,6 +113,27 @@ public class ProjectController {
 		projectRepository.save(project);
 		LOG.info("successfully record add teammate " + user.getEmail() + " to project " + project.getTitle()
 				+ " into DB");
+	}
+
+	@RequestMapping(path = "/rest/project/by_user/{email}", method = RequestMethod.GET)
+	public String getProjectsByUserEmail(@PathVariable("email") String email) throws Exception
+	{
+		List<User> users = userRepository.findByEmail(email);
+		if (users.size() == 0) {
+			throw new ResourceNotFoundException("User", "email", email);
+		}
+		User user = users.get(0);
+		ArrayList<Project> projects = new ArrayList<>();
+		for (UserProject up : user.getUserProjects()) {
+			projects.add(up.getProject());
+		}
+		JsonArray arr = new JsonArray();
+		for (Project project : projects) {
+			JsonObject jo = projectToJO(project);
+			arr.add(jo);
+		}
+		return arr.toString();
+
 	}
 
 	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
@@ -202,8 +225,8 @@ public class ProjectController {
 			}
 		});
 
-		jo.add("manager_email", manager);
-		jo.add("teammate", teammateList);
+		jo.add("managers", manager);
+		jo.add("teammates", teammateList);
 
 		JsonArray stageList = new JsonArray();
 
