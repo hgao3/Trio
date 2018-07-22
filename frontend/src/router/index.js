@@ -10,6 +10,7 @@ import UsersTable from '@/components/User/UsersTable'
 import Dashboard from '@/components/Dashboard/Dashboard'
 import IssueTracker from '@/components/IssueTracker/IssueTracker'
 import Issue from '@/components/IssueTracker/Issue'
+import CreateIssue from '@/components/IssueTracker/CreateIssue'
 import AuthGuard from './auth-guard'
 
 Vue.use(Router)
@@ -72,6 +73,13 @@ export default new Router({
       path: '/issue/:id',
       name: 'Issue',
       component: Issue,
+      props: true,
+      beforeEnter: AuthGuard
+    },
+    {
+      path: '/createIssue',
+      name: 'CreateIssue',
+      component: CreateIssue,
       props: true,
       beforeEnter: AuthGuard
     }

@@ -1,0 +1,135 @@
+<template>
+  <v-container>
+    <v-layout row v-if="error">
+      <v-flex xs12 sm6 offset-sm3>
+        <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
+      </v-flex>
+    </v-layout>
+    <v-layout row>
+      <v-flex xs12 sm6 offset-sm3>
+        <v-card>
+          <v-card-text>
+            <v-container>
+              <form @submit.prevent="onCreate">
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-text-field
+                      name="title"
+                      label="Title"
+                      id="title"
+                      v-model="title"
+                      type="text"
+                      required></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-text-field
+                      name="content"
+                      label="Content"
+                      id="content"
+                      v-model="content"
+                      type="text"
+                      required></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-select
+                      v-bind:items="items"
+                      v-model="priority_level"
+                      label="Select a Priority Level"
+                      single-line
+                      bottom
+                    ></v-select>
+                  </v-flex>
+                </v-layout>
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-text-field
+                      name="project_id"
+                      label="Project ID"
+                      id="project_id"
+                      v-model="project_id"
+                      type="text"
+                      required></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout row>
+                  <v-flex xs12 class="dateWrapper">
+                    <label class="myTitle">Close Date</label>
+                    <datepicker v-model="close_date" placeholder="Pick a Close Date" class="datepickerCss"></datepicker>
+                  </v-flex>
+                </v-layout>
+                <v-layout>
+                  <v-flex xs12>
+                    <v-btn type="submit">Create</v-btn>
+                  </v-flex>
+                </v-layout>
+              </form>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </v-container>
+</template>
+
+<script>
+  import axios from 'axios'
+  import Datepicker from 'vuejs-datepicker'
+  export default {
+    name: 'CreateIssue',
+    components: {
+      'datepicker': Datepicker
+    },
+    props: [
+      'id'
+    ],
+    data () {
+      return {
+        title: '',
+        content: '',
+        priority_level: 'Medium',
+        items: [
+          'Critical', 'High', 'Medium', 'Low'
+        ],
+        project_id: '',
+        close_date: ''
+      }
+    },
+    methods: {
+      onCreate () {
+        axios.post(this.$store.getters.serverHost + '/rest/issue',
+          {
+            'title': this.title,
+            'content': this.content,
+            'owner_user_email': this.$store.getters.user.email,
+            'priority_level': this.priority_level,
+            'project_id': this.project_id,
+            'close_date': this.close_date
+          },
+          {
+            headers: {'idToken': this.$store.getters.user.idToken}
+          }
+        ).then(response => {
+          this.$router.push('/issueTracker/')
+        })
+      }
+    }
+  }
+</script>
+<style>
+  .dateWrapper {
+    border-bottom: 1px solid #949494 !important;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .myTitle {
+    color: rgba(0,0,0,0.54);
+  }
+  .datepickerCss {
+    margin-top: 5px;
+  }
+
+</style>

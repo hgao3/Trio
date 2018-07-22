@@ -19,7 +19,8 @@
                       id="issue_id"
                       v-model="issue_id"
                       type="text"
-                      required></v-text-field>
+                      required
+                      disabled="true"></v-text-field>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
@@ -135,7 +136,7 @@
   import axios from 'axios'
   import Datepicker from 'vuejs-datepicker'
   export default {
-    name: "Issue.vue",
+    name: "issue",
     components: {
       'datepicker': Datepicker
     },

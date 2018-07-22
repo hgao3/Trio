@@ -75,6 +75,7 @@ public class Issue extends AuditModel {
 		this.setOwnerUser(user);
 		this.setPriorityLevel(priorityLevel);
 		this.setProject(project);
+		this.setOpenStatus(true);
 	}
 
 	public Long getId() {

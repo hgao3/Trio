@@ -76,7 +76,8 @@ public class TaskController {
     	Stage stage = stageRepository.findById(stageId)
 				.orElseThrow(() -> new ResourceNotFoundException("Stage", "id", stageId));
     	
-    	Date dueAt = DateUtils.toDate(dueDate);
+    	
+    	Date dueAt = DateUtils.toDateFromISO(dueDate);
     	
     	Task task = new Task(title, content, dueAt, user, stage);
     	
@@ -136,7 +137,7 @@ public class TaskController {
 		}
 		
 		if (!StringUtils.isEmpty(dueDate)) {
-			Date dueAt = DateUtils.toDate(dueDate);
+			Date dueAt = DateUtils.toDateFromISO(dueDate);
 			task.setDueAt(dueAt);
 		}
 		
@@ -175,9 +176,9 @@ public class TaskController {
 		jo.addProperty("title", task.getTitle());
 		jo.addProperty("assigned_user_email", task.getAssignedUser().getEmail());
 		jo.addProperty("content", task.getContent());
-		jo.addProperty("due_date", DateUtils.toString(task.getDueAt()));
-		jo.addProperty("create_date", DateUtils.toString(task.getCreatedAt()));
-		jo.addProperty("update_date", DateUtils.toString(task.getUpdatedAt()));
+		jo.addProperty("due_date", DateUtils.toIsoString(task.getDueAt()));
+		jo.addProperty("create_date", DateUtils.toIsoString(task.getCreatedAt()));
+		jo.addProperty("update_date", DateUtils.toIsoString(task.getUpdatedAt()));
 		jo.addProperty("stage_id", task.getStage().getId());
 		return jo;
 	}

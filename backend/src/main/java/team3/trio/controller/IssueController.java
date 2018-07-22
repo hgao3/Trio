@@ -66,14 +66,19 @@ public class IssueController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public long addNewIssue(@RequestBody String jsonString) throws Exception {
-
+		
 		// json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
 		String title = (String) JsonUtils.findElementFromJson(jo, "title", "String");
 		String content = (String) JsonUtils.findElementFromJson(jo, "content", "String");
+		//Boolean openStatus = (Boolean) JsonUtils.findElementFromJson(jo, "open_status", "Boolean");
 		String ownerUserEmail = (String) JsonUtils.findElementFromJson(jo, "owner_user_email", "String");
 		String priorityLevel = (String) JsonUtils.findElementFromJson(jo, "priority_level", "String");
 		Long projectId = (Long) JsonUtils.findElementFromJson(jo, "project_id", "Long");
+		//Long taskId = (Long) JsonUtils.findElementFromJson(jo, "task_id", "Long");
+		String closeDate = (String) JsonUtils.findElementFromJson(jo, "close_date", "String");
+		
+		//DateUtils
 		
 		List<User> users = userRepository.findByEmail(ownerUserEmail);
 		if (users.size()==0) {
@@ -86,7 +91,13 @@ public class IssueController {
 		Project project = projectRepository.findById(projectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
 		
-		Issue issue = new Issue(title, content, user, priorityLevel, project);		
+		Issue issue = new Issue(title, content, user, priorityLevel, project);	
+		
+		if (!StringUtils.isEmpty(closeDate)) {
+			Date closeAt = DateUtils.toDateFromISO(closeDate);
+			issue.setClosedat(closeAt);
+		}
+		
 		issueRepository.save(issue);
 		
 		LOG.info(issue.toString() + " successfully saved into DB");
@@ -186,7 +197,7 @@ public class IssueController {
 		}
 		
 		if (!StringUtils.isEmpty(closeDate)) {
-			Date closeAt = DateUtils.toDate(closeDate);
+			Date closeAt = DateUtils.toDateFromISO(closeDate);
 			issue.setClosedat(closeAt);
 		}
 		
@@ -220,12 +231,12 @@ public class IssueController {
 			jo.addProperty("task_id", "");
 		}
 		if (issue.getClosedat()!=null) {
-			jo.addProperty("close_date", DateUtils.toString(issue.getClosedat()));
+			jo.addProperty("close_date", DateUtils.toIsoString(issue.getClosedat()));
 		} else {
 			jo.addProperty("close_date", "");
 		}
-		jo.addProperty("create_date", DateUtils.toString(issue.getCreatedAt()));
-		jo.addProperty("update_date", DateUtils.toString(issue.getUpdatedAt()));
+		jo.addProperty("create_date", DateUtils.toIsoString(issue.getCreatedAt()));
+		jo.addProperty("update_date", DateUtils.toIsoString(issue.getUpdatedAt()));
 		return jo;
 	}	
 }
