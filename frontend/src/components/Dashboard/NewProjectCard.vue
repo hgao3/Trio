@@ -91,6 +91,7 @@
           };
           let postConfig = {headers: {idToken: this.$store.getters.user.idToken}};
           AXIOS.post('/project', postData, postConfig).then(response => {
+            console.log(response);
             let projectId = response.data;
             for (const teammate of teammates) {
               let requestData = {teammate_email: teammate.email};
@@ -98,7 +99,7 @@
               AXIOS.patch(`/project/${projectId}/add_teammate`, requestData, requestConfig);
             }
           });
-          this.$emit('close_dialog');
+          this.$emit('close-dialog');
         }
       },
       beforeMount: function() {

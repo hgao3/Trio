@@ -9,7 +9,7 @@
       </div>
       <v-dialog class="project_adder" v-model="dialog" persistent width="500px">
         <v-icon class="project_adder" slot="activator">add_box</v-icon>
-        <new-project-card :open="dialog" :close-dialog="dialog = false"></new-project-card>
+        <new-project-card :open="dialog" v-on:close-dialog="initialize"></new-project-card>
       </v-dialog>
       <br>
       <project-summary v-bind:project="selected_project"></project-summary>
@@ -44,14 +44,18 @@
         selectProject(project) {
           this.selected_project = project;
         },
+        initialize() {
+          ApiWrapper.setIdToken(this.$store.getters.user.idToken);
+          this.dialog = false;
+          AXIOS.get(`/project/by_user/${this.$store.getters.user.email}`, {headers: {'idToken': this.$store.getters.user.idToken}})
+            .then( response => {
+              this.project_list = response.data;
+            } )
+        }
       },
       computed: {},
-      beforeCreate: function() {
-        ApiWrapper.setIdToken(this.$store.getters.user.idToken);
-        AXIOS.get(`/project/by_user/${this.$store.getters.user.email}`, {headers: {'idToken': this.$store.getters.user.idToken}})
-          .then( response => {
-          this.project_list = response.data;
-        } )
+      beforeMount: function() {
+        this.initialize();
       }
     }
 </script>

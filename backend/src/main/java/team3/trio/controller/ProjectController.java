@@ -87,13 +87,13 @@ public class ProjectController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public void addTeammateToProject(@PathVariable("id") Long id,
-			@RequestBody String jsonString) throws Exception {
+									 @RequestBody String jsonString) throws Exception {
 		LOG.info("Reading project with id " + id + " from database.");
-		
+
 		//json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
 		String teammateEmail = (String) JsonUtils.findElementFromJson(jo, "teammate_email", "String");
-		
+
 		Project project = this.projectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
 
@@ -101,40 +101,18 @@ public class ProjectController {
 		if (users.size()==0) {
 			throw new ResourceNotFoundException("User", "email", teammateEmail);
 		}
-		
+
 		User user = users.get(0);
-		
+
 		//User user = userRepository.findById(teammateId)
 		//		.orElseThrow(() -> new ResourceNotFoundException("User", "id", teammateId));
 
 		UserProject up = new UserProject(user, project, Role.Teammate);
 		project.addUserProjects(up);
-		user.addUserProjects(up);
 
 		projectRepository.save(project);
-		userRepository.save(user);
 		LOG.info("successfully record add teammate " + user.getEmail() + " to project " + project.getTitle()
 				+ " into DB");
-	}
-
-	@RequestMapping(path = "/rest/project/{id}/set_user_role", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
-	public void setUserRole(@PathVariable("id") long id, @RequestBody String jsonString) throws Exception {
-		Project project = projectRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Project", "id", id));
-		JsonObject jo = JsonUtils.toJsonObject(jsonString);
-		String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
-		List<User> u = userRepository.findByEmail(email);
-		if (u.size()==0) {
-			throw new ResourceNotFoundException("User", "email", email);
-		}
-		User user = u.get(0);
-		String roleString = (String) JsonUtils.findElementFromJson(jo, "role", "String");
-		HashMap<String, Role> hash = new HashMap<>();
-		hash.put("manager", Role.Manager);
-		hash.put("teammate", Role.Teammate);
-		hash.put("client", Role.Client);
-		Role role = hash.getOrDefault(roleString, Role.Client);
-		project.setUserRole(user, role);
-
 	}
 
 	@RequestMapping(path = "/rest/project/by_user/{email}", method = RequestMethod.GET)
