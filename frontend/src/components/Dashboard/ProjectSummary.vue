@@ -74,26 +74,33 @@
           let newStageId = response.data;
           this.project.stages.push(newStageId);
           this.turnOffEditMode();
-        }
-      },
-      watch: {
-        project: function() {
-          this.stages.splice(0, this.stages.length); // empty out stages before loading data from new project
-          let that = this;
+        },
+        async fetchUsers() {
+          const id = this.project.project_id;
           for (let email_list of ['teammates', 'managers']) {
-            that[email_list].splice(0, that[email_list].length); // empty out arrays before loading data from new project
+            let list = [];
+            this[email_list].splice(0, this[email_list].length); // empty out arrays before loading data from new project
             for (let email of this.project[email_list]) {
-              let requestConfig = { headers: {'idToken': this.$store.getters.user.idToken}};
-              AXIOS.get(`/user/email/${email}`, requestConfig)
-                .then( function(response) {
-                  let uid = response.data.uid;
-                  firebase.database().ref('users').child(uid)
-                    .on('value', snapshot => { that[email_list].push(snapshot.val()); })
-                } )
-                .catch( response => { console.log(response); })
+              const requestConfig = {headers: {'idToken': this.$store.getters.user.idToken}};
+              const response = await AXIOS.get(`/user/email/${email}`, requestConfig);
+              let uid = response.data.uid;
+              const snapshot = await firebase.database().ref('users').child(uid).once('value');
+              list.push(snapshot.val());
+            }
+            if (this.project.project_id === id) {
+              this[email_list] = list;
             }
           }
         }
+      },
+      watch: {
+        project: function () {
+          this.stages.splice(0, this.stages.length); // empty out stages before loading data from new project
+          this.fetchUsers();
+        }/*,
+        beforeMount: function() {
+          this.fetchUsers();
+        }*/
       }
     }
 </script>

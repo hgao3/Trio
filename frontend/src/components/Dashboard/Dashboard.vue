@@ -51,6 +51,7 @@
           let requestConfig = {headers: {'idToken': this.$store.getters.user.idToken}};
           if (this.$route.params.project_id) {
             let response = await AXIOS.get(`project/${this.$route.params.project_id}`, requestConfig);
+            //this.selected_project = null;
             this.selected_project = response.data;
           }
           let that = this;
