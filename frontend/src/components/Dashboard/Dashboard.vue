@@ -42,15 +42,20 @@
           this.project.stages.push(ApiWrapper.postStage("", []));
         },
         selectProject(project) {
-          this.selected_project = project;
+          this.$router.replace(`/dashboard/${project.project_id}`);
+          this.initialize();
         },
-        initialize() {
-          ApiWrapper.setIdToken(this.$store.getters.user.idToken);
+        async initialize() {
           this.dialog = false;
-          AXIOS.get(`/project/by_user/${this.$store.getters.user.email}`, {headers: {'idToken': this.$store.getters.user.idToken}})
-            .then( response => {
-              this.project_list = response.data;
-            } )
+          ApiWrapper.setIdToken(this.$store.getters.user.idToken);
+          let requestConfig = {headers: {'idToken': this.$store.getters.user.idToken}};
+          if (this.$route.params.project_id) {
+            let response = await AXIOS.get(`project/${this.$route.params.project_id}`, requestConfig);
+            this.selected_project = response.data;
+          }
+          let that = this;
+          AXIOS.get(`/project/by_user/${this.$store.getters.user.email}`, requestConfig)
+            .then(response => { that.project_list = response.data; });
         }
       },
       computed: {},

@@ -53,7 +53,7 @@
         let items = [
           { icon: 'face', title: 'Register', route: '/register' },
           { icon: 'lock_open', title: 'Login', route: '/login' }
-        ]
+        ];
         if (this.userIsAuthenticated) {
           items = [
             {icon: 'assignment', title: 'Dashboard', route: '/dashboard'},

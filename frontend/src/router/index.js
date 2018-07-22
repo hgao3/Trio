@@ -63,6 +63,12 @@ export default new Router({
       beforeEnter: AuthGuard
     },
     {
+      path: '/dashboard/:project_id',
+      name: 'Dashboard',
+      component: Dashboard,
+      beforeEnter: AuthGuard
+    },
+    {
       path: '/issueTracker',
       name: 'IssueTracker',
       component: IssueTracker,

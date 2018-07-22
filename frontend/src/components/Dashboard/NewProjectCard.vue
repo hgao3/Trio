@@ -22,7 +22,7 @@
         </ul>
       </div>
     </div>
-    <v-btn v-if="title.length > 0" @click="saveProject">Save Project</v-btn>
+    <v-btn v-if="title.length > 0 && save_button_on" @click="saveProject">Save Project</v-btn>
   </div>
 
 </template>
@@ -43,7 +43,8 @@
           teammates: [],
           users: [],
           user_to_add: "",
-          manager: this.$store.getters.user
+          manager: this.$store.getters.user,
+          save_button_on: true
         }
       },
       computed: {
@@ -83,22 +84,22 @@
             this.teammates.splice(index, 1);
           }
         },
-        saveProject() {
+        async saveProject() {
+          this.save_button_on = false;
           let teammates = this.teammates;
           let postData = {
             title: this.title,
             manager_email: this.manager.email
           };
           let postConfig = {headers: {idToken: this.$store.getters.user.idToken}};
-          AXIOS.post('/project', postData, postConfig).then(response => {
-            console.log(response);
-            let projectId = response.data;
-            for (const teammate of teammates) {
+          let postResponse = await AXIOS.post('/project', postData, postConfig);
+          let projectId = postResponse.data;
+          for (const teammate of teammates) {
               let requestData = {teammate_email: teammate.email};
               let requestConfig = {headers: {idToken: this.$store.getters.user.idToken}};
-              AXIOS.patch(`/project/${projectId}/add_teammate`, requestData, requestConfig);
+              await AXIOS.patch(`/project/${projectId}/add_teammate`, requestData, requestConfig);
             }
-          });
+          this.$router.replace(`/dashboard/${projectId}`);
           this.$emit('close-dialog');
         }
       },
