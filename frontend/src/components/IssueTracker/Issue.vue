@@ -91,13 +91,13 @@
                 <v-layout row>
                   <v-flex xs12 class="dateWrapper">
                     <label class="myTitle">Create Date</label>
-                    <datepicker v-model="create_date" placeholder="Pick a Create Date" class="datepickerCss"></datepicker>
+                    <datepicker v-model="create_date" placeholder="Pick a Create Date" class="datepickerCss" disabled="true"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
                   <v-flex xs12 class="dateWrapper">
                     <label class="myTitle">Update Date</label>
-                    <datepicker v-model="update_date" placeholder="Pick a Update Date" class="datepickerCss"></datepicker>
+                    <datepicker v-model="update_date" placeholder="Pick a Update Date" class="datepickerCss" disabled="true"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
@@ -114,7 +114,7 @@
                       id="task_id"
                       v-model="task_id"
                       type="text"
-                      required></v-text-field>
+                      ></v-text-field>
                   </v-flex>
                 </v-layout>
                 <v-layout>
@@ -187,15 +187,28 @@
       })
     },
     methods: {
-      onUpdate2 () {
-        const qs = require('qs')
-        axios.post(this.$store.getters.serverHost + '/signup', qs.stringify(
+      onUpdate () {
+        var status = false
+        if (this.open_status == this.items2[0]) {
+          status = true
+        }
+        axios.patch(this.$store.getters.serverHost + '/rest/issue/' + this.id,
           {
-            'first_name': this.firstname,
-            'last_name': this.lastname,
-            'email': this.email
+            'title': this.title,
+            'content': this.content,
+            'open_status': status,
+            'owner_user_email': this.owner_user_email,
+            'priority_level': this.priority_level,
+            'project_id': this.project_id,
+            'task_id': this.task_id,
+            'close_date': this.close_date
+          },
+          {
+            headers: {'idToken': this.$store.getters.user.idToken}
           }
-        ))
+        ).then(response => {
+          this.$router.push('/issueTracker/')
+        })
       }
     }
   }
