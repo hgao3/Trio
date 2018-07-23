@@ -8,9 +8,9 @@
       <table-column show="owner_user_email" label="Owner User Email"></table-column>
       <table-column show="priority_level" label="Priority Level"></table-column>
       <table-column show="project_id" label="Project ID"></table-column>
-      <table-column show="create_date" label="Create Date" :formatter="formatter"></table-column>
-      <table-column show="update_date" label="Update Date" :formatter="formatter"></table-column>
-      <table-column show="close_date" label="Close Date" :formatter="formatter"></table-column>
+      <table-column show="create_date" label="Create Date"></table-column>
+      <table-column show="update_date" label="Update Date"></table-column>
+      <table-column show="close_date" label="Close Date"></table-column>
       <table-column show="task_id" label="Task ID"></table-column>
       <table-column label="" :sortable="false" :filterable="false">
         <template slot-scope="row">
@@ -44,7 +44,7 @@
     methods: {
       async fetchData () {
         var url = ''
-        if (this.projectId === ''){
+        if (this.projectId === 'All' || this.projectId === '') {
           url = this.$store.getters.serverHost + '/rest/issue'
         } else {
           url = this.$store.getters.serverHost + '/rest/issue/project_id/' + parseInt(this.projectId)
@@ -61,11 +61,11 @@
       editIssue (id) {
         this.$router.push('/issue/' + id)
       },
-      formatter (value, rowProperties) {
+/*      formatter (value, rowProperties) {
         if (value !== '') {
           return new Date(value).toISOString().slice(0, 10)
         }
-      },
+      },*/
       createIssue () {
         this.$router.push('/createIssue')
       }

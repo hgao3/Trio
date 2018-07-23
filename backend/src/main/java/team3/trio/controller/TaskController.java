@@ -76,7 +76,7 @@ public class TaskController {
     	Date dueAt;
 
     	try {
-			dueAt = DateUtils.toDate(dueDate);
+			dueAt = DateUtils.toDateFromDashboard(dueDate);
 		} catch (ParseException e) {
     		dueAt = null;
 		}
@@ -191,7 +191,7 @@ public class TaskController {
 		}
 		
 		if (!StringUtils.isEmpty(dueDate)) {
-			Date dueAt = DateUtils.toDateFromISO(dueDate);
+			Date dueAt = DateUtils.toDateFromDashboard(dueDate);
 			task.setDueAt(dueAt);
 		}
 		
@@ -232,9 +232,9 @@ public class TaskController {
 		jo.addProperty("ready_for_review", task.isReadyForReview());
 		jo.addProperty("completed", task.isCompleted());
 		jo.addProperty("content", task.getContent());
-		jo.addProperty("due_date", DateUtils.toIsoString(task.getDueAt()));
-		jo.addProperty("create_date", DateUtils.toIsoString(task.getCreatedAt()));
-		jo.addProperty("update_date", DateUtils.toIsoString(task.getUpdatedAt()));
+		jo.addProperty("due_date", DateUtils.toDashboardString(task.getDueAt()));
+		jo.addProperty("create_date", DateUtils.toDashboardString(task.getCreatedAt()));
+		jo.addProperty("update_date", DateUtils.toDashboardString(task.getUpdatedAt()));
 		jo.addProperty("stage_id", task.getStage().getId());
 		return jo;
 	}

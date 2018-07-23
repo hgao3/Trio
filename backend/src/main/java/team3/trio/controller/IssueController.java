@@ -190,8 +190,8 @@ public class IssueController {
 		issue.setProject(project);
 		
 		if (taskId != null && taskId > 0) {
-			Task task = taskRepository.findById(id)
-					.orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+			Task task = taskRepository.findById(taskId)
+					.orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
 			
 			issue.setTask(task);
 		}

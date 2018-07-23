@@ -58,7 +58,7 @@
                 <v-layout row>
                   <v-flex xs12 class="dateWrapper">
                     <label class="myTitle">Close Date</label>
-                    <datepicker v-model="close_date" placeholder="Pick a Close Date" class="datepickerCss"></datepicker>
+                    <datepicker v-model="close_date" placeholder="Pick a Close Date" class="datepickerCss" :format="customFormatter"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout>
@@ -99,7 +99,13 @@
       }
     },
     methods: {
+      customFormatter (date) {
+        return new Date(date).toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'})
+      },
       onCreate () {
+        if (this.close_date !== '') {
+          this.close_date = new Date(this.close_date).toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'})
+        }
         axios.post(this.$store.getters.serverHost + '/rest/issue',
           {
             'title': this.title,

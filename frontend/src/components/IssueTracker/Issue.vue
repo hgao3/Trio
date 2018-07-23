@@ -20,7 +20,7 @@
                       v-model="issue_id"
                       type="text"
                       required
-                      disabled="true"></v-text-field>
+                      :disabled=true></v-text-field>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
@@ -92,19 +92,19 @@
                 <v-layout row>
                   <v-flex xs12 class="dateWrapper">
                     <label class="myTitle">Create Date</label>
-                    <datepicker v-model="create_date" placeholder="Pick a Create Date" class="datepickerCss" disabled="true"></datepicker>
+                    <datepicker v-model="create_date" placeholder="Pick a Create Date" class="datepickerCss" :disabled=true :format="customFormatter"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
                   <v-flex xs12 class="dateWrapper">
                     <label class="myTitle">Update Date</label>
-                    <datepicker v-model="update_date" placeholder="Pick a Update Date" class="datepickerCss" disabled="true"></datepicker>
+                    <datepicker v-model="update_date" placeholder="Pick a Update Date" class="datepickerCss" :disabled=true :format="customFormatter"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
                   <v-flex xs12 class="dateWrapper">
                     <label class="myTitle">Close Date</label>
-                    <datepicker v-model="close_date" placeholder="Pick a Close Date" class="datepickerCss"></datepicker>
+                    <datepicker v-model="close_date" placeholder="Pick a Close Date" class="datepickerCss" :format="customFormatter"></datepicker>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
@@ -187,11 +187,27 @@
         this.task_id = response.data.task_id
       })
     },
+    computed: {
+      error () {
+        return this.$store.getters.error
+      }
+    },
     methods: {
+      customFormatter (date) {
+        return new Date(date).toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'})
+      },
       onUpdate () {
         var status = false
-        if (this.open_status == this.items2[0]) {
+        if (this.open_status === this.items2[0]) {
           status = true
+        }
+        if (this.task_id === '') {
+          this.task_id = 0
+        } else {
+          this.task_id = parseInt(this.task_id)
+        }
+        if (this.close_date !== '') {
+          this.close_date = new Date(this.close_date).toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'})
         }
         axios.patch(this.$store.getters.serverHost + '/rest/issue/' + this.id,
           {

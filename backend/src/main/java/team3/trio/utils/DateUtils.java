@@ -9,24 +9,33 @@ import com.google.gson.JsonObject;
 public class DateUtils {
 
 	private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-	private static SimpleDateFormat formatter = new SimpleDateFormat("MMMMM dd, yyyy");
 	private static SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+	private static SimpleDateFormat formatter3 = new SimpleDateFormat("MMMMM dd, yyyy");
+	private static SimpleDateFormat formatter4 = new SimpleDateFormat("MM/dd/yyyy");
 	
 	
-	public static Date toDateFromDB(String dateString) throws ParseException {
+	public static Date toDateFromDashboard(String dateString) throws ParseException {
 		return DateUtils.toDate(dateString, formatter);
 	}
 	
-	public static Date toDateFromISO(String dateString) throws ParseException {
-		return DateUtils.toDate(dateString, formatter2);
-	}
-	
-	public static String toDBString(Date date) {
+	public static String toDashboardString(Date date) {
 		return DateUtils.toString(date, formatter);
 	}
 	
+	public static Date toDateFromDB(String dateString) throws ParseException {
+		return DateUtils.toDate(dateString, formatter3);
+	}
+	
+	public static Date toDateFromISO(String dateString) throws ParseException {
+		return DateUtils.toDate(dateString, formatter4);
+	}
+	
+	public static String toDBString(Date date) {
+		return DateUtils.toString(date, formatter3);
+	}
+	
 	public static String toIsoString(Date date) {
-		return DateUtils.toString(date, formatter2);
+		return DateUtils.toString(date, formatter4);
 	}
 	
 	public static Date toDate(String dateString, SimpleDateFormat formatter) throws ParseException {
