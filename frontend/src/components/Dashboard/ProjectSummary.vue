@@ -13,11 +13,23 @@
           <label>Teammates</label>
           <div v-for="teammate in teammates" :key="teammate.email" class="staffing">
             <user-icon :user="teammate"></user-icon>
-            <v-icon v-if="managerMode">remove_circle</v-icon>
+            <v-icon v-if="managerMode" class="button" title="Remove teammate" @click="confirmTeammateRemoval(teammate)">
+              remove_circle</v-icon>
           </div>
           <div class="add_teammate_button">
-            <v-icon v-if="managerMode">add_circle</v-icon>
+            <v-icon v-if="managerMode" class="button" title="Add new teammate">add_circle</v-icon>
           </div>
+
+          <v-dialog v-model="confirm_teammate_removal" v-if="teammate_to_remove">
+            <div class="removal_modal">
+              <p>Are you sure you want to remove <strong>{{teammate_to_remove.firstname}} {{teammate_to_remove.lastname}}
+                ({{teammate_to_remove.email}})</strong> from project <strong>{{project.project_title}}</strong>?</p>
+              <p>All tasks assigned to {{teammate_to_remove.firstname}} will be reassigned to the project manager.</p>
+              <v-btn @click="removeTeammate">Remove {{teammate_to_remove.firstname}}</v-btn>
+              <v-btn @click="cancelTeammateRemoval">Cancel</v-btn>
+            </div>
+          </v-dialog>
+
         </div>
 
         <h2>Project Settings</h2>
@@ -68,7 +80,9 @@
           stages: [],
           new_stage_title: "",
           edit_mode: false,
-          hide_completed_tasks: true
+          hide_completed_tasks: true,
+          confirm_teammate_removal: false,
+          teammate_to_remove: null
         }
       },
       computed: {
@@ -108,6 +122,23 @@
               this[email_list] = list;
             }
           }
+        },
+        confirmTeammateRemoval(teammate) {
+          this.teammate_to_remove = teammate;
+          this.confirm_teammate_removal = true;
+        },
+        removeTeammate() {
+          let config = {headers: {idToken: this.$store.getters.user.idToken}};
+          let url = `/project/${this.project.project_id}/remove_teammate/`;
+          let payload = {teammate_email: this.teammate_to_remove.email};
+          let that = this;
+          AXIOS.patch(url, payload, config);
+          this.teammates.splice(this.teammates.indexOf(this.teammate_to_remove, 1));
+          this.cancelTeammateRemoval();
+        },
+        cancelTeammateRemoval() {
+          this.teammate_to_remove = null;
+          this.confirm_teammate_removal = false;
         }
       },
       watch: {
@@ -182,6 +213,15 @@
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+  }
+
+  .button:hover {
+    cursor: pointer;
+  }
+
+  .removal_modal {
+    background-color: lightblue;
+    padding: 1em;
   }
 
 
