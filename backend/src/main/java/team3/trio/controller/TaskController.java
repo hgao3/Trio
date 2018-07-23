@@ -119,20 +119,15 @@ public class TaskController {
 		Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
 		task.markReadyForReview();
 		LOG.info("Task id " + id + " marked ready for review");
+		taskRepository.save(task);
 	}
 
 	@RequestMapping(path = "/rest/task/{id}/mark_not_ready", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
-	public void markNotReady(@PathVariable("id") Long id, @RequestBody String jsonString) throws Exception {
+	public void markNotReady(@PathVariable("id") Long id) {
     	Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
-    	JsonObject jo = JsonUtils.toJsonObject(jsonString);
-    	String email = (String) JsonUtils.findElementFromJson(jo, "user_email", "String");
-    	if (task.checkManagerByEmail(email)) {
-    		task.markNotReadyForReview();
-    		LOG.info("Task id " + id + " marked not ready for review");
-		}
-		else {
-    		LOG.error("Refused to mark task id " + id + " not ready for review, " + email + " is not the task manager");
-		}
+    	task.markNotReadyForReview();
+    	LOG.info("Task id " + id + " marked not ready for review");
+		taskRepository.save(task);
 	}
 
 	@RequestMapping(path = "/rest/task/{id}/mark_completed", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
@@ -147,9 +142,10 @@ public class TaskController {
 		else {
     		LOG.error("Refused to mark task id " + id + " complete, user" + email + " not the task manager");
 		}
+		taskRepository.save(task);
 	}
 
-	@RequestMapping(path = "/rest/task/{id}/mark_incompete", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/task/{id}/mark_incomplete", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8")
 	void markIncomplete(@PathVariable("id") Long id, @RequestBody String jsonString) throws Exception
 	{
 		Task task = taskRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Task", "id", id));
@@ -162,6 +158,7 @@ public class TaskController {
 		else {
 			LOG.error("Refused to mark task id " + id + " incomplete, user " + email + " not the task manager");
 		}
+		taskRepository.save(task);
 	}
 
 

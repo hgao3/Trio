@@ -74,6 +74,7 @@
       methods: {
         cancel () {
           this.title = '';
+          this.teammates = [];
           this.$emit('close-dialog');
         },
         addTeammate(user) {

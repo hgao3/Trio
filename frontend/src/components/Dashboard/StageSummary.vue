@@ -24,6 +24,7 @@
       :stages="stages"
       :project="project"
       :managerMode="managerMode"
+      :hide_completed_tasks="hide_completed_tasks"
     >
     </task-summary>
     <textarea v-if="edit_mode" v-model="new_task_title"></textarea>
@@ -44,7 +45,7 @@
 
   export default {
     name: "stage-summary",
-    props: ['stage_id', 'project', 'stages', 'users', 'managerMode'],
+    props: ['stage_id', 'project', 'stages', 'users', 'managerMode', 'hide_completed_tasks'],
     data: function () {
       return {
         edit_mode: false,

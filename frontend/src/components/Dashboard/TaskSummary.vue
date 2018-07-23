@@ -1,34 +1,55 @@
 <template>
-  <div>
+  <div v-if="!(hide_completed_tasks && this.task.isCompleted())">
 
-    <div class="summary" @click="showDetails">
-      <p>{{ title }}</p>
-      <br v-if="task.isOverdue()"/>
-      <span v-if="task.isOverdue()" class="overdue_warning">!</span>
+    <div :class="status">
+      <div class="summary" @click="showDetails">
+        <p>{{ title }}</p>
+        <br v-if="task.isOverdue()"/>
+        <span v-if="task.isOverdue()" class="overdue_warning">!</span>
+      </div>
     </div>
 
     <div v-if="details_visible" class="modal">
       <div class="modal_content">
         <img src="@/assets/x_button.png" @click="hideDetails" width="20" height="20">
-        <textarea class="title" v-model="title"></textarea>
-        <label>Assigned to</label>
-        <user-icon v-if="assigned_user" :user="assigned_user"></user-icon>
-        <label>Due date</label>
-        <datepicker v-model="due_date"></datepicker>
-        <label>Description</label>
-        <textarea v-model="content"></textarea>
-        <label>Stage</label>
-        <span class="stage">{{ this.stage.getTitle() }}</span>
-        <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
-        <div class="move_menu"  v-if="moving">
-          <span>Move to:</span>
-          <stage-picker v-for="stage in stages"
-                        :stage="stage"
-                        :key="stage.getID()"
-                        @chosen-stage="moveTask">
-          </stage-picker>
-          <img src="@/assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
+        <textarea class="title" v-model="title" :readonly="!current_user_is_assigned"></textarea>
+
+        <div class="management_panel">
+          <label>Assigned to</label>
+          <user-icon v-if="assigned_user" :user="assigned_user"></user-icon><br>
+          <v-btn
+            v-if="!task.isReadyForReview() && current_user_is_assigned"
+            @click="task.markReady()">
+            Mark Ready for Review
+          </v-btn>
+          <v-btn v-if="task.isReadyForReview() && current_user_is_assigned"
+                 @click="task.markNotReady()">
+            Remove from Review</v-btn>
+          <div v-if="managerMode">
+            <v-btn v-if="!task.isCompleted()" @click="markCompleted()">Mark Complete</v-btn>
+            <v-btn v-if="task.isCompleted()" @click="markIncomplete()">Mark Incomplete</v-btn>
+          </div>
         </div>
+
+        <div class="info_panel">
+          <label>Due date</label>
+          <datepicker v-model="due_date"></datepicker>
+          <label>Description</label>
+          <textarea v-model="content" :readonly="!current_user_is_assigned"></textarea>
+          <label>Stage</label>
+          <span class="stage">{{ this.stage.getTitle() }}</span>
+          <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
+          <div class="move_menu"  v-if="moving">
+            <span>Move to:</span>
+            <stage-picker v-for="stage in stages"
+                          :stage="stage"
+                          :key="stage.getID()"
+                          @chosen-stage="moveTask">
+            </stage-picker>
+            <img src="@/assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
+          </div>
+        </div>
+
         <button class="delete_button" color="red" v-if="managerMode" @click="deleteTask">Delete Task</button>
       </div>
     </div>
@@ -49,7 +70,7 @@
           'stage-picker': TaskStagePicker,
           'user-icon': UserIcon
         },
-        props: ['task_id', 'stage', 'project', 'stages', 'managerMode'],
+        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks'],
         data: function () {
           return {
             task: ApiWrapper.getTask(this.task_id),
@@ -83,6 +104,20 @@
             get() {
               return this.task.getDueDate();
             }
+          },
+          status: {
+            get() {
+              if (this.task.isReadyForReview() && !this.task.isCompleted()) {
+                return "ready_for_review";
+              }
+              if (this.task.isCompleted()) {
+                return "completed";
+              }
+              return null;
+            }
+          },
+          current_user_is_assigned() {
+            return (this.$store.getters.user.email === this.assigned_user.email) || this.managerMode;
           }
         },
         methods: {
@@ -103,6 +138,13 @@
             this.stage.removeTask(this.task);
             let config = {headers: {idToken: this.$store.getters.user.idToken}};
             AXIOS.delete(`task/${this.task.getID()}`, config);
+          },
+          markCompleted() {
+            this.task.markCompleted(this.$store.getters.user.email);
+            this.hideDetails();
+          },
+          markIncomplete() {
+            this.task.markIncomplete(this.$store.getters.user.email);
           }
         },
         beforeUpdate: function () {
@@ -135,7 +177,7 @@
     display: block;
     text-align: left;
     background-color: white;
-    border: 0px;
+    border: 0;
     padding: 0.5em;
     position: relative;
   }
@@ -185,6 +227,7 @@
     font-size: 1.75em;
     height: 1.9em;
     resize: none;
+    vertical-align: text-top;
   }
 
   .modal_content textarea.title:focus {
@@ -243,6 +286,23 @@
     background-color: red;
     text-transform: uppercase;
     font-size: large;
+  }
+
+  .ready_for_review {
+    border: 3px solid green;
+  }
+
+  .completed {
+    border: 3px solid blue;
+  }
+
+  .info_panel {
+    width: 50%;
+    display: inline-block;
+  }
+
+  .management_panel {
+    float: right;
   }
 
 </style>
