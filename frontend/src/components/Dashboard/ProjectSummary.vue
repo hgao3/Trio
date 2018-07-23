@@ -2,22 +2,29 @@
   <div class="project_summary">
     <h1>{{ project.project_title }}</h1>
     <div>
-      <div v-if="teammates.length > 0 || managers.length > 0" class="user_list">
-        <h2>Project Team</h2>
-        <div v-for="manager in managers" :key="manager.email" class="staffing">
-          <label>Manager</label>
-          <user-icon :user="manager"></user-icon>
-        </div>
-        <label>Teammates</label>
-        <div v-for="teammate in teammates" :key="teammate.email" class="staffing">
-          <user-icon :user="teammate"></user-icon>
-          <v-icon v-if="managerMode">remove_circle</v-icon>
-        </div>
-        <div class="add_teammate_button">
-          <v-icon v-if="managerMode">add_circle</v-icon>
+
+      <div v-if="project.project_id" class="management_panel">
+        <div v-if="teammates.length > 0 || managers.length > 0" class="user_list">
+          <h2>Project Team</h2>
+          <div v-for="manager in managers" :key="manager.email" class="staffing">
+            <label>Manager</label>
+            <user-icon :user="manager"></user-icon>
+          </div>
+          <label>Teammates</label>
+          <div v-for="teammate in teammates" :key="teammate.email" class="staffing">
+            <user-icon :user="teammate"></user-icon>
+            <v-icon v-if="managerMode">remove_circle</v-icon>
+          </div>
+          <div class="add_teammate_button">
+            <v-icon v-if="managerMode">add_circle</v-icon>
+          </div>
         </div>
 
+        <h2>Project Settings</h2>
+        <label><input type="checkbox" v-model="hide_completed_tasks"> Hide Completed Tasks</label>
+
       </div>
+
       <div>
         <stage-summary v-if="project.project_id"
                        v-for="stage_id in project.stages"
@@ -27,6 +34,7 @@
                        :project="project"
                        :users="teammates.concat(managers)"
                        :managerMode="managerMode"
+                       :hide_completed_tasks="hide_completed_tasks"
         >
         </stage-summary>
       </div>
@@ -62,7 +70,8 @@
           teammates: [],
           stages: [],
           new_stage_title: "",
-          edit_mode: false
+          edit_mode: false,
+          hide_completed_tasks: true
         }
       },
       computed: {
@@ -161,12 +170,17 @@
     font-style: normal;
   }
 
-  .user_list {
+  .management_panel {
     min-width: 10%;
     float: right;
     background-color: #FBF9F8;
     padding: 1em;
 
+  }
+
+  .user_list {
+    border-bottom: 1px solid black;
+    margin-bottom: 1em;
   }
 
   .add_teammate_button {

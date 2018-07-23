@@ -98,14 +98,14 @@ let ApiWrapper = (function () {
         AXIOS.patch(`task/${this.task_id}/mark_not_ready`, {}, {headers: {idToken: id_token}});
       },
 
-      markCompleted() {
+      markCompleted(user_email) {
         this.completed = true;
-        AXIOS.patch(`task/${this.task_id}/mark_completed`, {}, {headers: {idToken: id_token}});
+        AXIOS.patch(`task/${this.task_id}/mark_completed`, {user_email: user_email}, {headers: {idToken: id_token}});
       },
 
-      markIncomplete() {
+      markIncomplete(user_email) {
         this.completed = false;
-        AXIOS.patch(`task/${this.task_id}/mark_incomplete`, {}, {headers: {idToken: id_token}});
+        AXIOS.patch(`task/${this.task_id}/mark_incomplete`, {user_email: user_email}, {headers: {idToken: id_token}});
       }
 
 
