@@ -114,10 +114,7 @@
         project: function () {
           this.stages.splice(0, this.stages.length); // empty out stages before loading data from new project
           this.fetchUsers();
-        }/*,
-        beforeMount: function() {
-          this.fetchUsers();
-        }*/
+        }
       }
     }
 </script>
