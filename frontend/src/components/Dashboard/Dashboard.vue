@@ -72,6 +72,7 @@
     padding: 0;
     margin: 0;
     background-color: lightblue;
+    border-radius: 5px;
   }
 
   div.dashboard {

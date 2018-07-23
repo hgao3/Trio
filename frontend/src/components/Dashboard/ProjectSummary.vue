@@ -10,14 +10,21 @@
             <label>Manager</label>
             <user-icon :user="manager"></user-icon>
           </div>
-          <label>Teammates</label>
+          <br>
+          <label>Teammates ({{teammates.length}})</label>
           <div v-for="teammate in teammates" :key="teammate.email" class="staffing">
             <user-icon :user="teammate"></user-icon>
             <v-icon v-if="managerMode" class="button" title="Remove teammate" @click="confirmTeammateRemoval(teammate)">
               remove_circle</v-icon>
           </div>
-          <div class="add_teammate_button">
-            <v-icon v-if="managerMode" class="button" title="Add new teammate">add_circle</v-icon>
+          <div class="add_teammate_button" v-if="managerMode">
+            <em v-if="!adding_teammate">Add new teammates</em>
+            <v-icon v-if="!adding_teammate" @click="adding_teammate = true" class="button" title="Add new teammate">
+              add_circle
+            </v-icon>
+            <user-picker v-if="adding_teammate" :exclusions="managers.concat(teammates)" @pick-user="addTeammate"
+            @cancel-pick="adding_teammate = false">
+            </user-picker>
           </div>
 
           <v-dialog v-model="confirm_teammate_removal" v-if="teammate_to_remove">
@@ -31,6 +38,7 @@
           </v-dialog>
 
         </div>
+        <br>
 
         <h2>Project Settings</h2>
         <label><input type="checkbox" v-model="hide_completed_tasks"> Hide Completed Tasks</label>
@@ -66,12 +74,14 @@
     import {AXIOS} from './http-common.js'
     import StageSummary from './StageSummary'
     import UserIcon from '../Shared/UserIcon'
+    import UserPicker from '../Shared/UserPicker'
     export default {
       name: "project-summary",
       props: ['project'],
       components: {
         'stage-summary': StageSummary,
-        'user-icon': UserIcon
+        'user-icon': UserIcon,
+        'user-picker': UserPicker
       },
       data: function() {
         return {
@@ -82,7 +92,8 @@
           edit_mode: false,
           hide_completed_tasks: true,
           confirm_teammate_removal: false,
-          teammate_to_remove: null
+          teammate_to_remove: null,
+          adding_teammate: false
         }
       },
       computed: {
@@ -131,14 +142,20 @@
           let config = {headers: {idToken: this.$store.getters.user.idToken}};
           let url = `/project/${this.project.project_id}/remove_teammate/`;
           let payload = {teammate_email: this.teammate_to_remove.email};
-          let that = this;
           AXIOS.patch(url, payload, config);
-          this.teammates.splice(this.teammates.indexOf(this.teammate_to_remove, 1));
+          this.teammates.splice(this.teammates.indexOf(this.teammate_to_remove), 1);
           this.cancelTeammateRemoval();
         },
         cancelTeammateRemoval() {
           this.teammate_to_remove = null;
           this.confirm_teammate_removal = false;
+        },
+        addTeammate(user) {
+          let config = {headers: {idToken: this.$store.getters.user.idToken}};
+          let url = `/project/${this.project.project_id}/add_teammate/`;
+          let payload = {teammate_email: user.email};
+          AXIOS.patch(url, payload, config);
+          this.teammates.push(user);
         }
       },
       watch: {
@@ -196,11 +213,17 @@
   }
 
   .management_panel {
-    min-width: 10%;
+    text-align: right;
+    min-width: 17%;
     float: right;
     background-color: #FBF9F8;
     padding: 1em;
+    border-radius: 5px;
 
+  }
+
+  .management_panel div {
+    text-align: right;
   }
 
   .user_list {
