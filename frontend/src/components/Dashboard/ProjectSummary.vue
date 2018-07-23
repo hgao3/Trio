@@ -22,10 +22,8 @@
 
         <h2>Project Settings</h2>
         <label><input type="checkbox" v-model="hide_completed_tasks"> Hide Completed Tasks</label>
-
       </div>
 
-      <div>
         <stage-summary v-if="project.project_id"
                        v-for="stage_id in project.stages"
                        :key="stage_id"
@@ -37,7 +35,6 @@
                        :hide_completed_tasks="hide_completed_tasks"
         >
         </stage-summary>
-      </div>
     </div>
 
 
