@@ -15,7 +15,7 @@ public class DateUtilsTest {
 	@Test
 	public void test() throws Exception {
 		
-		String isoDate = "2018-06-14T13:00:00.000Z";
+		String isoDate = "01/20/2018";
 		Date date = DateUtils.toDateFromISO(isoDate);
 		Assert.assertTrue(isoDate.equals(DateUtils.toIsoString(date)));
 
