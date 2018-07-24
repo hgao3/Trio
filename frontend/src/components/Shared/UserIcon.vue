@@ -1,5 +1,5 @@
 <template>
-    <v-chip>{{user.firstname}} {{user.lastname}}</v-chip>
+    <v-chip disabled>{{user.firstname}} {{user.lastname}}</v-chip>
 </template>
 
 <script>

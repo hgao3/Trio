@@ -21,6 +21,7 @@
       :project="project"
       :managerMode="managerMode"
       :hide_completed_tasks="hide_completed_tasks"
+      :users="users"
     >
     </task-summary>
     <textarea v-if="edit_mode" v-model="new_task_title"></textarea>

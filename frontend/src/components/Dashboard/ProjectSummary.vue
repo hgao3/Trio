@@ -214,7 +214,7 @@
 
   .management_panel {
     text-align: right;
-    min-width: 17%;
+    width: 18%;
     float: right;
     background-color: #FBF9F8;
     padding: 1em;
