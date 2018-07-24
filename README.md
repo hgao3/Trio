@@ -6,37 +6,33 @@ A 3-in-1 Project Management Tool with the following features:
 * Issue Tracker
 
 
-## Deployed Demo:
+## Live Demo
 
-[Click here](http://ec2-54-210-102-133.compute-1.amazonaws.com:8080/login) for a link to the demo, deployed on AWS.
+[Click here](http://ec2-54-210-102-133.compute-1.amazonaws.com:8080/login) for a link to the live demo, deployed on AWS.
 
 
-## Running Files Locally:
+
+## Project Environment Set-up
 
 See our [Wiki Page](https://github.com/hgao3/Trio/wiki) for help on installing software tools and configuring your system environment.
 
-### Project Environment Set-up
+* Clone the GitHub Repository
+* `$ cd [local path to the Trio folder]`
+* `$ mvn clean install -e -U -DskipTests`
 
-* Clone GitHub Repository
-* ```
+```
+# Navigate to the Trio folder:
 $ cd [local path to the Trio folder]
-$ mvn clean install -e -U -DskipTests
-```
 
-### Running the Project
+# Running the Back-end:
+$ mvn --projects backend spring-boot:run
 
-Navigate to the Trio folder:
-`$ cd [local path to the Trio folder]`
-
-Running the Back-end:
-`$ mvn --projects backend spring-boot:run`
-
-Running the Front-end:
-```
+# Running the Front-end:
 $ cd [local path to the Trio folder]
 $ cd frontend
 $ npm run dev
 ```
+
 
 ## Built With:
 
