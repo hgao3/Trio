@@ -16,10 +16,13 @@ A 3-in-1 Project Management Tool with the following features:
 
 See our [Wiki Page](https://github.com/hgao3/Trio/wiki) for help on installing software tools and configuring your system environment.
 
+#### Installing build tools and packets:
+
 * Clone the GitHub Repository
 * `$ cd [local path to the Trio folder]`
 * `$ mvn clean install -e -U -DskipTests`
 
+#### Running the project locally:
 ```
 # Navigate to the Trio folder:
 $ cd [local path to the Trio folder]
@@ -40,8 +43,6 @@ $ npm run dev
 * [Maven](https://maven.apache.org/) - *build automation tool for Java*
 * [IntelliJ](https://www.jetbrains.com/idea/) - *IDE for Java*
 * [AWS](https://aws.amazon.com/) - *cloud server*
-
-
 * [Vue.js](https://vuejs.org/) - *application framework for JavaScript*
 * [npm](https://www.npmjs.com/) - *package manager for JavaScript*
 * [WebStorm](https://www.jetbrains.com/webstorm/) - *IDE for JavaScript*
