@@ -16,7 +16,15 @@
 
         <div class="management_panel">
           <label>Assigned to</label>
-          <user-icon v-if="assigned_user" :user="assigned_user"></user-icon><br>
+          <div @click="assigning=!assigning" v-if="!assigning || !managerMode">
+            <user-icon v-if="assigned_user" :user="assigned_user"></user-icon>
+          </div>
+          <br>
+          <user-picker v-if="assigning && managerMode"
+                       :universe="users"
+                       :exclusions="[assigned_user]"
+                       @pick-user="assignUser"
+                       @cancel-pick="assigning = false"></user-picker>
           <v-btn
             v-if="!task.isReadyForReview() && current_user_is_assigned"
             @click="task.markReady()">
@@ -35,7 +43,7 @@
           <label>Due date</label>
           <datepicker v-model="due_date"></datepicker>
           <label>Description</label>
-          <textarea v-model="content" :readonly="!current_user_is_assigned"></textarea>
+          <textarea v-model="content" class="content" :readonly="!current_user_is_assigned"></textarea>
           <label>Stage</label>
           <span class="stage">{{ this.stage.getTitle() }}</span>
           <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
@@ -62,22 +70,25 @@
     import Datepicker from 'vuejs-datepicker'
     import TaskStagePicker from './TaskStagePicker'
     import UserIcon from '../Shared/UserIcon'
+    import UserPicker from '../Shared/UserPicker'
     import * as firebase from 'firebase'
     export default {
         name: 'TaskSummary',
         components: {
           'datepicker': Datepicker,
           'stage-picker': TaskStagePicker,
-          'user-icon': UserIcon
+          'user-icon': UserIcon,
+          'user-picker': UserPicker
         },
-        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks'],
+        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks', 'users'],
         data: function () {
           return {
             task: ApiWrapper.getTask(this.task_id),
             details_visible: false,
             moving: false,
             chosen_stage: null,
-            assigned_user: null
+            assigned_user: null,
+            assigning: false
           };
         },
         computed: {
@@ -122,6 +133,7 @@
         },
         methods: {
           hideDetails: function() {
+            this.assigning = false;
             this.details_visible = false;
           },
 
@@ -145,6 +157,14 @@
           },
           markIncomplete() {
             this.task.markIncomplete(this.$store.getters.user.email);
+          },
+          assignUser(user) {
+            //this.assigned_user = user;
+            if (this.managerMode) {
+              this.assigning = false;
+              ApiWrapper.setIdToken(this.$store.getters.user.idToken);
+              this.task.setAssignedUserEmail(user.email);
+            }
           }
         },
         beforeUpdate: function () {
@@ -303,6 +323,10 @@
 
   .management_panel {
     float: right;
+  }
+
+  textarea.content {
+    height: 200px;
   }
 
 </style>

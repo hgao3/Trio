@@ -61,6 +61,13 @@ let ApiWrapper = (function () {
         AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}});
       },
 
+      setAssignedUserEmail(string) {
+        let that = this;
+        const object = Object.assign(patch_object, {assigned_user_email: string});
+        AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}})
+          .then( _ => {that.assigned_user_email = string;});
+      },
+
       setContent(string) {
         this.content = string;
         const object = Object.assign(patch_object, {content: string});
