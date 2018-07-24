@@ -16,7 +16,7 @@
 
         <div class="management_panel">
           <label>Assigned to</label>
-          <div @click="assigning=!assigning" v-if="!assigning">
+          <div @click="assigning=!assigning" v-if="!assigning || !managerMode">
             <user-icon v-if="assigned_user" :user="assigned_user"></user-icon>
           </div>
           <br>
