@@ -43,7 +43,7 @@
           <label>Due date</label>
           <datepicker v-model="due_date"></datepicker>
           <label>Description</label>
-          <textarea v-model="content" :readonly="!current_user_is_assigned"></textarea>
+          <textarea v-model="content" class="content" :readonly="!current_user_is_assigned"></textarea>
           <label>Stage</label>
           <span class="stage">{{ this.stage.getTitle() }}</span>
           <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
@@ -323,6 +323,10 @@
 
   .management_panel {
     float: right;
+  }
+
+  textarea.content {
+    height: 200px;
   }
 
 </style>

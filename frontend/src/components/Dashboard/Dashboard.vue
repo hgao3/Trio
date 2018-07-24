@@ -12,7 +12,7 @@
         <new-project-card :open="dialog" @save-project="initialize" @close-dialog="dialog = false"></new-project-card>
       </v-dialog>
       <br>
-      <project-summary v-bind:project="selected_project"></project-summary>
+      <project-summary v-bind:project="selected_project" @deleted="deleteProject"></project-summary>
 
     </div>
 </template>
@@ -57,6 +57,14 @@
           let that = this;
           AXIOS.get(`/project/by_user/${this.$store.getters.user.email}`, requestConfig)
             .then(response => { that.project_list = response.data; });
+        },
+        deleteProject: function (project) {
+          const url = `/project/${project.project_id}`;
+          const config = {headers: {idToken: this.$store.getters.user.idToken}};
+          AXIOS.delete(url, config);
+          this.selected_project = {managers: [], teammates: [], project_title: "", stages: [], id: null};
+          this.project_list = this.project_list.filter(project2 => project2.project_id !== project.project_id);
+          this.$router.replace('/dashboard');
         }
       },
       computed: {},

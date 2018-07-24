@@ -8,7 +8,11 @@
           <h2>Project Team</h2>
           <div v-for="manager in managers" :key="manager.email" class="staffing">
             <label>Manager</label>
-            <user-icon :user="manager"></user-icon>
+            <div v-if="!transferring_manager || !managerMode" @click="transferring_manager = !transferring_manager">
+              <user-icon :user="manager"></user-icon>
+            </div>
+            <user-picker v-if="managerMode && transferring_manager" :universe="teammates" :exclusions="managers"
+              @pick-user="transferManager" @cancel-pick="transferring_manager = false"></user-picker>
           </div>
           <br>
           <label>Teammates ({{teammates.length}})</label>
@@ -42,6 +46,15 @@
 
         <h2>Project Settings</h2>
         <label><input type="checkbox" v-model="hide_completed_tasks"> Hide Completed Tasks</label>
+        <button class="delete_button" v-if="managerMode" @click="deleting = true" color="warning">Delete Project</button>
+        <v-dialog v-model="deleting">
+          <div class="removal_modal">
+            <p>Are you sure you want to delete project <strong>{{project.project_title}}</strong>?</p>
+            <p>This will delete all tasks and stages. This operation is irreversible.</p>
+            <v-btn @click="deleteProject">Delete</v-btn>
+            <v-btn @click="deleting = false">Cancel</v-btn>
+          </div>
+        </v-dialog>
       </div>
 
         <stage-summary v-if="project.project_id"
@@ -93,7 +106,9 @@
           hide_completed_tasks: true,
           confirm_teammate_removal: false,
           teammate_to_remove: null,
-          adding_teammate: false
+          adding_teammate: false,
+          transferring_manager: false,
+          deleting: false
         }
       },
       computed: {
@@ -156,6 +171,23 @@
           let payload = {teammate_email: user.email};
           AXIOS.patch(url, payload, config);
           this.teammates.push(user);
+        },
+        transferManager(user) {
+          this.teammates.splice(this.teammates.indexOf(user), 1);
+          const patch_object = {title: this.project.project_title, manager_email: user.email};
+          const url = `/project/${this.project.project_id}`;
+          const config = {headers: {idToken: this.$store.getters.user.idToken}};
+          this.project.managers.pop();
+          this.project.managers.push(user.email);
+          AXIOS.patch(url, patch_object, config);
+          const previousManager = this.managers.pop();
+          this.managers.push(user);
+          this.teammates.push(previousManager);
+          this.transferring_manager = false;
+        },
+        deleteProject() {
+          this.deleting = false;
+          this.$emit('deleted', this.project);
         }
       },
       watch: {
@@ -245,6 +277,16 @@
   .removal_modal {
     background-color: lightblue;
     padding: 1em;
+  }
+
+  .delete_button {
+    display: block;
+    width: 50%;
+    margin: 2em auto;
+    text-transform: uppercase;
+    background-color: red;
+    border: 1px solid black;
+    color: white;
   }
 
 

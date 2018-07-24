@@ -223,7 +223,8 @@ public class ProjectController {
 				if (up.getRole().equals(Role.Manager)) System.out.println("role");
 				if (up.getId().getProjectId()==project.getId()) System.out.println("id");
 				if (up.getRole().equals(Role.Manager) && up.getId().getProjectId()==project.getId()) {
-					userProjectRepository.delete(up);
+					up.setRole(Role.Teammate);
+					userProjectRepository.saveAndFlush(up);
 				}
 			});
 			UserProject currentManger = new UserProject(user, project, Role.Manager);
