@@ -3,18 +3,14 @@
     <textarea class="title" v-model="title"></textarea>
     <v-dialog v-if="managerMode" class="deleter" v-model="dialog">
       <img src="@/assets/x_button.png" height="20" width="20" slot="activator">
-      <v-card>
-        <v-card-title primary-title>Delete Stage</v-card-title>
-        <v-card-text>
+      <div>
+        <h3>Delete Stage</h3>
+        <p>
           Are you sure you want to delete the stage <strong>{{title}}?</strong> This will also delete all associated tasks.
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
+        </p>
           <v-btn color="primary" flat @click="deleteStage">Accept</v-btn>
           <v-btn color="primary" flat @click="dialog = false">Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
+      </div>
     </v-dialog>
     <task-summary
       v-for="task_id in stage.tasks"
@@ -25,6 +21,7 @@
       :project="project"
       :managerMode="managerMode"
       :hide_completed_tasks="hide_completed_tasks"
+      :users="users"
     >
     </task-summary>
     <textarea v-if="edit_mode" v-model="new_task_title"></textarea>
@@ -112,6 +109,7 @@
     border: 0;
     min-width: 15%;
     position: relative;
+    border-radius: 5px;
   }
 
   textarea {

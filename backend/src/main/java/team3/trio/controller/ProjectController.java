@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,11 +24,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import team3.trio.exception.ResourceNotFoundException;
-import team3.trio.model.Project;
-import team3.trio.model.Role;
-import team3.trio.model.User;
-import team3.trio.model.UserProject;
-import team3.trio.model.UserProjectId;
+import team3.trio.model.*;
 import team3.trio.repository.ProjectRepository;
 import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
@@ -48,6 +45,9 @@ public class ProjectController {
 
 	@Autowired
 	private StageRepository stageRepository;
+
+	@Autowired
+	private TaskRepository taskRepository;
 	
 	@Autowired
 	private UserProjectRepository userProjectRepository;
@@ -111,8 +111,63 @@ public class ProjectController {
 		project.addUserProjects(up);
 
 		projectRepository.save(project);
-		LOG.info("successfully record add teammate " + user.getEmail() + " to project " + project.getTitle()
-				+ " into DB");
+
+	}
+	@RequestMapping(path = "rest/project/{id}/remove_teammate", method = RequestMethod.PATCH,
+			consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+	public void removeTeammateFromProject(@PathVariable("id") Long id,
+											@RequestBody String jsonString) throws Exception {
+		LOG.info("Reading project with id " + id + " from database");
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String teammateEmail = (String) JsonUtils.findElementFromJson(jo, "teammate_email", "String");
+		Project project = this.projectRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
+		List<User> users = this.userRepository.findByEmail(teammateEmail);
+		if (users.size() ==0) {
+			throw new ResourceNotFoundException("User", "email", teammateEmail);
+		}
+		User user = users.get(0);
+		Set<UserProject> projectUserProjects = project.getUserProjects();
+		UserProject userProjectToRemove = null;
+		for (UserProject up : projectUserProjects ) {
+			if (up.getUser().equals(user)) {
+				userProjectToRemove = up;
+				break;
+			}
+		}
+		if (userProjectToRemove != null) {
+			project.getUserProjects().remove(userProjectToRemove);
+			projectRepository.save(project);
+
+			User manager = null;
+			for (UserProject up : project.getUserProjects()) {
+				if (up.getRole().equals(Role.Manager)) {
+					manager = up.getUser();
+				}
+			}
+
+			if (manager != null) {
+				final User m = manager;
+
+				ArrayList<Stage> stageList = new ArrayList<>();
+				stageRepository.findAll().forEach((s) -> {
+					if (s.getProject().getId().equals(project.getId())) {
+						stageList.add(s);
+					}
+				});
+
+				for (Stage stage : stageList) {
+					taskRepository.findAll().forEach((task) -> {
+						if (task.getStage().getId().equals(stage.getId())) {
+							task.setAssignedUser(m);
+							taskRepository.save(task);
+						}
+					});
+			}
+
+
+			}
+		}
 	}
 
 	@RequestMapping(path = "/rest/project/by_user/{email}", method = RequestMethod.GET)
@@ -168,7 +223,8 @@ public class ProjectController {
 				if (up.getRole().equals(Role.Manager)) System.out.println("role");
 				if (up.getId().getProjectId()==project.getId()) System.out.println("id");
 				if (up.getRole().equals(Role.Manager) && up.getId().getProjectId()==project.getId()) {
-					userProjectRepository.delete(up);
+					up.setRole(Role.Teammate);
+					userProjectRepository.saveAndFlush(up);
 				}
 			});
 			UserProject currentManger = new UserProject(user, project, Role.Manager);
