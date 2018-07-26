@@ -66,11 +66,11 @@ public class ChannelController {
 	
 	@Autowired
 	private ChannelRepository channelRepository;
-/*
+
 	@RequestMapping(path = "/rest/channel", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
-	public long addNewIssue(@RequestBody String jsonString) throws Exception {
+	public long addNewChannel(@RequestBody String jsonString) throws Exception {
 		
 		// json
 		JsonObject jo = JsonUtils.toJsonObject(jsonString);
@@ -87,31 +87,38 @@ public class ChannelController {
 		
 		User user = users.get(0);
 		
-		
-		Project project = projectRepository.findById(projectId)
-				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
-		
-		Task task = taskRepository.findById(taskId)
-				.orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
-		
-		Issue issue = issueRepository.findById(issueId)
-				.orElseThrow(() -> new ResourceNotFoundException("Issue", "id", issueId));
-		
-
 		Channel channel = new Channel();
 		
+		if (projectId != null && projectId > 0) {
+			Project project = projectRepository.findById(projectId)
+					.orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
+			
+			channel.setProject(project);
+		}
+		if (taskId != null && taskId > 0) {
+			Task task = taskRepository.findById(taskId)
+					.orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
+			
+			channel.setTask(task);
+		}
+		if (issueId != null && issueId > 0) {
+			Issue issue = issueRepository.findById(issueId)
+					.orElseThrow(() -> new ResourceNotFoundException("Issue", "id", issueId));
+			
+			channel.setIssue(issue);
+		}	
 		
 		channelRepository.save(channel);
 		
 		
 		LOG.info(channel.toString() + " successfully saved into DB");
 
-		return issue.getId();		
+		return channel.getId();		
 	}
 	
 	@RequestMapping(path = "/rest/channel/task_id/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String getIssueById(@PathVariable("id") Long id) {
+	public String getChannelById(@PathVariable("id") Long id) {
 		LOG.info("Reading issue with id " + id + " from database.");
 		
 		Issue issue = issueRepository.findById(id)
@@ -122,7 +129,7 @@ public class ChannelController {
 	
 	@RequestMapping(path = "/rest/channel/project_id/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String getIssueById(@PathVariable("id") Long id) {
+	public String getChannelById(@PathVariable("id") Long id) {
 		LOG.info("Reading issue with id " + id + " from database.");
 		
 		Issue issue = issueRepository.findById(id)
@@ -133,7 +140,7 @@ public class ChannelController {
 	
 	@RequestMapping(path = "/rest/channel/issue_id/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String getIssueById(@PathVariable("id") Long id) {
+	public String getChannelById(@PathVariable("id") Long id) {
 		LOG.info("Reading issue with id " + id + " from database.");
 		
 		Issue issue = issueRepository.findById(id)
@@ -144,7 +151,7 @@ public class ChannelController {
 	
 	@RequestMapping(path = "/rest/channel/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String getIssueById(@PathVariable("id") Long id) {
+	public String getChannelById(@PathVariable("id") Long id) {
 		LOG.info("Reading issue with id " + id + " from database.");
 		
 		Issue issue = issueRepository.findById(id)
@@ -155,7 +162,7 @@ public class ChannelController {
 	
 	@RequestMapping(path = "/rest/channel/chat_id/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String getIssueById(@PathVariable("id") Long id) {
+	public String getChannelById(@PathVariable("id") Long id) {
 		LOG.info("Reading issue with id " + id + " from database.");
 		
 		Issue issue = issueRepository.findById(id)
@@ -273,5 +280,5 @@ public class ChannelController {
 		jo.addProperty("create_date", DateUtils.toIsoString(issue.getCreatedAt()));
 		jo.addProperty("update_date", DateUtils.toIsoString(issue.getUpdatedAt()));
 		return jo;
-	}	*/
+	}	
 }

@@ -54,8 +54,11 @@ public class Channel implements Serializable {
     
     // Hibernate requires a no-arg constructor
     public Channel() {}
-    
-    
+
+	public Channel(@NotNull @Size(max = 100) String chatId, User ownerUser) {
+		this.chatId = chatId;
+		this.ownerUser = ownerUser;
+	}
 
 	public Long getId() {
 		return id;
