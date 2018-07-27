@@ -11,6 +11,7 @@
           <v-card-text>
             <v-container>
               <form @submit.prevent="onSignup">
+
                 <v-layout row>
                   <v-flex xs12>
                     <v-text-field
@@ -19,17 +20,6 @@
                       id="email"
                       v-model="email"
                       type="email"
-                      required></v-text-field>
-                  </v-flex>
-                </v-layout>
-                <v-layout row>
-                  <v-flex xs12>
-                    <v-text-field
-                      name="username"
-                      label="Username"
-                      id="username"
-                      v-model="username"
-                      type="text"
                       required></v-text-field>
                   </v-flex>
                 </v-layout>
@@ -97,10 +87,10 @@
     data () {
       return {
         email: '',
-        username: '',
         password: '',
         firstname: '',
         lastname: '',
+        fullname: '',
         confirmPassword: ''
       }
     },
@@ -129,8 +119,8 @@
     },
     methods: {
       onSignup () {
-        this.$store.dispatch('signUserUp', {email: this.email, password: this.password, username: this.username,
-          firstname: this.firstname, lastname: this.lastname})
+        this.$store.dispatch('signUserUp', {email: this.email, password: this.password,
+          firstname: this.firstname, lastname: this.lastname, fullname: this.firstname + ' ' + this.lastname})
       },
       onDismissed () {
         this.$store.dispatch('clearError')

@@ -58,9 +58,9 @@
           items = [
             {icon: 'assignment', title: 'Dashboard', route: '/dashboard'},
             {icon: 'chat', title: 'Chat', route: '/chat/' + this.$store.getters.generalRoomId},
-            {icon: 'storage', title: 'Create New Channel', route: '/create'},
-            {icon: 'face', title: 'Users', route: '/UsersTable'},
-            {icon: 'error', title: 'Issue Tracker', route: '/issueTracker'},
+            //{icon: 'storage', title: 'Create New Channel', route: '/create'},
+            //{icon: 'face', title: 'Users', route: '/UsersTable'},
+            {icon: 'error', title: 'Issue Tracker', route: '/issuetracker'},
             {icon: 'lock_open', title: 'Logout', route: '/login'},
           ]
         }
