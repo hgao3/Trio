@@ -5,10 +5,6 @@ import * as firebase from 'firebase'
 import AuthModule from './AuthModule'
 import ChatModule from './ChatModule'
 
-// cookies
-import VueCookies from 'vue-cookies'
-Vue.use(VueCookies)
-
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({

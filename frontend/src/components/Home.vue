@@ -22,7 +22,3 @@
     }
   }
 </script>
-
-<!-- Question: only one script is allowed in Vue, how do I concat multiple scripts together??
-<script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="https://unpkg.com/vue-cookies@1.5.5/vue-cookies.js"></script> -->

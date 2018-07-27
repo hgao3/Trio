@@ -30,7 +30,7 @@
     },
     computed: {
       username () {
-        return this.$store.getters.user.username
+        return this.$store.getters.user.fullname
       }
     },
     methods: {

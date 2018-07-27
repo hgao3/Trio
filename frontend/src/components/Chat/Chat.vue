@@ -70,7 +70,7 @@
         return this.chatMessages
       },
       username () {
-        return this.$store.getters.user.username
+        return this.$store.getters.user.fullname
       },
       userId () {
         return this.$store.getters.user.id

@@ -16,11 +16,11 @@ const AuthModule = {
               // if we lose network then remove this user from the list
               myUserRef.onDisconnect().remove()
               // set user's online status
-              let presenceObject = {user: payload.username, status: 'online'}
+              let presenceObject = {user: payload.fullname, status: 'online'}
               myUserRef.set(presenceObject)
             } else {
               // client has lost network
-              let presenceObject = {user: payload.username, status: 'offline'}
+              let presenceObject = {user: payload.fullname, status: 'offline'}
               myUserRef.set(presenceObject)
             }
           }
@@ -38,7 +38,7 @@ const AuthModule = {
         .then(
           user => {
             firebase.database().ref('users').child(user.uid).set({
-              name: payload.username,
+              fullname: payload.fullname,
               firstname: payload.firstname,
               email: payload.email,
               lastname: payload.lastname,
@@ -50,7 +50,7 @@ const AuthModule = {
                   commit('setLoading', false)
                   const newUser = {
                     id: user.uid,
-                    username: payload.username
+                    fullname: payload.fullname
                   }
                   commit('setUser', newUser)
                 }
@@ -80,7 +80,7 @@ const AuthModule = {
               commit('setLoading', false);
               const newUser = {
                 id: user.uid,
-                username: data.val().name,
+                fullname: data.val().fullname,
                 firstname: data.val().firstname,
                 lastname: data.val().lastname,
                 email: data.val().email,
@@ -104,7 +104,7 @@ const AuthModule = {
         .then(function (idToken) {
           const newUser = {
             id: user.id,
-            username: user.username,
+            fullname: user.fullname,
             firstname: user.firstname,
             lastname: user.lastname,
             email: user.email,
@@ -124,9 +124,6 @@ const AuthModule = {
   },
   getters: {
     user (state) {
-      return state.user
-    },
-    userFullName (state) {
       return state.user
     }
   }

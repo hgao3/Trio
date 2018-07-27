@@ -87,6 +87,10 @@ public class User implements Serializable {
         this.id = id;
     }
 
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+    
     public String getFirstName() {
         return firstName;
     }
