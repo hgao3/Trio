@@ -125,6 +125,9 @@ const AuthModule = {
   getters: {
     user (state) {
       return state.user
+    },
+    userFullName (state) {
+      return state.user
     }
   }
 }

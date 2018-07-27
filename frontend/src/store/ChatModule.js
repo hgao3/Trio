@@ -123,15 +123,6 @@ const ChatModule = {
         resolve(newPostKey)
       })
     },
-    createCha2 ({commit}, payload) {
-      var newPostKey = firebase.database().ref().child('chats').push().key
-      var updates = {}
-      updates['/chats/' + newPostKey] = {name: payload.chatName}
-      firebase.database().ref().update(updates)
-      return new Promise((resolve, reject) => {
-        resolve(newPostKey)
-      })
-    },
     addMember ({commit}, payload) {
       firebase.database().ref('users').child(payload.newMember).on('value', function (snapshot) {
         firebase.database().ref('chats').child(payload.roomId).child('members').child(payload.newMember).set({
