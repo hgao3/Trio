@@ -49,8 +49,7 @@
               headers: {'idToken': this.$store.getters.user.idToken}
             }
           )
-          this.$store.dispatch('addMember', { newMember: user.data.uid, roomId: this.$store.getters.currentChatId })
-            .then((value) => {
+          this.$store.dispatch('addMember', { newMember: user.data.uid, roomId: this.$store.getters.currentChatId }).then((value) => {
               this.$store.dispatch('loadChats', { userId: this.$store.getters.user.id })
               this.newMember = ''
           })
