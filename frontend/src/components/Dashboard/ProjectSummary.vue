@@ -46,6 +46,7 @@
 
         <h2>Project Settings</h2>
         <label><input type="checkbox" v-model="hide_completed_tasks"> Hide Completed Tasks</label>
+        <label><input type="checkbox" v-model="only_show_my_tasks"> Only Show My Tasks</label>
         <button class="delete_button" v-if="managerMode" @click="deleting = true" color="warning">Delete Project</button>
         <v-dialog v-model="deleting">
           <div class="removal_modal">
@@ -66,6 +67,7 @@
                        :users="teammates.concat(managers)"
                        :managerMode="managerMode"
                        :hide_completed_tasks="hide_completed_tasks"
+                       :only_show_my_tasks="only_show_my_tasks"
         >
         </stage-summary>
     </div>
@@ -104,6 +106,7 @@
           new_stage_title: "",
           edit_mode: false,
           hide_completed_tasks: true,
+          only_show_my_tasks: false,
           confirm_teammate_removal: false,
           teammate_to_remove: null,
           adding_teammate: false,
@@ -287,6 +290,10 @@
     background-color: red;
     border: 1px solid black;
     color: white;
+  }
+
+  label {
+    display: block;
   }
 
 

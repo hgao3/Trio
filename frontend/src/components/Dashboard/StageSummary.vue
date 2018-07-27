@@ -21,6 +21,7 @@
       :project="project"
       :managerMode="managerMode"
       :hide_completed_tasks="hide_completed_tasks"
+      :only_show_my_tasks="only_show_my_tasks"
       :users="users"
     >
     </task-summary>
@@ -42,7 +43,7 @@
 
   export default {
     name: "stage-summary",
-    props: ['stage_id', 'project', 'stages', 'users', 'managerMode', 'hide_completed_tasks'],
+    props: ['stage_id', 'project', 'stages', 'users', 'managerMode', 'hide_completed_tasks', 'only_show_my_tasks'],
     data: function () {
       return {
         edit_mode: false,

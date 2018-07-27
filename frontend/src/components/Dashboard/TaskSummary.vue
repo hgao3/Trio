@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!(hide_completed_tasks && this.task.isCompleted())">
+  <div v-if="!(hide_completed_tasks && this.task.isCompleted()) && !(only_show_my_tasks && !current_user_is_assigned())">
 
     <div :class="status">
       <div class="summary" @click="showDetails">
@@ -12,14 +12,14 @@
     <div v-if="details_visible" class="modal">
       <div class="modal_content">
         <img src="@/assets/x_button.png" @click="hideDetails" width="20" height="20">
-        <textarea class="title" v-model="title" :readonly="!current_user_is_assigned"></textarea>
+        <textarea class="title" v-model="title" :readonly="!current_user_editable"></textarea>
 
 
         <div class="info_panel">
           <label>Due date</label>
           <datepicker v-model="due_date"></datepicker>
           <label>Description</label>
-          <textarea v-model="content" class="content" :readonly="!current_user_is_assigned"></textarea>
+          <textarea v-model="content" class="content" :readonly="!current_user_editable"></textarea>
           <label>Stage</label>
           <span class="stage">{{ this.stage.getTitle() }}</span>
           <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
@@ -46,11 +46,11 @@
                        @pick-user="assignUser"
                        @cancel-pick="assigning = false"></user-picker>
           <v-btn
-            v-if="!task.isReadyForReview() && current_user_is_assigned"
+            v-if="!task.isReadyForReview() && current_user_editable"
             @click="task.markReady()">
             Mark Ready for Review
           </v-btn>
-          <v-btn v-if="task.isReadyForReview() && current_user_is_assigned"
+          <v-btn v-if="task.isReadyForReview() && current_user_editable"
                  @click="task.markNotReady()">
             Remove from Review</v-btn>
           <div v-if="managerMode">
@@ -82,7 +82,8 @@
           'user-icon': UserIcon,
           'user-picker': UserPicker
         },
-        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks', 'users'],
+        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks', 'users',
+          'only_show_my_tasks'],
         data: function () {
           return {
             task: ApiWrapper.getTask(this.task_id),
@@ -129,8 +130,8 @@
               return null;
             }
           },
-          current_user_is_assigned() {
-            return (this.$store.getters.user.email === this.assigned_user.email) || this.managerMode;
+          current_user_editable() {
+            return this.current_user_is_assigned() || this.managerMode;
           }
         },
         methods: {
@@ -142,7 +143,9 @@
           showDetails: function() {
             this.details_visible = true;
           },
-
+          current_user_is_assigned() {
+            return (this.$store.getters.user.email === this.assigned_user.email);
+          },
           async moveTask(newStage) {
             this.stage.removeTask(this.task);
             newStage.insertTask(this.task);
