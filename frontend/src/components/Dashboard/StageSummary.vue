@@ -107,7 +107,7 @@
     margin: 0.25em;
     padding: 0.5em;
     border: 0;
-    min-width: 15%;
+    width: 15%;
     position: relative;
     border-radius: 5px;
   }

@@ -14,6 +14,26 @@
         <img src="@/assets/x_button.png" @click="hideDetails" width="20" height="20">
         <textarea class="title" v-model="title" :readonly="!current_user_is_assigned"></textarea>
 
+
+        <div class="info_panel">
+          <label>Due date</label>
+          <datepicker v-model="due_date"></datepicker>
+          <label>Description</label>
+          <textarea v-model="content" class="content" :readonly="!current_user_is_assigned"></textarea>
+          <label>Stage</label>
+          <span class="stage">{{ this.stage.getTitle() }}</span>
+          <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
+          <div class="move_menu"  v-if="moving">
+            <span>Move to:</span>
+            <stage-picker v-for="stage in stages"
+                          :stage="stage"
+                          :key="stage.getID()"
+                          @chosen-stage="moveTask">
+            </stage-picker>
+            <img src="@/assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
+          </div>
+        </div>
+
         <div class="management_panel">
           <label>Assigned to</label>
           <div @click="assigning=!assigning" v-if="!assigning || !managerMode">
@@ -39,24 +59,6 @@
           </div>
         </div>
 
-        <div class="info_panel">
-          <label>Due date</label>
-          <datepicker v-model="due_date"></datepicker>
-          <label>Description</label>
-          <textarea v-model="content" class="content" :readonly="!current_user_is_assigned"></textarea>
-          <label>Stage</label>
-          <span class="stage">{{ this.stage.getTitle() }}</span>
-          <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
-          <div class="move_menu"  v-if="moving">
-            <span>Move to:</span>
-            <stage-picker v-for="stage in stages"
-                          :stage="stage"
-                          :key="stage.getID()"
-                          @chosen-stage="moveTask">
-            </stage-picker>
-            <img src="@/assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
-          </div>
-        </div>
 
         <button class="delete_button" color="red" v-if="managerMode" @click="deleteTask">Delete Task</button>
       </div>
@@ -191,6 +193,9 @@
     display: block;
     margin: 0;
     border-radius: 3px;
+    width: 100%;
+    vertical-align: text-top;
+
   }
 
   .summary {
@@ -198,8 +203,11 @@
     text-align: left;
     background-color: white;
     border: 0;
+    margin: 0;
     padding: 0.5em;
     position: relative;
+    max-height: 4em;
+    overflow: hidden;
   }
 
   .summary:hover {
@@ -279,7 +287,7 @@
   }
 
   .modal_content textarea {
-    width: 80%;
+    width: 75%;
     border: 0px;
     display: block;
   }
@@ -317,12 +325,13 @@
   }
 
   .info_panel {
-    width: 50%;
+    width: 55%;
     display: inline-block;
   }
 
   .management_panel {
-    float: right;
+    width: 40%;
+    display: inline-block;
   }
 
   textarea.content {
