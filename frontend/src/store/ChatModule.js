@@ -25,7 +25,8 @@ const ChatModule = {
             email: snapshot.email,
             firstname: snapshot.firstname,
             lastname: snapshot.lastname,
-            name: snapshot.name};
+            name: snapshot.fullname
+          };
           state.members.push(user);
         });
       }
@@ -38,7 +39,7 @@ const ChatModule = {
       let chatID = payload.chatID;
       const message = {
         userId: payload.userId,
-        username: payload.username,
+        fullname: payload.fullname,
         content: payload.content,
         date: firebase.database.ServerValue.TIMESTAMP
       };
@@ -64,11 +65,11 @@ const ChatModule = {
         AXIOS.post(`/user/${user.email}/notify`, postData, postConfig);
       }
     },
-    loadChats2 ({commit}) {
-      firebase.database().ref('chats').on('value', function (snapshot) {
-        commit('setChats', snapshot.val())
-      })
-    },
+    // loadChats2 ({commit}) {
+    //   firebase.database().ref('chats').on('value', function (snapshot) {
+    //     commit('setChats', snapshot.val())
+    //   })
+    // },
     loadChats ({commit}, payload) {
       // filter chat room by members
       firebase.database().ref('chats').once('value', function (snapshot) {
@@ -111,7 +112,7 @@ const ChatModule = {
       }
       firebase.database().ref().update(updates)
       firebase.database().ref('chats').child(newPostKey).child('members').child(payload.userId.id).set({
-        name: payload.userId.username
+        name: payload.userId.fullname
       })
       firebase.database().ref('users').child(payload.userId.id).child('rooms').child(newPostKey).set({
         id: newPostKey,
