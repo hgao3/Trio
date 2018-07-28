@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer temporary v-model="drawerToggle">
+    <v-navigation-drawer temporary v-model="drawerToggle" v-if="userIsAuthenticated">
       <v-list>
         <v-list-tile>
           <v-list-tile-action>
@@ -11,10 +11,10 @@
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
-      <v-list >
+      <v-list>
         <v-list-tile avatar v-for="user in onlineUsers[1]" @click="">
           <v-list-tile-avatar>
-            <img src="../static/profile_icon.jpg" />
+            <img src="../static/profile_icon.jpg"/>
           </v-list-tile-avatar>
           <v-list-tile-content>
             <v-list-tile-title>{{user.user}}</v-list-tile-title>
@@ -22,6 +22,7 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
+
     <v-toolbar class="light-blue darken-1">
       <v-toolbar-side-icon @click.native.stop="drawerToggle = !drawerToggle"></v-toolbar-side-icon>
       <v-toolbar-title>
@@ -45,7 +46,8 @@
   export default {
     data () {
       return {
-        drawerToggle: false
+        // default is can't click on slide panel
+        drawerToggle: true
       }
     },
     computed: {
@@ -61,8 +63,10 @@
             //{icon: 'storage', title: 'Create New Channel', route: '/create'},
             //{icon: 'face', title: 'Users', route: '/UsersTable'},
             {icon: 'error', title: 'Issue Tracker', route: '/issuetracker'},
-            {icon: 'lock_open', title: 'Logout', route: '/login'},
+            {icon: 'lock_open', title: 'Logout', route: '/logout'},
           ]
+          // can click on slide panel after user is authenticated
+          this.drawerToggle = false;
         }
         return items
       },
@@ -72,9 +76,6 @@
       onlineUsers () {
         console.log(this.$store.getters.onlineUsers)
         return this.$store.getters.onlineUsers
-      },
-      defaultRoomId () {
-        return this.$store.getters.generalRoomId
       }
     }
   }

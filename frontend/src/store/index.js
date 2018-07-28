@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as firebase from 'firebase'
-
+import Router from '../router'
 import AuthModule from './AuthModule'
 import ChatModule from './ChatModule'
 
@@ -13,6 +13,7 @@ export const store = new Vuex.Store({
     chat: ChatModule
   },
   state: {
+    user: null,
     loading: false,
     error: null,
     onlineUsers: [],

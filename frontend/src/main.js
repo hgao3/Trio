@@ -15,9 +15,6 @@ require('../node_modules/vue-table-component/docs/table-component.css')
 Vue.use(Vuetify)
 Vue.use(VueResource)
 
-// cookies
-import VueCookies from 'vue-cookies'
-Vue.use(VueCookies)
 
 Vue.config.productionTip = false
 

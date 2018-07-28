@@ -6,6 +6,7 @@ import Create from '@/components/Chat/Create'
 import Profile from '@/components/User/Profile'
 import Signup from '@/components/User/Signup'
 import Signin from '@/components/User/Signin'
+import Signout from '@/components/User/Signout'
 import UsersTable from '@/components/User/UsersTable'
 import Dashboard from '@/components/Dashboard/Dashboard'
 import IssueTracker from '@/components/IssueTracker/IssueTracker'
@@ -27,6 +28,11 @@ export default new Router({
       path: '/login',
       name: 'Signin',
       component: Signin
+    },
+    {
+      path: '/logout',
+      name: 'Signout',
+      component: Signout
     },
     {
       path: '/register',
