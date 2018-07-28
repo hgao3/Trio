@@ -16,4 +16,10 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
 	
 	List<Channel> findByProjectId(@Param("project_id") Long projectId);
 	
+	List<Channel> findByTaskId(@Param("task_id") Long taskId);
+	
+	List<Channel> findByIssueId(@Param("issue_id") Long issueId);
+	
+	List<Channel> findByChatId(@Param("chat_id") Long chatId);
+	
 }
