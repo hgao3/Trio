@@ -9,10 +9,15 @@ import { store } from './store'
 import AlertComponent from './components/Shared/Alert.vue'
 import { TableComponent, TableColumn } from 'vue-table-component'
 
+
 require('../node_modules/vue-table-component/docs/table-component.css')
 
 Vue.use(Vuetify)
 Vue.use(VueResource)
+
+// cookies
+import VueCookies from 'vue-cookies'
+Vue.use(VueCookies)
 
 Vue.config.productionTip = false
 
@@ -33,6 +38,6 @@ new Vue({
       databaseURL: 'https://trio-cs673-firebase.firebaseio.com',
       projectId: 'trio-cs673-firebase',
       storageBucket: 'trio-cs673-firebase.appspot.com'
-    })
+    });
   }
 })

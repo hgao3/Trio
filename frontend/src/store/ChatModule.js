@@ -25,7 +25,8 @@ const ChatModule = {
             email: snapshot.email,
             firstname: snapshot.firstname,
             lastname: snapshot.lastname,
-            name: snapshot.name};
+            name: snapshot.fullname // show members name as fullname
+          };
           state.members.push(user);
         });
       }
@@ -38,7 +39,7 @@ const ChatModule = {
       let chatID = payload.chatID;
       const message = {
         userId: payload.userId,
-        username: payload.username,
+        username: payload.username, // if change to payload.fullname, will NOT be able to send message
         content: payload.content,
         date: firebase.database.ServerValue.TIMESTAMP
       };
@@ -63,11 +64,6 @@ const ChatModule = {
         };
         AXIOS.post(`/user/${user.email}/notify`, postData, postConfig);
       }
-    },
-    loadChats2 ({commit}) {
-      firebase.database().ref('chats').on('value', function (snapshot) {
-        commit('setChats', snapshot.val())
-      })
     },
     loadChats ({commit}, payload) {
       // filter chat room by members
@@ -111,7 +107,7 @@ const ChatModule = {
       }
       firebase.database().ref().update(updates)
       firebase.database().ref('chats').child(newPostKey).child('members').child(payload.userId.id).set({
-        name: payload.userId.username
+        name: payload.userId.fullname // works
       })
       firebase.database().ref('users').child(payload.userId.id).child('rooms').child(newPostKey).set({
         id: newPostKey,
@@ -119,15 +115,6 @@ const ChatModule = {
         active: true
       })
 
-      return new Promise((resolve, reject) => {
-        resolve(newPostKey)
-      })
-    },
-    createCha2 ({commit}, payload) {
-      var newPostKey = firebase.database().ref().child('chats').push().key
-      var updates = {}
-      updates['/chats/' + newPostKey] = {name: payload.chatName}
-      firebase.database().ref().update(updates)
       return new Promise((resolve, reject) => {
         resolve(newPostKey)
       })

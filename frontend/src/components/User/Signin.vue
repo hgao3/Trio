@@ -64,6 +64,11 @@
       },
       loading () {
         return this.$store.getters.loading
+      },
+      // cookie
+      cookie() {
+        this.$cookies.set('user_session', 'default_unit_second', 'input_value', 10); // expire after 10 sec
+        //returns this
       }
     },
     watch: {

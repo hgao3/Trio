@@ -18,9 +18,16 @@ See our [Wiki Page](https://github.com/hgao3/Trio/wiki) for help on installing s
 
 #### Installing build tools and packets:
 
-* Clone the GitHub Repository
-* `$ cd [local path to the Trio folder]`
-* `$ mvn clean install -e -U -DskipTests`
+(After Cloning the GitHub Repository)
+```
+$ cd [local path to the Trio folder]
+$ mvn clean install -e -U -DskipTests
+```
+```
+$ cd [local path to the Trio folder]
+$ cd frontend
+$ npm install
+```
 
 #### Running the project locally:
 ```
