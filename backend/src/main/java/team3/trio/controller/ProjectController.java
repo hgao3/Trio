@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -252,6 +254,32 @@ public class ProjectController {
 			ja.add(projectToJO(project));
 		}
 		return ja.toString();
+	}
+	
+	@RequestMapping(path = "/rest/availableProject", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getAvailableProjects() {
+		LOG.info("Reading all available project from database.");
+
+		JsonArray projectJA = new JsonArray();
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    String email = auth.getName(); //get logged in username
+		
+		List<User> users = userRepository.findByEmail(email);
+		if (users.size() == 0) {
+			throw new ResourceNotFoundException("User", "email", email);
+		}
+		User user = users.get(0);
+		
+		for (UserProject up : user.getUserProjects()) {
+			JsonObject jo = new JsonObject();
+			jo.addProperty("project_name", up.getProject().getTitle());
+			jo.addProperty("project_id", up.getProject().getId());
+			projectJA.add(jo);	
+		}
+		
+		return projectJA.toString();		
 	}
 
 	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.DELETE)
