@@ -124,7 +124,19 @@ public class IssueController {
 	@ResponseBody
 	public String getIssues() {
 		LOG.info("Reading all issue from database.");
-		List<Issue> issues = issueRepository.findByOpenStatus(true);
+		
+		List<Issue> issues = new ArrayList<Issue>();
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    String email = auth.getName(); //get logged in username
+		List<User> users = userRepository.findByEmail(email);
+		if (users.size() == 0) {
+			throw new ResourceNotFoundException("User", "email", email);
+		}
+		User user = users.get(0);
+		for(UserProject up: user.getUserProjects()) {
+			issues.addAll(issueRepository.findByProjectIdAndOpenStatus(up.getProject().getId(), true));
+		}
 		
 		issues.sort(new Comparator<Issue>() {
 			@Override
@@ -271,7 +283,7 @@ public class IssueController {
 		jo.addProperty("owner_user_name", issue.getOwnerUser().getFullName());
 		jo.addProperty("priority_level", issue.getPriorityLevel());
 		jo.addProperty("project_id", issue.getProject().getId());
-		jo.addProperty("project_name", issue.getProject().getTitle());
+		jo.addProperty("project_title", issue.getProject().getTitle());
 		if (issue.getTask()!=null) {
 			jo.addProperty("task_id", issue.getTask().getId());
 			jo.addProperty("task_owner_user_name", issue.getTask().getAssignedUser().getFullName());
@@ -298,7 +310,7 @@ public class IssueController {
 		jo.addProperty("owner_user_name", issue.getOwnerUser().getFullName());
 		jo.addProperty("priority_level", issue.getPriorityLevel());
 		jo.addProperty("project_id", issue.getProject().getId());
-		jo.addProperty("project_name", issue.getProject().getTitle());
+		jo.addProperty("project_title", issue.getProject().getTitle());
 		if (issue.getTask()!=null) {
 			jo.addProperty("task_id", issue.getTask().getId());
 			jo.addProperty("task_owner_user_name", issue.getTask().getAssignedUser().getFullName());
@@ -339,7 +351,7 @@ public class IssueController {
 		
 		for (UserProject up : user.getUserProjects()) {
 			JsonObject jo2 = new JsonObject();
-			jo2.addProperty("project_name", up.getProject().getTitle());
+			jo2.addProperty("project_title", up.getProject().getTitle());
 			jo2.addProperty("project_id", up.getProject().getId());
 			projectJA.add(jo2);	
 		}

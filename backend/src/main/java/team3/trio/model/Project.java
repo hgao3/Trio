@@ -106,4 +106,8 @@ public class Project implements Serializable {
 	public void addUserProjects(UserProject userProject) {
 		this.userProjects.add(userProject);
 	}
+	
+	public void removeUserProjects(UserProject userProject) {
+		this.userProjects.remove(userProject);
+	}
 }

@@ -51,7 +51,7 @@
                       v-bind:items="availableProject"
                       v-model="project_id"
                       label="Select a Project"
-                      item-text="project_name"
+                      item-text="project_title"
                       item-value="project_id"
                       single-line
                       bottom

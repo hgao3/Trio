@@ -26,7 +26,7 @@
             <v-icon v-if="!adding_teammate" @click="adding_teammate = true" class="button" title="Add new teammate">
               add_circle
             </v-icon>
-            <user-picker v-if="adding_teammate" :exclusions="managers.concat(teammates)" @pick-user="addTeammate"
+            <user-picker v-if="adding_teammate" :exclusions="managers.concat(teammates).concat(clients)" @pick-user="addTeammate"
             @cancel-pick="adding_teammate = false">
             </user-picker>
           </div>
@@ -100,6 +100,7 @@
         return {
           managers: [],
           teammates: [],
+          clients: [],
           stages: [],
           new_stage_title: "",
           edit_mode: false,
@@ -134,7 +135,7 @@
         },
         async fetchUsers() {
           const id = this.project.project_id;
-          for (let email_list of ['teammates', 'managers']) {
+          for (let email_list of ['clients', 'teammates', 'managers']) {
             let list = [];
             this[email_list].splice(0, this[email_list].length); // empty out arrays before loading data from new project
             for (let email of this.project[email_list]) {
