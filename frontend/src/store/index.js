@@ -16,6 +16,8 @@ export const store = new Vuex.Store({
     loading: false,
     error: null,
     onlineUsers: [],
+    issueManagerMode: false,
+    issueSelectProject: {project_id: 'All', project_title: 'Select All'},
     generalRoomId: '-LGak_O3KJElAXGM3Jgl',
     serverHost: 'http://ec2-54-210-102-133.compute-1.amazonaws.com:8088' //'http://localhost:8088'
   },
@@ -31,6 +33,12 @@ export const store = new Vuex.Store({
     },
     setOnlineUsers (state, payload) {
       state.onlineUsers = payload
+    },
+    setIssueManagerMode (state, payload) {
+      state.issueManagerMode = payload
+    },
+    setIssueSelectProject (state, payload) {
+      state.issueSelectProject = payload
     }
   },
   actions: {
@@ -61,6 +69,12 @@ export const store = new Vuex.Store({
     },
     generalRoomId (state) {
       return state.generalRoomId
+    },
+    issueManagerMode (state) {
+      return state.issueManagerMode
+    },
+    issueSelectProject (state) {
+      return state.issueSelectProject
     }
   }
 })

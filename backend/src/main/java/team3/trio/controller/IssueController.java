@@ -1,10 +1,12 @@
 package team3.trio.controller;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -198,6 +200,39 @@ public class IssueController {
 		return ja.toString();
 	}
 
+	@RequestMapping(path = "/rest/issue/convertToTask/{id}", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public void convertIssueToTask(@RequestBody String jsonString,
+			@PathVariable("id") Long id) throws Exception {
+		
+		Issue issue = issueRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Issue", "id", id));
+		
+		
+
+		String title = "Issue: " + issue.getTitle();
+		User manager = findManager(issue.getProject().getUserProjects());
+		if (manager == null) {
+			throw new ResourceNotFoundException("Project", "Role", "Manager");
+		}
+		
+		List<Stage> stages = stageRepository.findByProjectId(issue.getProject().getId());
+		if (stages.size()==0) {
+			throw new ResourceNotFoundException("Stage", "project_id", issue.getProject().getId());
+		}
+
+		String content = issue.getContent();
+		
+		Task task = new Task(title, content, null, manager, stages.get(0));    	
+    	taskRepository.save(task);
+
+        LOG.info(task.toString() + " successfully saved into DB");
+        
+        issue.setTask(task);
+        issueRepository.save(issue);
+		LOG.info("Issue with id " + id + " successfully updated into database.");
+	}
+	
 	@RequestMapping(path = "/rest/issue/{id}", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public void updateIssue(@RequestBody String jsonString,
@@ -358,5 +393,15 @@ public class IssueController {
 		
 		jo.add("availableProject", projectJA);   
 		return jo;
+	}
+	
+	public User findManager(Set<UserProject> userProjects) {
+		for (UserProject up : userProjects) {
+			if (up.getRole().equals(Role.Manager)) {
+				return userRepository.findById(up.getId().getUserId())
+						.orElseThrow(() -> new ResourceNotFoundException("User", "id", up.getId().getUserId()));
+			}
+		}
+		return null;
 	}
 }

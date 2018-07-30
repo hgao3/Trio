@@ -30,8 +30,8 @@
     },
     data: function () {
       return {
-        selected_project: {project_id: 'All', project_title: 'Select All'},
-        project_list: [{project_id: 'All', project_title: 'Select All'}]
+        selected_project: this.$store.getters.issueSelectProject,
+        project_list: []
       }
     },
     mounted () {
@@ -47,6 +47,7 @@
     methods: {
       selectProject (project) {
         this.selected_project = project
+        this.$store.commit('setIssueSelectProject', project)
       }
     }
   }

@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 
 import team3.trio.exception.ResourceNotFoundException;
 import team3.trio.model.*;
+import team3.trio.repository.IssueRepository;
 import team3.trio.repository.ProjectRepository;
 import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
@@ -46,6 +47,9 @@ public class TaskController {
     
     @Autowired
     private StageRepository stageRepository;
+    
+	@Autowired
+	private IssueRepository issueRepository;
     
     @RequestMapping(path = "/rest/task", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
     @ResponseStatus(HttpStatus.CREATED)
@@ -217,6 +221,12 @@ public class TaskController {
 	@RequestMapping(path = "/rest/task/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public @ResponseBody void deleteTask(@PathVariable("id") Long id) {
+		List<Issue> issues = issueRepository.findByTaskId(id);
+		for(Issue issue: issues) {
+			issue.setTask(null);
+			issueRepository.save(issue);
+		}
+		
 		taskRepository.deleteById(id);
 		LOG.info("Task with id " + id + " successfully deleted into database.");
 	}

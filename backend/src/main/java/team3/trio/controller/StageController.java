@@ -1,6 +1,5 @@
 package team3.trio.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,16 +20,11 @@ import com.google.gson.JsonObject;
 
 import team3.trio.exception.ResourceNotFoundException;
 import team3.trio.model.Project;
-import team3.trio.model.Role;
 import team3.trio.model.Stage;
 import team3.trio.model.Task;
-import team3.trio.model.User;
-import team3.trio.model.UserProject;
-import team3.trio.model.UserProjectId;
 import team3.trio.repository.ProjectRepository;
 import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
-import team3.trio.repository.UserProjectRepository;
 import team3.trio.repository.UserRepository;
 import team3.trio.utils.JsonUtils;
 
@@ -48,9 +41,6 @@ public class StageController {
 
 	@Autowired
 	private StageRepository stageRepository;
-	
-	@Autowired
-	private UserProjectRepository userProjectRepository;
 	
 	@Autowired
 	private TaskRepository taskRepository;

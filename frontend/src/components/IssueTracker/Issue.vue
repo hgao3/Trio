@@ -268,7 +268,8 @@
         })
       },
       cancel () {
-        this.$router.push('/issueTracker/')
+        //this.$router.push('/issueTracker/')
+        this.$router.go(-1)
       }
     }
   }

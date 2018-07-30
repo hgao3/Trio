@@ -122,7 +122,10 @@
       turnOffEditMode () {
         this.edit_mode = false
       },
-      fetchProject (){
+      fetchProject () {
+        if (this.project.project_id === 'All') {
+          return
+        }
         axios.get(this.$store.getters.serverHost + '/rest/project/' + this.project.project_id,
           {
             headers: {'idToken': this.$store.getters.user.idToken}
@@ -130,8 +133,9 @@
         ).then(response => {
           this.returnProject = response.data
           this.managerMode = response.data.managers.indexOf(this.$store.getters.user.email) > -1
+          this.$store.commit('setIssueManagerMode', this.managerMode)
 
-          for (let email of response.data.managers) {
+        for (let email of response.data.managers) {
             axios.get(this.$store.getters.serverHost + '/rest/user/' + email,
               {
                 headers: {'idToken': this.$store.getters.user.idToken}
@@ -211,6 +215,7 @@
         this.teammates = []
         this.clients = []
         this.fetchProject()
+
       }
 /*      returnProject: function () {
         this.fetchUsers()

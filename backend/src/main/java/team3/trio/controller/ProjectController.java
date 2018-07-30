@@ -1,8 +1,6 @@
 package team3.trio.controller;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +23,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import team3.trio.exception.ResourceNotFoundException;
-import team3.trio.model.*;
+import team3.trio.model.Issue;
+import team3.trio.model.Project;
+import team3.trio.model.Role;
+import team3.trio.model.Stage;
+import team3.trio.model.User;
+import team3.trio.model.UserProject;
 import team3.trio.repository.IssueRepository;
 import team3.trio.repository.ProjectRepository;
 import team3.trio.repository.StageRepository;
@@ -172,14 +174,10 @@ public class ProjectController {
 		projectRepository.save(project);
 		
 		// get project owner
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	    String email = auth.getName(); //get logged in username
-		
-		List<User> managers = userRepository.findByEmail(email);
-		if (managers.size() == 0) {
-			throw new ResourceNotFoundException("User", "email", email);
-		}
-		User manager = managers.get(0);
+		User manager = findManager(project.getUserProjects());
+		if (manager == null) {
+			throw new ResourceNotFoundException("Project", "Role", "Manager");
+		} 
 		
 		List<Issue> issues = issueRepository.findByProjectId(id);
 		for (Issue issue: issues) {
@@ -403,6 +401,19 @@ public class ProjectController {
 		jo.add("stages", stageList);
 
 		return jo;
+	}
+	
+	public User findManager(Set<UserProject> userProjects) {
+		User user = null;
+		for (UserProject up : userProjects) {
+			if (up.getRole().equals(Role.Manager)) {
+				
+				user = userRepository.findById(up.getId().getUserId())
+						.orElseThrow(() -> new ResourceNotFoundException("User", "id", up.getId().getUserId()));
+				return user;
+			}
+		}
+		return user;
 	}
 
 }

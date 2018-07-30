@@ -1,5 +1,6 @@
 package team3.trio.model;
 
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
@@ -16,6 +17,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
+
+import team3.trio.exception.ResourceNotFoundException;
 
 @Entity
 @Table(name = "users_projects")
@@ -91,9 +94,5 @@ public class UserProject {
 
 	public void setId(UserProjectId id) {
 		this.id = id;
-	}
-	
-	
-	
-	
+	}	
 }

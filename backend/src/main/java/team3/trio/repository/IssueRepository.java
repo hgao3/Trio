@@ -18,4 +18,6 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 	List<Issue> findByOpenStatus(@Param("open_status") boolean status);
 	
 	List<Issue> findByProjectIdAndOpenStatus(@Param("project_id") Long projectId, @Param("open_status") boolean status);
+	
+	List<Issue> findByTaskId(@Param("task_id") Long taskId);
 }
