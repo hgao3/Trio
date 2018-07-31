@@ -1,4 +1,5 @@
 <template>
+  <div>
   <v-container>
     <v-layout row v-if="error">
       <v-flex xs12 sm6 offset-sm3>
@@ -151,6 +152,7 @@
                   <v-flex xs12>
                     <v-btn type="submit">Sumbit</v-btn>
                     <v-btn @click="cancel()">Cancel</v-btn>
+                    <v-btn @click="openChannel()">Channel</v-btn>
                   </v-flex>
                 </v-layout>
               </form>
@@ -160,6 +162,13 @@
       </v-flex>
     </v-layout>
   </v-container>
+<!--    <div>
+      <iframe width="560" height="315" :src="chatUrl" frameborder="0" allowfullscreen></iframe>
+    </div>-->
+  </div>
+
+
+
 </template>
 
 <script>
@@ -197,7 +206,10 @@
         update_date: '',
         close_date: '',
         task_id: '',
-        task_title: ''
+        task_title: '',
+        channel_id: '',
+        show_channel: false
+        //chatUrl: 'http://localhost:8080/chat/-LImO8Gf2tHdZ_eIxVzD'
       }
     },
     mounted () {
@@ -226,6 +238,17 @@
         this.availableProject = response.data.availableProject
         this.task_title = response.data.task_title
       })
+
+      axios.get(this.$store.getters.serverHost + '/rest/channel/issue_id/' + this.id,
+        {
+          headers: {'idToken': this.$store.getters.user.idToken}
+        }
+      ).then(response => {
+        this.channel_id = response.data
+        if (response.data !== "") {
+          this.show_channel = true
+        }
+      })
     },
     computed: {
       error () {
@@ -240,11 +263,6 @@
         var status = false
         if (this.open_status === this.items2[0]) {
           status = true
-        }
-        if (this.task_id === '') {
-          this.task_id = 0
-        } else {
-          this.task_id = parseInt(this.task_id)
         }
         if (this.close_date !== '') {
           this.close_date = new Date(this.close_date).toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'})
@@ -270,6 +288,38 @@
       cancel () {
         //this.$router.push('/issueTracker/')
         this.$router.go(-1)
+      },
+      openChannel () {
+        if (this.show_channel === true) {
+          this.$router.push('/chat/' + this.channel_id)
+        } else {
+          if (this.task_id === '') {
+            this.task_id = 0
+          } else {
+            this.task_id = parseInt(this.task_id)
+          }
+          var chatName = 'Issue-' + this.issue_id + ': ' + this.title
+          let key = 0
+          this.$store.dispatch('createChat', { chatName: chatName, userId: this.$store.getters.user }).then((value) => {
+            key = value
+
+            axios.post(this.$store.getters.serverHost + '/rest/channel/',
+              {
+                'chat_id': key,
+                'owner_user_email': this.selectUser,
+                'project_id': 0,
+                'task_id': this.task_id,
+                'issue_id': this.issue_id
+              },
+              {
+                headers: {'idToken': this.$store.getters.user.idToken}
+              }
+            ).then(response => {
+              this.$router.push('/chat/' + key)
+            })
+          })
+        }
+
       }
     }
   }
