@@ -8,26 +8,25 @@
     </v-list-tile>
     <v-layout subheader class="new-member">
       <v-flex xs12>
-        <v-text-field
-          name="newMember"
-          label="newMember"
-          id="newMember"
-          v-model="newMember"
-          type="email"></v-text-field>
-        <v-btn v-on:click='addMember'>Add</v-btn>
+        <v-btn v-if="!adding_new_member" @click="adding_new_member = true">Add User</v-btn>
+        <UserPicker v-if="adding_new_member" @pick-user="addMember" @cancel-pick="adding_new_member = false"></UserPicker>
       </v-flex>
     </v-layout>
   </v-list>
 </template>
 
 <script>
-  import axios from 'axios'
+  //import axios from 'axios'
+  import UserPicker from '../Shared/UserPicker'
   export default{
+    components: {
+      'UserPicker': UserPicker
+    },
     data () {
       return {
         recentChats: 'Members',
-        members: [],
-        newMember: ''
+        adding_new_member: false,
+        members: []
       }
     },
     created () {
@@ -42,18 +41,11 @@
     computed: {
     },
     methods: {
-      async addMember () {
-        if (this.newMember !== '') {
-          const user = await axios.get(this.$store.getters.serverHost + '/rest/user/email/' + this.newMember,
-            {
-              headers: {'idToken': this.$store.getters.user.idToken}
-            }
-          )
-          this.$store.dispatch('addMember', { newMember: user.data.uid, roomId: this.$store.getters.currentChatId }).then((value) => {
+      async addMember (member) {
+
+          this.$store.dispatch('addMember', { newMember: member.id, roomId: this.$store.getters.currentChatId }).then((value) => {
               this.$store.dispatch('loadChats', { userId: this.$store.getters.user.id })
-              this.newMember = ''
           })
-        }
       }
     }
   }
