@@ -1,6 +1,6 @@
 <template>
   <div class="project_summary">
-    <h1>{{ project.project_title }}</h1>
+    <textarea class="project_title" v-bind:readonly="!managerMode" v-model="project_title"></textarea>
     <div>
 
       <div v-if="project.project_id" class="management_panel">
@@ -46,6 +46,7 @@
 
         <h2>Project Settings</h2>
         <label><input type="checkbox" v-model="hide_completed_tasks"> Hide Completed Tasks</label>
+        <label><input type="checkbox" v-model="only_show_my_tasks"> Only Show My Tasks</label>
         <button class="delete_button" v-if="managerMode" @click="deleting = true" color="warning">Delete Project</button>
         <v-dialog v-model="deleting">
           <div class="removal_modal">
@@ -66,6 +67,7 @@
                        :users="teammates.concat(managers)"
                        :managerMode="managerMode"
                        :hide_completed_tasks="hide_completed_tasks"
+                       :only_show_my_tasks="only_show_my_tasks"
         >
         </stage-summary>
     </div>
@@ -105,6 +107,7 @@
           new_stage_title: "",
           edit_mode: false,
           hide_completed_tasks: true,
+          only_show_my_tasks: false,
           confirm_teammate_removal: false,
           teammate_to_remove: null,
           adding_teammate: false,
@@ -115,6 +118,19 @@
       computed: {
         managerMode: function() {
           return this.managers.map(manager => {return manager.email}).indexOf(this.$store.getters.user.email) > -1;
+        },
+        project_title: {
+          set(title) {
+            this.project.project_title = title;
+            let manager_email = this.managers[0].email;
+            let config = {headers: {idToken: this.$store.getters.user.idToken }};
+            let patch = Object.assign(this.project, {title: title, manager_email: manager_email});
+            AXIOS.patch(`/project/${this.project.project_id}`, patch, config);
+
+          },
+          get() {
+            return this.project.project_title;
+          }
         }
       },
       methods: {
@@ -227,10 +243,13 @@
     display: block;
   }
 
-  h1 {
-    display: inline-block;
+  textarea.project_title {
+    display: block;
     font-size: 2em;
+    height: 2.1em;
     font-weight: bold;
+    background-color: rgba(0, 0, 0, 0);
+    resize: none;
   }
 
   h2 {
@@ -288,6 +307,10 @@
     background-color: red;
     border: 1px solid black;
     color: white;
+  }
+
+  label {
+    display: block;
   }
 
 

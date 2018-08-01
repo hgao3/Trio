@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!(hide_completed_tasks && this.task.isCompleted())">
+  <div v-if="!(hide_completed_tasks && this.task.isCompleted()) && !(only_show_my_tasks && !current_user_is_assigned())">
 
     <div :class="status">
       <div class="summary" @click="showDetails">
@@ -12,38 +12,15 @@
     <div v-if="details_visible" class="modal">
       <div class="modal_content">
         <img src="@/assets/x_button.png" @click="hideDetails" width="20" height="20">
-        <textarea class="title" v-model="title" :readonly="!current_user_is_assigned"></textarea>
+        <textarea class="title" v-model="title" :readonly="!current_user_editable"></textarea>
 
-        <div class="management_panel">
-          <label>Assigned to</label>
-          <div @click="assigning=!assigning" v-if="!assigning || !managerMode">
-            <user-icon v-if="assigned_user" :user="assigned_user"></user-icon>
-          </div>
-          <br>
-          <user-picker v-if="assigning && managerMode"
-                       :universe="users"
-                       :exclusions="[assigned_user]"
-                       @pick-user="assignUser"
-                       @cancel-pick="assigning = false"></user-picker>
-          <v-btn
-            v-if="!task.isReadyForReview() && current_user_is_assigned"
-            @click="task.markReady()">
-            Mark Ready for Review
-          </v-btn>
-          <v-btn v-if="task.isReadyForReview() && current_user_is_assigned"
-                 @click="task.markNotReady()">
-            Remove from Review</v-btn>
-          <div v-if="managerMode">
-            <v-btn v-if="!task.isCompleted()" @click="markCompleted()">Mark Complete</v-btn>
-            <v-btn v-if="task.isCompleted()" @click="markIncomplete()">Mark Incomplete</v-btn>
-          </div>
-        </div>
 
         <div class="info_panel">
           <label>Due date</label>
-          <datepicker v-model="due_date"></datepicker>
+          <datepicker v-if="managerMode" v-model="due_date"></datepicker>
+          <input v-else v-model="date_string" readonly>
           <label>Description</label>
-          <textarea v-model="content" class="content" :readonly="!current_user_is_assigned"></textarea>
+          <textarea v-model="content" class="content" :readonly="!current_user_editable"></textarea>
           <label>Stage</label>
           <span class="stage">{{ this.stage.getTitle() }}</span>
           <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
@@ -57,6 +34,32 @@
             <img src="@/assets/x_button.png" @click="moving = false" width="20" height="20" class="cancel_move">
           </div>
         </div>
+
+        <div class="management_panel">
+          <label>Assigned to</label>
+          <div @click="assigning=!assigning" v-if="!assigning || !managerMode">
+            <user-icon v-if="assigned_user" :user="assigned_user"></user-icon>
+          </div>
+          <br>
+          <user-picker v-if="assigning && managerMode"
+                       :universe="users"
+                       :exclusions="[assigned_user]"
+                       @pick-user="assignUser"
+                       @cancel-pick="assigning = false"></user-picker>
+          <v-btn
+            v-if="!task.isReadyForReview() && current_user_editable"
+            @click="task.markReady()">
+            Mark Ready for Review
+          </v-btn>
+          <v-btn v-if="task.isReadyForReview() && current_user_editable"
+                 @click="task.markNotReady()">
+            Remove from Review</v-btn>
+          <div v-if="managerMode">
+            <v-btn v-if="!task.isCompleted()" @click="markCompleted()">Mark Complete</v-btn>
+            <v-btn v-if="task.isCompleted()" @click="markIncomplete()">Mark Incomplete</v-btn>
+          </div>
+        </div>
+
 
         <button class="delete_button" color="red" v-if="managerMode" @click="deleteTask">Delete Task</button>
       </div>
@@ -80,7 +83,8 @@
           'user-icon': UserIcon,
           'user-picker': UserPicker
         },
-        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks', 'users'],
+        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks', 'users',
+          'only_show_my_tasks'],
         data: function () {
           return {
             task: ApiWrapper.getTask(this.task_id),
@@ -127,8 +131,16 @@
               return null;
             }
           },
-          current_user_is_assigned() {
-            return (this.$store.getters.user.email === this.assigned_user.email) || this.managerMode;
+          current_user_editable() {
+            return this.current_user_is_assigned() || this.managerMode;
+          },
+          date_string() {
+            if (this.due_date === null) {
+              return "";
+            }
+            else {
+              return this.due_date.toDateString();
+            }
           }
         },
         methods: {
@@ -140,7 +152,9 @@
           showDetails: function() {
             this.details_visible = true;
           },
-
+          current_user_is_assigned() {
+            return this.$store.getters.user.email === this.task.assigned_user_email;
+          },
           async moveTask(newStage) {
             this.stage.removeTask(this.task);
             newStage.insertTask(this.task);
@@ -191,6 +205,9 @@
     display: block;
     margin: 0;
     border-radius: 3px;
+    width: 100%;
+    vertical-align: text-top;
+
   }
 
   .summary {
@@ -198,8 +215,11 @@
     text-align: left;
     background-color: white;
     border: 0;
+    margin: 0;
     padding: 0.5em;
     position: relative;
+    max-height: 4em;
+    overflow: hidden;
   }
 
   .summary:hover {
@@ -279,7 +299,7 @@
   }
 
   .modal_content textarea {
-    width: 80%;
+    width: 75%;
     border: 0px;
     display: block;
   }
@@ -317,12 +337,13 @@
   }
 
   .info_panel {
-    width: 50%;
+    width: 55%;
     display: inline-block;
   }
 
   .management_panel {
-    float: right;
+    width: 40%;
+    display: inline-block;
   }
 
   textarea.content {
