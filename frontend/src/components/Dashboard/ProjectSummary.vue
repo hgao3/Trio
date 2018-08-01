@@ -1,7 +1,6 @@
 <template>
   <div class="project_summary">
     <textarea class="project_title" v-bind:readonly="!managerMode" v-model="project_title"></textarea>
-    <v-btn v-if="(!hide_channel_button) && project.project_id" @click="openChannel">Go to Project Channel</v-btn>
     <div>
 
       <div v-if="project.project_id" class="management_panel">
@@ -48,6 +47,7 @@
         <h2>Project Settings</h2>
         <label><input type="checkbox" v-model="hide_completed_tasks"> Hide Completed Tasks</label>
         <label><input type="checkbox" v-model="only_show_my_tasks"> Only Show My Tasks</label>
+        <v-btn v-if="(!hide_channel_button) && project.project_id" @click="openChannel">Go to Project Channel</v-btn>
         <button class="delete_button" v-if="managerMode" @click="deleting = true" color="warning">Delete Project</button>
         <v-dialog v-model="deleting">
           <div class="removal_modal">
