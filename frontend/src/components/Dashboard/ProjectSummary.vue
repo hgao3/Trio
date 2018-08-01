@@ -47,6 +47,7 @@
         <h2>Project Settings</h2>
         <label><input type="checkbox" v-model="hide_completed_tasks"> Hide Completed Tasks</label>
         <label><input type="checkbox" v-model="only_show_my_tasks"> Only Show My Tasks</label>
+        <v-btn v-if="(!hide_channel_button) && project.project_id" @click="openChannel">Go to Project Channel</v-btn>
         <button class="delete_button" v-if="managerMode" @click="deleting = true" color="warning">Delete Project</button>
         <v-dialog v-model="deleting">
           <div class="removal_modal">
@@ -112,7 +113,9 @@
           teammate_to_remove: null,
           adding_teammate: false,
           transferring_manager: false,
-          deleting: false
+          deleting: false,
+          channel_id: null,
+          hide_channel_button: false
         }
       },
       computed: {
@@ -205,11 +208,54 @@
         deleteProject() {
           this.deleting = false;
           this.$emit('deleted', this.project);
+        },
+        openChannel () {
+          let project_id = this.project.project_id;
+          //let that = this;
+          if (this.channel_id !== null) {
+            this.$router.push('/chat/' + this.channel_id);
+          }
+          else {
+            let chatName = 'Project-' + String(project_id) + ': ' + this.project_title;
+            let key = 0;
+            this.$store.dispatch('createChat', { chatName: chatName, userId: this.$store.getters.user }).then((value) => {
+              key = value;
+
+              AXIOS.post('/channel/',
+                {
+                  'chat_id': key,
+                  'owner_user_email': this.$store.getters.user.email,
+                  'project_id': project_id,
+                  'task_id': 0,
+                  'issue_id': 0
+                },
+                {
+                  headers: {'idToken': this.$store.getters.user.idToken}
+                }
+              ).then(response => {
+                this.channel_id = key;
+                this.$router.push('/chat/' + key);
+              });
+            });
+          }
+
         }
       },
       watch: {
         project: function () {
+          this.channel_id = null;
+          this.hide_channel_button = true;
           this.stages.splice(0, this.stages.length); // empty out stages before loading data from new project
+          AXIOS.get('/channel/project_id/' + this.project.project_id,
+            {
+              headers: {'idToken': this.$store.getters.user.idToken}
+            }
+          ).then(response => {
+            this.hide_channel_button = false;
+            if (response.data !== "") {
+              this.channel_id = response.data;
+            }
+          });
           this.fetchUsers();
         }
       }
