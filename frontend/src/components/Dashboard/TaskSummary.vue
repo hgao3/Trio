@@ -17,7 +17,8 @@
 
         <div class="info_panel">
           <label>Due date</label>
-          <datepicker v-model="due_date"></datepicker>
+          <datepicker v-if="managerMode" v-model="due_date"></datepicker>
+          <input v-else v-model="date_string" readonly>
           <label>Description</label>
           <textarea v-model="content" class="content" :readonly="!current_user_editable"></textarea>
           <label>Stage</label>
@@ -132,6 +133,14 @@
           },
           current_user_editable() {
             return this.current_user_is_assigned() || this.managerMode;
+          },
+          date_string() {
+            if (this.due_date === null) {
+              return "";
+            }
+            else {
+              return this.due_date.toDateString();
+            }
           }
         },
         methods: {
@@ -144,7 +153,7 @@
             this.details_visible = true;
           },
           current_user_is_assigned() {
-            return (this.$store.getters.user.email === this.assigned_user.email);
+            return this.$store.getters.user.email === this.task.assigned_user_email;
           },
           async moveTask(newStage) {
             this.stage.removeTask(this.task);
