@@ -1,6 +1,6 @@
 <template>
   <div class="project_summary">
-    <h1>{{ project.project_title }}</h1>
+    <textarea class="project_title" v-bind:readonly="!managerMode" v-model="project_title"></textarea>
     <div>
 
       <div v-if="project.project_id" class="management_panel">
@@ -117,6 +117,19 @@
       computed: {
         managerMode: function() {
           return this.managers.map(manager => {return manager.email}).indexOf(this.$store.getters.user.email) > -1;
+        },
+        project_title: {
+          set(title) {
+            this.project.project_title = title;
+            let manager_email = this.managers[0].email;
+            let config = {headers: {idToken: this.$store.getters.user.idToken }};
+            let patch = Object.assign(this.project, {title: title, manager_email: manager_email});
+            AXIOS.patch(`/project/${this.project.project_id}`, patch, config);
+
+          },
+          get() {
+            return this.project.project_title;
+          }
         }
       },
       methods: {
@@ -229,10 +242,13 @@
     display: block;
   }
 
-  h1 {
-    display: inline-block;
+  textarea.project_title {
+    display: block;
     font-size: 2em;
+    height: 2.1em;
     font-weight: bold;
+    background-color: rgba(0, 0, 0, 0);
+    resize: none;
   }
 
   h2 {
