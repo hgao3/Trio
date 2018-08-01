@@ -54,6 +54,7 @@
           <v-btn v-if="task.isReadyForReview() && current_user_editable"
                  @click="task.markNotReady()">
             Remove from Review</v-btn>
+          <v-btn v-if="current_user_editable" @click="openChannel">Go to Channel</v-btn>
           <div v-if="managerMode">
             <v-btn v-if="!task.isCompleted()" @click="markCompleted()">Mark Complete</v-btn>
             <v-btn v-if="task.isCompleted()" @click="markIncomplete()">Mark Incomplete</v-btn>
@@ -92,7 +93,8 @@
             moving: false,
             chosen_stage: null,
             assigned_user: null,
-            assigning: false
+            assigning: false,
+            channel_id: null
           };
         },
         computed: {
@@ -179,9 +181,52 @@
               ApiWrapper.setIdToken(this.$store.getters.user.idToken);
               this.task.setAssignedUserEmail(user.email);
             }
+          },
+          openChannel () {
+            let task_id = this.task.task_id;
+            //let that = this;
+            if (this.channel_id !== null) {
+              this.$router.push('/chat/' + this.channel_id);
+            }
+            else {
+              let chatName = 'Task-' + String(task_id) + ': ' + this.title;
+              let key = 0;
+              this.$store.dispatch('createChat', { chatName: chatName, userId: this.$store.getters.user }).then((value) => {
+                key = value;
+
+                AXIOS.post('/channel/',
+                  {
+                    'chat_id': key,
+                    'owner_user_email': this.$store.getters.user.email,
+                    'project_id': 0,
+                    'task_id': task_id,
+                    'issue_id': 0
+                  },
+                  {
+                    headers: {'idToken': this.$store.getters.user.idToken}
+                  }
+                ).then(response => {
+                  this.channel_id = key;
+                  console.log(this.channel_id);
+                  this.$router.push('/chat/' + key);
+                });
+              });
+            }
+
           }
         },
-        beforeUpdate: function () {
+      mounted() {
+        AXIOS.get('/channel/task_id/' + this.task_id,
+          {
+            headers: {'idToken': this.$store.getters.user.idToken}
+          }
+        ).then(response => {
+          if (response.data !== "") {
+            this.channel_id = response.data;
+          }
+        })
+      },
+      beforeUpdate: function () {
           if (this.task.assigned_user_email.length > 0) {
             let getConfig = {headers: {idToken: this.$store.getters.user.idToken}};
             AXIOS.get(`/user/email/${this.task.assigned_user_email}`, getConfig)
