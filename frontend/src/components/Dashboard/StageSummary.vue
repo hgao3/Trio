@@ -1,10 +1,9 @@
 <template>
   <div>
     <textarea class="title" v-model="title"></textarea>
-    <v-dialog v-if="managerMode" class="deleter" v-model="dialog">
-      <img src="@/assets/x_button.png" height="20" width="20" slot="activator">
-      <div>
-        <h3>Delete Stage</h3>
+    <img src="@/assets/x_button.png" height="20" width="20" class="deleter" @click="dialog = true" v-if="managerMode">
+    <v-dialog v-model="dialog">
+      <div class="removal_modal">
         <p>
           Are you sure you want to delete the stage <strong>{{title}}?</strong> This will also delete all associated tasks.
         </p>
@@ -164,6 +163,14 @@
 
   textarea.title:focus {
     background-color: white;
+  }
+
+
+  .removal_modal {
+    background-color: lightblue;
+    padding: 1em;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   .deleter {
