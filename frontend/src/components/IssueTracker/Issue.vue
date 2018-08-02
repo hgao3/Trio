@@ -1,4 +1,5 @@
 <template>
+  <div>
   <v-container>
     <v-layout row v-if="error">
       <v-flex xs12 sm6 offset-sm3>
@@ -42,6 +43,7 @@
                       id="content"
                       v-model="content"
                       type="text"
+                      multi-line
                       required></v-text-field>
                   </v-flex>
                 </v-layout>
@@ -58,6 +60,19 @@
                 </v-layout>
                 <v-layout row>
                   <v-flex xs12>
+                    <v-select
+                      v-bind:items="availableUsers"
+                      v-model="selectUser"
+                      label="Select a Owner"
+                      item-text="user_name"
+                      item-value="user_email"
+                      single-line
+                      bottom
+                    ></v-select>
+                  </v-flex>
+                </v-layout>
+<!--                <v-layout row>
+                  <v-flex xs12>
                     <v-text-field
                       name="owner_user_email"
                       label="Owner User Email"
@@ -66,19 +81,19 @@
                       type="text"
                       required></v-text-field>
                   </v-flex>
-                </v-layout>
+                </v-layout>-->
                 <v-layout row>
                   <v-flex xs12>
                     <v-select
                       v-bind:items="items"
                       v-model="priority_level"
-                      label="Select a Priority Level"
+                      label="Select a Priority"
                       single-line
                       bottom
                     ></v-select>
                   </v-flex>
                 </v-layout>
-                <v-layout row>
+<!--                <v-layout row>
                   <v-flex xs12>
                     <v-text-field
                       name="project_id"
@@ -87,6 +102,20 @@
                       v-model="project_id"
                       type="text"
                       required></v-text-field>
+                  </v-flex>
+                </v-layout>-->
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-select
+                      v-bind:items="availableProject"
+                      v-model="project_id"
+                      label="Select a Project"
+                      item-text="project_title"
+                      item-value="project_id"
+                      single-line
+                      bottom
+                      :disabled=true
+                    ></v-select>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
@@ -110,17 +139,20 @@
                 <v-layout row>
                   <v-flex xs12>
                     <v-text-field
-                      name="task_id"
-                      label="Task ID"
-                      id="task_id"
-                      v-model="task_id"
+                      name="task_title"
+                      label="Task Title"
+                      id="task_title"
+                      v-model="task_title"
                       type="text"
+                      :disabled=true
                       ></v-text-field>
                   </v-flex>
                 </v-layout>
                 <v-layout>
                   <v-flex xs12>
                     <v-btn type="submit">Sumbit</v-btn>
+                    <v-btn @click="cancel()">Cancel</v-btn>
+                    <v-btn @click="openChannel()">Channel</v-btn>
                   </v-flex>
                 </v-layout>
               </form>
@@ -130,15 +162,24 @@
       </v-flex>
     </v-layout>
   </v-container>
+<!--    <div>
+      <iframe width="560" height="315" :src="chatUrl" frameborder="0" allowfullscreen></iframe>
+    </div>-->
+  </div>
+
+
+
 </template>
 
 <script>
   import axios from 'axios'
   import Datepicker from 'vuejs-datepicker'
+  import UserPicker from '../Shared/UserPicker'
   export default {
     name: "issue",
     components: {
-      'datepicker': Datepicker
+      'datepicker': Datepicker,
+      'user-picker': UserPicker
     },
     props: [
       'id'
@@ -155,13 +196,20 @@
         owner_user_email: '',
         priority_level: 'Medium',
         items: [
-          'Critical', 'High', 'Medium', 'Low'
+          'High', 'Medium', 'Low'
         ],
+        availableUsers: [],
+        selectUser: '',
+        availableProject: [],
         project_id: '',
         create_date: '',
         update_date: '',
         close_date: '',
-        task_id: ''
+        task_id: '',
+        task_title: '',
+        channel_id: '',
+        show_channel: false
+        //chatUrl: 'http://localhost:8080/chat/-LImO8Gf2tHdZ_eIxVzD'
       }
     },
     mounted () {
@@ -185,6 +233,21 @@
         this.update_date = response.data.update_date
         this.close_date = response.data.close_date
         this.task_id = response.data.task_id
+        this.availableUsers = response.data.availableUsers
+        this.selectUser = response.data.owner_user_email
+        this.availableProject = response.data.availableProject
+        this.task_title = response.data.task_title
+      })
+
+      axios.get(this.$store.getters.serverHost + '/rest/channel/issue_id/' + this.id,
+        {
+          headers: {'idToken': this.$store.getters.user.idToken}
+        }
+      ).then(response => {
+        this.channel_id = response.data
+        if (response.data !== "") {
+          this.show_channel = true
+        }
       })
     },
     computed: {
@@ -201,11 +264,6 @@
         if (this.open_status === this.items2[0]) {
           status = true
         }
-        if (this.task_id === '') {
-          this.task_id = 0
-        } else {
-          this.task_id = parseInt(this.task_id)
-        }
         if (this.close_date !== '') {
           this.close_date = new Date(this.close_date).toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'})
         }
@@ -214,10 +272,10 @@
             'title': this.title,
             'content': this.content,
             'open_status': status,
-            'owner_user_email': this.owner_user_email,
+            'owner_user_email': this.selectUser,
             'priority_level': this.priority_level,
             'project_id': this.project_id,
-            'task_id': this.task_id,
+            'task_id': 0,
             'close_date': this.close_date
           },
           {
@@ -226,6 +284,42 @@
         ).then(response => {
           this.$router.push('/issueTracker/')
         })
+      },
+      cancel () {
+        //this.$router.push('/issueTracker/')
+        this.$router.go(-1)
+      },
+      openChannel () {
+        if (this.show_channel === true) {
+          this.$router.push('/chat/' + this.channel_id)
+        } else {
+          if (this.task_id === '') {
+            this.task_id = 0
+          } else {
+            this.task_id = parseInt(this.task_id)
+          }
+          var chatName = 'Issue-' + this.issue_id + ': ' + this.title
+          let key = 0
+          this.$store.dispatch('createChat', { chatName: chatName, userId: this.$store.getters.user }).then((value) => {
+            key = value
+
+            axios.post(this.$store.getters.serverHost + '/rest/channel/',
+              {
+                'chat_id': key,
+                'owner_user_email': this.selectUser,
+                'project_id': 0,
+                'task_id': this.task_id,
+                'issue_id': this.issue_id
+              },
+              {
+                headers: {'idToken': this.$store.getters.user.idToken}
+              }
+            ).then(response => {
+              this.$router.push('/chat/' + key)
+            })
+          })
+        }
+
       }
     }
   }
@@ -241,6 +335,16 @@
   }
   .datepickerCss {
     margin-top: 5px;
+  }
+
+  .add_teammate_button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  .button:hover {
+    cursor: pointer;
   }
 
 </style>

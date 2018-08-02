@@ -57,12 +57,12 @@ export default new Router({
       component: Create,
       beforeEnter: AuthGuard
     },
-    {
+/*    {
       path: '/UsersTable',
       name: 'UsersTable',
       component: UsersTable,
       beforeEnter: AuthGuard
-    },
+    },*/
     {
       path: '/dashboard',
       name: 'Dashboard',

@@ -36,15 +36,20 @@ let ApiWrapper = (function () {
       },
 
       getDueDate() {
-        return Date.parse(this.due_date);
+        let date = new Date(this.due_date);
+        if (isNaN(date.getTime())) {
+          return null;
+        } else {
+          return date;
+        }
       },
 
       getCreateDate() {
-        return Date.parse(this.create_date);
+        return new Date(this.create_date);
       },
 
       getUpdateDate() {
-        return Date.parse(this.update_date);
+        return new Date(this.update_date);
       },
 
       isReadyForReview() {
@@ -61,6 +66,13 @@ let ApiWrapper = (function () {
         AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}});
       },
 
+      setAssignedUserEmail(string) {
+        let that = this;
+        const object = Object.assign(patch_object, {assigned_user_email: string});
+        AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}})
+          .then( _ => {that.assigned_user_email = string;});
+      },
+
       setContent(string) {
         this.content = string;
         const object = Object.assign(patch_object, {content: string});
@@ -68,8 +80,9 @@ let ApiWrapper = (function () {
       },
 
       setDueDate(date) {
-        this.due_date = date;
+        //this.due_date = date;
         let formatted_date = new Date(date).toISOString().split('T')[0];
+        this.due_date = formatted_date;
         const object = Object.assign(patch_object, {due_date: formatted_date});
         AXIOS.patch(`task/${this.task_id}`, object, {headers: {idToken: id_token}});
       },

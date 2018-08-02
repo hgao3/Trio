@@ -7,6 +7,7 @@ import team3.trio.model.User;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -14,5 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByFirstName(@Param("firstName") String firstName);
     
-    List<User> findByEmail(@Param("email") String email);
+    List<User> findByEmail(@Param("email") String email);  
+    
+   /* Optional<User> findById(@Param("id") Long id);  */
+    
 }

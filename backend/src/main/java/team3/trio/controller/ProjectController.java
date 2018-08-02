@@ -1,20 +1,20 @@
 package team3.trio.controller;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,11 +23,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import team3.trio.exception.ResourceNotFoundException;
+import team3.trio.model.Issue;
 import team3.trio.model.Project;
 import team3.trio.model.Role;
+import team3.trio.model.Stage;
 import team3.trio.model.User;
 import team3.trio.model.UserProject;
-import team3.trio.model.UserProjectId;
+import team3.trio.repository.IssueRepository;
 import team3.trio.repository.ProjectRepository;
 import team3.trio.repository.StageRepository;
 import team3.trio.repository.TaskRepository;
@@ -48,9 +50,15 @@ public class ProjectController {
 
 	@Autowired
 	private StageRepository stageRepository;
+
+	@Autowired
+	private TaskRepository taskRepository;
 	
 	@Autowired
 	private UserProjectRepository userProjectRepository;
+	
+	@Autowired
+	private IssueRepository issueRepository;
 
 	@RequestMapping(path = "/rest/project", method = RequestMethod.POST, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -111,8 +119,129 @@ public class ProjectController {
 		project.addUserProjects(up);
 
 		projectRepository.save(project);
-		LOG.info("successfully record add teammate " + user.getEmail() + " to project " + project.getTitle()
-				+ " into DB");
+
+	}
+	
+	@RequestMapping(path = "/rest/project/{id}/add_client", method = RequestMethod.PATCH, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseBody
+	public void addClientToProject(@PathVariable("id") Long id,
+									 @RequestBody String jsonString) throws Exception {
+		LOG.info("Reading project with id " + id + " from database.");
+
+		//json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String clientEmail = (String) JsonUtils.findElementFromJson(jo, "client_email", "String");
+
+		Project project = this.projectRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
+
+		List<User> users = userRepository.findByEmail(clientEmail);
+		if (users.size()==0) {
+			throw new ResourceNotFoundException("User", "email", clientEmail);
+		}
+
+		User user = users.get(0);
+
+		UserProject up = new UserProject(user, project, Role.Client);
+		project.addUserProjects(up);
+
+		projectRepository.save(project);
+	}
+	
+	@RequestMapping(path = "rest/project/{id}/remove_client", method = RequestMethod.PATCH,
+			consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+	public void removeClientFromProject(@PathVariable("id") Long id,
+											@RequestBody String jsonString) throws Exception {
+		LOG.info("Reading project with id " + id + " from database");
+		//json
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String clientEmail = (String) JsonUtils.findElementFromJson(jo, "client_email", "String");
+
+		Project project = this.projectRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
+
+		List<User> users = userRepository.findByEmail(clientEmail);
+		if (users.size()==0) {
+			throw new ResourceNotFoundException("User", "email", clientEmail);
+		}
+
+		User user = users.get(0);
+
+		UserProject up = new UserProject(user, project, Role.Client);
+		project.removeUserProjects(up);
+
+		projectRepository.save(project);
+		
+		// get project owner
+		User manager = findManager(project.getUserProjects());
+		if (manager == null) {
+			throw new ResourceNotFoundException("Project", "Role", "Manager");
+		} 
+		
+		List<Issue> issues = issueRepository.findByProjectId(id);
+		for (Issue issue: issues) {
+			issue.setOwnerUser(manager);
+			issueRepository.save(issue);
+		}
+		
+	}
+	
+	@RequestMapping(path = "rest/project/{id}/remove_teammate", method = RequestMethod.PATCH,
+			consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+	public void removeTeammateFromProject(@PathVariable("id") Long id,
+											@RequestBody String jsonString) throws Exception {
+		LOG.info("Reading project with id " + id + " from database");
+		JsonObject jo = JsonUtils.toJsonObject(jsonString);
+		String teammateEmail = (String) JsonUtils.findElementFromJson(jo, "teammate_email", "String");
+		Project project = this.projectRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
+		List<User> users = this.userRepository.findByEmail(teammateEmail);
+		if (users.size() ==0) {
+			throw new ResourceNotFoundException("User", "email", teammateEmail);
+		}
+		User user = users.get(0);
+		Set<UserProject> projectUserProjects = project.getUserProjects();
+		UserProject userProjectToRemove = null;
+		for (UserProject up : projectUserProjects ) {
+			if (up.getUser().equals(user)) {
+				userProjectToRemove = up;
+				break;
+			}
+		}
+		if (userProjectToRemove != null) {
+			project.getUserProjects().remove(userProjectToRemove);
+			projectRepository.save(project);
+
+			User manager = null;
+			for (UserProject up : project.getUserProjects()) {
+				if (up.getRole().equals(Role.Manager)) {
+					manager = up.getUser();
+				}
+			}
+
+			if (manager != null) {
+				final User m = manager;
+
+				ArrayList<Stage> stageList = new ArrayList<>();
+				stageRepository.findAll().forEach((s) -> {
+					if (s.getProject().getId().equals(project.getId())) {
+						stageList.add(s);
+					}
+				});
+
+				for (Stage stage : stageList) {
+					taskRepository.findAll().forEach((task) -> {
+						if (task.getStage().getId().equals(stage.getId())) {
+							task.setAssignedUser(m);
+							taskRepository.save(task);
+						}
+					});
+			}
+
+
+			}
+		}
 	}
 
 	@RequestMapping(path = "/rest/project/by_user/{email}", method = RequestMethod.GET)
@@ -168,7 +297,8 @@ public class ProjectController {
 				if (up.getRole().equals(Role.Manager)) System.out.println("role");
 				if (up.getId().getProjectId()==project.getId()) System.out.println("id");
 				if (up.getRole().equals(Role.Manager) && up.getId().getProjectId()==project.getId()) {
-					userProjectRepository.delete(up);
+					up.setRole(Role.Teammate);
+					userProjectRepository.saveAndFlush(up);
 				}
 			});
 			UserProject currentManger = new UserProject(user, project, Role.Manager);
@@ -197,6 +327,32 @@ public class ProjectController {
 		}
 		return ja.toString();
 	}
+	
+	@RequestMapping(path = "/rest/availableProject", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getAvailableProjects() {
+		LOG.info("Reading all available project from database.");
+
+		JsonArray projectJA = new JsonArray();
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    String email = auth.getName(); //get logged in username
+		
+		List<User> users = userRepository.findByEmail(email);
+		if (users.size() == 0) {
+			throw new ResourceNotFoundException("User", "email", email);
+		}
+		User user = users.get(0);
+		
+		for (UserProject up : user.getUserProjects()) {
+			JsonObject jo = new JsonObject();
+			jo.addProperty("project_title", up.getProject().getTitle());
+			jo.addProperty("project_id", up.getProject().getId());
+			projectJA.add(jo);	
+		}
+		
+		return projectJA.toString();		
+	}
 
 	@RequestMapping(path = "/rest/project/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
@@ -212,6 +368,7 @@ public class ProjectController {
 
 		JsonArray manager = new JsonArray();
 		JsonArray teammateList = new JsonArray();
+		JsonArray clientList = new JsonArray();
 
 		project.getUserProjects().forEach((p) -> {
 			if (p.getRole().equals(Role.Manager)) {
@@ -222,11 +379,16 @@ public class ProjectController {
 				User user = userRepository.findById(p.getId().getUserId())
 						.orElseThrow(() -> new ResourceNotFoundException("User", "id", p.getId().getUserId()));
 				teammateList.add(user.getEmail());
+			} else if (p.getRole().equals(Role.Client)) {
+				User user = userRepository.findById(p.getId().getUserId())
+						.orElseThrow(() -> new ResourceNotFoundException("User", "id", p.getId().getUserId()));
+				clientList.add(user.getEmail());
 			}
 		});
 
 		jo.add("managers", manager);
 		jo.add("teammates", teammateList);
+		jo.add("clients", clientList);
 
 		JsonArray stageList = new JsonArray();
 
@@ -239,6 +401,19 @@ public class ProjectController {
 		jo.add("stages", stageList);
 
 		return jo;
+	}
+	
+	public User findManager(Set<UserProject> userProjects) {
+		User user = null;
+		for (UserProject up : userProjects) {
+			if (up.getRole().equals(Role.Manager)) {
+				
+				user = userRepository.findById(up.getId().getUserId())
+						.orElseThrow(() -> new ResourceNotFoundException("User", "id", up.getId().getUserId()));
+				return user;
+			}
+		}
+		return user;
 	}
 
 }

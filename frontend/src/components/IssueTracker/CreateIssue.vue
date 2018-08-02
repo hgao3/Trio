@@ -30,6 +30,7 @@
                       id="content"
                       v-model="content"
                       type="text"
+                      multi-line
                       required></v-text-field>
                   </v-flex>
                 </v-layout>
@@ -46,13 +47,15 @@
                 </v-layout>
                 <v-layout row>
                   <v-flex xs12>
-                    <v-text-field
-                      name="project_id"
-                      label="Project ID"
-                      id="project_id"
+                    <v-select
+                      v-bind:items="availableProject"
                       v-model="project_id"
-                      type="text"
-                      required></v-text-field>
+                      label="Select a Project"
+                      item-text="project_title"
+                      item-value="project_id"
+                      single-line
+                      bottom
+                    ></v-select>
                   </v-flex>
                 </v-layout>
                 <v-layout row>
@@ -64,6 +67,7 @@
                 <v-layout>
                   <v-flex xs12>
                     <v-btn type="submit">Create</v-btn>
+                    <v-btn @click="cancel()">Cancel</v-btn>
                   </v-flex>
                 </v-layout>
               </form>
@@ -92,10 +96,11 @@
         content: '',
         priority_level: 'Medium',
         items: [
-          'Critical', 'High', 'Medium', 'Low'
+          'High', 'Medium', 'Low'
         ],
         project_id: '',
-        close_date: ''
+        close_date: '',
+        availableProject: []
       }
     },
     methods: {
@@ -121,7 +126,19 @@
         ).then(response => {
           this.$router.push('/issueTracker/')
         })
+      },
+      cancel () {
+        this.$router.push('/issueTracker/')
       }
+    },
+    mounted () {
+      axios.get(this.$store.getters.serverHost + '/rest/availableProject',
+        {
+          headers: {'idToken': this.$store.getters.user.idToken}
+        }
+      ).then(response => {
+        this.availableProject = response.data
+      })
     }
   }
 </script>

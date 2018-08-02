@@ -9,9 +9,11 @@
         >{{ project.project_title }}</div>
       </div>
       <br>
-      <issue-table v-bind:project="selected_project"></issue-table>
-
-
+      <h1>{{ selected_project.project_title }}</h1>
+      <div class="project_summary">
+        <issue-table v-bind:project="selected_project" class="table_panel"></issue-table>
+        <management-panel v-if="selected_project" v-bind:project="selected_project" class="management_panel"></management-panel>
+      </div>
     </div>
 
 </template>
@@ -19,20 +21,21 @@
 <script>
   import IssueTable from './IssueTable'
   import axios from 'axios'
-
+  import ManagementPanel from './ManagementPanel'
   export default {
     name: 'issuetracker',
     components: {
-      'issue-table': IssueTable
+      'issue-table': IssueTable,
+      'management-panel': ManagementPanel
     },
     data: function () {
       return {
-        selected_project: {},
+        selected_project: this.$store.getters.issueSelectProject,
         project_list: []
       }
     },
     mounted () {
-      axios.get(this.$store.getters.serverHost + '/rest/project',
+      axios.get(this.$store.getters.serverHost + '/rest/availableProject',
         {
           headers: {'idToken': this.$store.getters.user.idToken}
         }
@@ -44,6 +47,7 @@
     methods: {
       selectProject (project) {
         this.selected_project = project
+        this.$store.commit('setIssueSelectProject', project)
       }
     }
   }
@@ -80,5 +84,16 @@
     font-size: 2em;
     font-weight: bold;
   }
-
+  .management_panel {
+    width: 18%;
+    float: right;
+    margin-top: 65px;
+  }
+  .table_panel {
+    width: 80%;
+    float: left;
+  }
+  .project_summary {
+    min-height: 700px;
+  }
 </style>

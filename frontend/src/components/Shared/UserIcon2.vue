@@ -1,10 +1,10 @@
 <template>
-    <v-chip disabled>{{user.firstname}} {{user.lastname}}</v-chip>
+    <v-chip disabled>{{user.first_name}} {{user.last_name}}</v-chip>
 </template>
 
 <script>
     export default {
-      name: "UserIcon",
+      name: "UserIcon2",
       props: ['user']
     }
 </script>

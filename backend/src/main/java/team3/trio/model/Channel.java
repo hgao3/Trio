@@ -24,11 +24,12 @@ public class Channel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotNull
-    @Size(max = 100)
-    private String title;
     
+	@NotNull
+	@Size(max = 100)
+	@Column(name = "chat_id")
+	private String chatId;
+	
     // User entity is not responsible for this relationship 
     //It should look for a field named assigned_user_id in the Task entity to find the configuration for the JoinColumn/ForeignKey column
     @OneToOne(fetch = FetchType.LAZY)
@@ -47,15 +48,16 @@ public class Channel implements Serializable {
     @JoinColumn(name = "issue_id")
     private Issue issue;
     
-    @OneToMany(cascade = CascadeType.ALL, 
+/*    @OneToMany(cascade = CascadeType.ALL, 
             orphanRemoval = true)
-    private Set<User> usersInChannel = new HashSet<User>();
+    private Set<User> usersInChannel = new HashSet<User>();*/
     
     // Hibernate requires a no-arg constructor
     public Channel() {}
-    
-	public Channel(String title) {
-		this.title = title;
+
+	public Channel(@NotNull @Size(max = 100) String chatId, User ownerUser) {
+		this.chatId = chatId;
+		this.ownerUser = ownerUser;
 	}
 
 	public Long getId() {
@@ -64,14 +66,6 @@ public class Channel implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
 	}
 
 	public User getOwnerUser() {
@@ -106,7 +100,16 @@ public class Channel implements Serializable {
 		this.issue = issue;
 	}
 
-	public Set<User> getUsersInChannel() {
+	public String getChatId() {
+		return chatId;
+	}
+
+	public void setChatId(String chatId) {
+		this.chatId = chatId;
+	}
+
+	
+/*	public Set<User> getUsersInChannel() {
 		return usersInChannel;
 	}
 
@@ -116,6 +119,6 @@ public class Channel implements Serializable {
 
 	public void addUsersInChannel(User user) {
 		this.usersInChannel.add(user);
-	}
+	}*/
 
 }

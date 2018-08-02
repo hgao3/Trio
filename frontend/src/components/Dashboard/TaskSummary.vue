@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!(hide_completed_tasks && this.task.isCompleted())">
+  <div v-if="!(hide_completed_tasks && this.task.isCompleted()) && !(only_show_my_tasks && !current_user_is_assigned())">
 
     <div :class="status">
       <div class="summary" @click="showDetails">
@@ -12,30 +12,15 @@
     <div v-if="details_visible" class="modal">
       <div class="modal_content">
         <img src="@/assets/x_button.png" @click="hideDetails" width="20" height="20">
-        <textarea class="title" v-model="title" :readonly="!current_user_is_assigned"></textarea>
+        <textarea class="title" v-model="title" :readonly="!current_user_editable"></textarea>
 
-        <div class="management_panel">
-          <label>Assigned to</label>
-          <user-icon v-if="assigned_user" :user="assigned_user"></user-icon><br>
-          <v-btn
-            v-if="!task.isReadyForReview() && current_user_is_assigned"
-            @click="task.markReady()">
-            Mark Ready for Review
-          </v-btn>
-          <v-btn v-if="task.isReadyForReview() && current_user_is_assigned"
-                 @click="task.markNotReady()">
-            Remove from Review</v-btn>
-          <div v-if="managerMode">
-            <v-btn v-if="!task.isCompleted()" @click="markCompleted()">Mark Complete</v-btn>
-            <v-btn v-if="task.isCompleted()" @click="markIncomplete()">Mark Incomplete</v-btn>
-          </div>
-        </div>
 
         <div class="info_panel">
           <label>Due date</label>
-          <datepicker v-model="due_date"></datepicker>
+          <datepicker v-if="managerMode" v-model="due_date"></datepicker>
+          <input v-else v-model="date_string" readonly>
           <label>Description</label>
-          <textarea v-model="content" :readonly="!current_user_is_assigned"></textarea>
+          <textarea v-model="content" class="content" :readonly="!current_user_editable"></textarea>
           <label>Stage</label>
           <span class="stage">{{ this.stage.getTitle() }}</span>
           <button v-if="!moving && managerMode"  class="move_button" @click="moving = true">Move</button>
@@ -50,6 +35,33 @@
           </div>
         </div>
 
+        <div class="management_panel">
+          <label>Assigned to</label>
+          <div @click="assigning=!assigning" v-if="!assigning || !managerMode">
+            <user-icon v-if="assigned_user" :user="assigned_user"></user-icon>
+          </div>
+          <br>
+          <user-picker v-if="assigning && managerMode"
+                       :universe="users"
+                       :exclusions="[assigned_user]"
+                       @pick-user="assignUser"
+                       @cancel-pick="assigning = false"></user-picker>
+          <v-btn
+            v-if="!task.isReadyForReview() && current_user_editable"
+            @click="task.markReady()">
+            Mark Ready for Review
+          </v-btn>
+          <v-btn v-if="task.isReadyForReview() && current_user_editable"
+                 @click="task.markNotReady()">
+            Remove from Review</v-btn>
+          <v-btn v-if="current_user_editable" @click="openChannel">Go to Channel</v-btn>
+          <div v-if="managerMode">
+            <v-btn v-if="!task.isCompleted()" @click="markCompleted()">Mark Complete</v-btn>
+            <v-btn v-if="task.isCompleted()" @click="markIncomplete()">Mark Incomplete</v-btn>
+          </div>
+        </div>
+
+
         <button class="delete_button" color="red" v-if="managerMode" @click="deleteTask">Delete Task</button>
       </div>
     </div>
@@ -62,22 +74,27 @@
     import Datepicker from 'vuejs-datepicker'
     import TaskStagePicker from './TaskStagePicker'
     import UserIcon from '../Shared/UserIcon'
+    import UserPicker from '../Shared/UserPicker'
     import * as firebase from 'firebase'
     export default {
         name: 'TaskSummary',
         components: {
           'datepicker': Datepicker,
           'stage-picker': TaskStagePicker,
-          'user-icon': UserIcon
+          'user-icon': UserIcon,
+          'user-picker': UserPicker
         },
-        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks'],
+        props: ['task_id', 'stage', 'project', 'stages', 'managerMode', 'hide_completed_tasks', 'users',
+          'only_show_my_tasks'],
         data: function () {
           return {
             task: ApiWrapper.getTask(this.task_id),
             details_visible: false,
             moving: false,
             chosen_stage: null,
-            assigned_user: null
+            assigned_user: null,
+            assigning: false,
+            channel_id: null
           };
         },
         computed: {
@@ -116,19 +133,30 @@
               return null;
             }
           },
-          current_user_is_assigned() {
-            return (this.$store.getters.user.email === this.assigned_user.email) || this.managerMode;
+          current_user_editable() {
+            return this.current_user_is_assigned() || this.managerMode;
+          },
+          date_string() {
+            if (this.due_date === null) {
+              return "";
+            }
+            else {
+              return this.due_date.toDateString();
+            }
           }
         },
         methods: {
           hideDetails: function() {
+            this.assigning = false;
             this.details_visible = false;
           },
 
           showDetails: function() {
             this.details_visible = true;
           },
-
+          current_user_is_assigned() {
+            return this.$store.getters.user.email === this.task.assigned_user_email;
+          },
           async moveTask(newStage) {
             this.stage.removeTask(this.task);
             newStage.insertTask(this.task);
@@ -145,9 +173,60 @@
           },
           markIncomplete() {
             this.task.markIncomplete(this.$store.getters.user.email);
+          },
+          assignUser(user) {
+            //this.assigned_user = user;
+            if (this.managerMode) {
+              this.assigning = false;
+              ApiWrapper.setIdToken(this.$store.getters.user.idToken);
+              this.task.setAssignedUserEmail(user.email);
+            }
+          },
+          openChannel () {
+            let task_id = this.task.task_id;
+            //let that = this;
+            if (this.channel_id !== null) {
+              this.$router.push('/chat/' + this.channel_id);
+            }
+            else {
+              let chatName = 'Task-' + String(task_id) + ': ' + this.title;
+              let key = 0;
+              this.$store.dispatch('createChat', { chatName: chatName, userId: this.$store.getters.user }).then((value) => {
+                key = value;
+
+                AXIOS.post('/channel/',
+                  {
+                    'chat_id': key,
+                    'owner_user_email': this.$store.getters.user.email,
+                    'project_id': 0,
+                    'task_id': task_id,
+                    'issue_id': 0
+                  },
+                  {
+                    headers: {'idToken': this.$store.getters.user.idToken}
+                  }
+                ).then(response => {
+                  this.channel_id = key;
+                  console.log(this.channel_id);
+                  this.$router.push('/chat/' + key);
+                });
+              });
+            }
+
           }
         },
-        beforeUpdate: function () {
+      mounted() {
+        AXIOS.get('/channel/task_id/' + this.task_id,
+          {
+            headers: {'idToken': this.$store.getters.user.idToken}
+          }
+        ).then(response => {
+          if (response.data !== "") {
+            this.channel_id = response.data;
+          }
+        })
+      },
+      beforeUpdate: function () {
           if (this.task.assigned_user_email.length > 0) {
             let getConfig = {headers: {idToken: this.$store.getters.user.idToken}};
             AXIOS.get(`/user/email/${this.task.assigned_user_email}`, getConfig)
@@ -171,6 +250,9 @@
     display: block;
     margin: 0;
     border-radius: 3px;
+    width: 100%;
+    vertical-align: text-top;
+
   }
 
   .summary {
@@ -178,8 +260,11 @@
     text-align: left;
     background-color: white;
     border: 0;
+    margin: 0;
     padding: 0.5em;
     position: relative;
+    max-height: 4em;
+    overflow: hidden;
   }
 
   .summary:hover {
@@ -259,7 +344,7 @@
   }
 
   .modal_content textarea {
-    width: 80%;
+    width: 75%;
     border: 0px;
     display: block;
   }
@@ -297,12 +382,17 @@
   }
 
   .info_panel {
-    width: 50%;
+    width: 55%;
     display: inline-block;
   }
 
   .management_panel {
-    float: right;
+    width: 40%;
+    display: inline-block;
+  }
+
+  textarea.content {
+    height: 200px;
   }
 
 </style>
