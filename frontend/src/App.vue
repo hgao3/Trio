@@ -55,7 +55,7 @@
         let items = [
           { icon: 'face', title: 'Register', route: '/register' },
           { icon: 'lock_open', title: 'Login', route: '/login' }
-        ];
+        ]
         if (this.userIsAuthenticated) {
           items = [
             {icon: 'assignment', title: 'Dashboard', route: '/dashboard'},
@@ -63,10 +63,10 @@
             //{icon: 'storage', title: 'Create New Channel', route: '/create'},
             //{icon: 'face', title: 'Users', route: '/UsersTable'},
             {icon: 'error', title: 'Issue Tracker', route: '/issuetracker'},
-            {icon: 'lock_open', title: 'Logout', route: '/logout'},
+            {icon: 'lock_open', title: 'Logout', route: '/logout'}
           ]
           // can click on slide panel after user is authenticated
-          this.drawerToggle = false;
+          this.drawerToggle = false
         }
         return items
       },

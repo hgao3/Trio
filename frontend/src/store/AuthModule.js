@@ -94,7 +94,7 @@ const AuthModule = {
         )
     },
     signUserOut ({commit}) {
-      commit('setLoading', true)
+      commit('setLoading', false)
       commit('clearError')
       firebase.auth().signOut()
         .then(user => {
