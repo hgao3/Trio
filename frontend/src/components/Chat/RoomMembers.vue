@@ -10,7 +10,7 @@
     <v-layout subheader class="new-member">
       <v-flex xs12>
         <v-btn v-if="!adding_new_member" @click="adding_new_member = true">Add User</v-btn>
-        <UserPicker v-if="adding_new_member" @pick-user="addMember" @cancel-pick="adding_new_member = false"></UserPicker>
+        <UserPicker v-if="adding_new_member" :exclusions="members" @pick-user="addMember" @cancel-pick="adding_new_member = false"></UserPicker>
       </v-flex>
     </v-layout>
   </v-list>
