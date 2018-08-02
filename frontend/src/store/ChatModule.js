@@ -6,7 +6,8 @@ const ChatModule = {
     chats: [],
     members: [],
     currentChatId: '',
-    currentChatName: ''
+    currentChatName: '',
+    currentCreatedByUserId: ''
   },
   mutations: {
     setMessagesEmpty (state) {
@@ -17,6 +18,7 @@ const ChatModule = {
     },
     setMembers (state, payload) {
       state.members = [];
+      if (payload.id === undefined) return
       for (const userId in payload.id.members) {
         firebase.database().ref('users').child(userId).on('value', data => {
           let snapshot = data.val();
@@ -32,6 +34,7 @@ const ChatModule = {
       }
       state.currentChatId = payload.id.id;
       state.currentChatName = payload.id.name;
+      state.currentCreatedByUserId = payload.id.createdByUserId
     }
   },
   actions: {
@@ -119,6 +122,13 @@ const ChatModule = {
         resolve(newPostKey)
       })
     },
+    deleteChat ({commit}, payload) {
+      var newPostKey = firebase.database().ref('chats').child(payload.roomId).remove()
+
+      return new Promise((resolve, reject) => {
+        resolve(newPostKey)
+      })
+    },
     addMember ({commit}, payload) {
       firebase.database().ref('users').child(payload.newMember).on('value', function (snapshot) {
         firebase.database().ref('chats').child(payload.roomId).child('members').child(payload.newMember).set({
@@ -141,7 +151,10 @@ const ChatModule = {
       return state.currentChatId
     },
     currentChatName (state) {
-      return state.currentChatName;
+      return state.currentChatName
+    },
+    currentCreatedByUserId (state) {
+      return state.currentCreatedByUserId
     }
   }
 }

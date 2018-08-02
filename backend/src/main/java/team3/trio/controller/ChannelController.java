@@ -171,15 +171,16 @@ public class ChannelController {
 		return channelToJO(channel).toString();
 	}
 	
-	@RequestMapping(path = "/rest/channel/chat_id/{id}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(path = "/rest/channel/chat_id/{chatId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String getChannelByChatId(@PathVariable("id") Long id) {
-		LOG.info("Reading channel with id " + id + " from database.");
+	public String getChannelByChatId(@PathVariable("chatId") String chatId) {
+		LOG.info("Reading channel with chat_id " + chatId + " from database.");
 		
-		List<Channel> channels = channelRepository.findByIssueId(id);
+		List<Channel> channels = channelRepository.findByChatId(chatId);
 		
 		if (channels.size()==0) {
-			throw new ResourceNotFoundException("Channel", "chat_id", id);
+			//throw new ResourceNotFoundException("Channel", "chat_id", id);
+			return null;
 		}
 		
 		Channel channel = channels.get(0);
@@ -256,7 +257,7 @@ public class ChannelController {
 	@RequestMapping(path = "/rest/channel/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public @ResponseBody void deleteIssue(@PathVariable("id") Long id) {
-		issueRepository.deleteById(id);
+		channelRepository.deleteById(id);
 		LOG.info("Issue with id " + id + " successfully deleted into database.");
 	}
 
@@ -267,7 +268,7 @@ public class ChannelController {
 		jo.addProperty("chat_id", channel.getChatId());
 		jo.addProperty("owner_user_email", channel.getOwnerUser().getEmail());
 		
-		if (channel.getTask()!=null) {
+		if (channel.getProject()!=null) {
 			jo.addProperty("project_id", channel.getProject().getId());
 		} else {
 			jo.addProperty("project_id", "");
@@ -279,7 +280,7 @@ public class ChannelController {
 			jo.addProperty("task_id", "");
 		}
 		
-		if (channel.getTask()!=null) {
+		if (channel.getIssue()!=null) {
 			jo.addProperty("issue_id", channel.getIssue().getId());
 		} else {
 			jo.addProperty("issue_id", "");
